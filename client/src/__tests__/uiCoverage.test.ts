@@ -37,6 +37,7 @@ const SYSTEM_FIELDS = new Set([
   'currentSection',
   'createdAt',
   'updatedAt',
+  'dismissedNudges',           // Managed by useNudges hook, not a form-input field
 ]);
 
 /** Fields superseded by newer fields — kept for backward compat only. */

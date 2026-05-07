@@ -16,7 +16,7 @@ import {
   type DonationItemEntry,
   type DonationCategory,
   type DonationItemCondition,
-} from '@telostax/engine';
+} from '@nimbus/engine';
 
 interface DonationValuationPanelProps {
   onSelect: (result: { fairMarketValue: number; method: string; itemName?: string }) => void;

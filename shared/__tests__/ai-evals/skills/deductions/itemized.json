@@ -1,0 +1,101 @@
+[
+  {
+    "id": "skill-itemized-mortgage",
+    "description": "Mortgage interest entry from 1098",
+    "input": {
+      "message": "I paid $14,200 in mortgage interest on my primary home; I have the 1098.",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 1,
+        "incomeTypeCounts": { "w2": 2 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        { "type": "update_itemized", "fieldsContain": { "mortgageInterest": 14200 } }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-itemized-salt",
+    "description": "Property tax plus state income tax (SALT)",
+    "input": {
+      "message": "I paid $6,400 in property tax and $11,200 to the state in income tax withholding",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        {
+          "type": "update_itemized",
+          "fieldsContain": { "propertyTax": 6400, "stateIncomeTax": 11200 }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-itemized-charitable-cash",
+    "description": "Charitable donations (cash)",
+    "input": {
+      "message": "We donated $4,000 to United Way and $750 to a local food bank by check",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 2 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        { "type": "update_itemized", "fieldsContain": { "charitableCash": 4750 } }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-itemized-medical",
+    "description": "Medical expenses for itemized filers",
+    "input": {
+      "message": "Unreimbursed medical and dental bills totaled $11,800 last year",
+      "context": {
+        "currentStep": "medical_expenses",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        { "type": "update_itemized", "fieldsContain": { "medicalExpenses": 11800 } }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

@@ -11,8 +11,8 @@
  *   "Engine calculates, AI narrates, user decides."
  */
 
-import { scanForPII } from '@telostax/engine';
-import type { AIProvider } from '@telostax/engine';
+import { scanForPII } from '@nimbus/engine';
+import type { AIProvider } from '@nimbus/engine';
 import type { SupportedFormType } from './pdfExtractHelpers';
 import { logOutboundRequest, buildPiiBlockSummary } from './privacyAuditLog';
 

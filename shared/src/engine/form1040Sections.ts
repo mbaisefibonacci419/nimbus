@@ -1564,12 +1564,14 @@ export function calculateDeductionsSection(ctx: Form1040Context): void {
     ctx.schedule1AResult = calculateSchedule1A(
       taxReturn.schedule1A, schedule1AMAGI, filingStatus,
       taxpayerIs65ForSenior, spouseIs65ForSenior,
+      taxReturn.taxYear ?? 2025,
     );
     ctx.schedule1ADeduction = ctx.schedule1AResult.totalDeduction;
   } else if (taxpayerIs65ForSenior || (filingStatus === FilingStatus.MarriedFilingJointly && spouseIs65ForSenior)) {
     ctx.schedule1AResult = calculateSchedule1A(
       {}, schedule1AMAGI, filingStatus,
       taxpayerIs65ForSenior, spouseIs65ForSenior,
+      taxReturn.taxYear ?? 2025,
     );
     ctx.schedule1ADeduction = ctx.schedule1AResult.totalDeduction;
   }

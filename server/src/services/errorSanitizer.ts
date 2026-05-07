@@ -134,8 +134,16 @@ function classifyError(err: any): {
   };
 }
 
+/**
+ * User-facing LLM error message (no secrets). For SSE and non-JSON error channels.
+ */
+export function sanitizeLLMErrorMessage(err: unknown): string {
+  const synthetic = err instanceof Error ? err : new Error(String(err));
+  return classifyError(synthetic).message;
+}
+
 /** Scrub potential API keys and secrets from error messages before logging. */
-function scrubSecrets(text: string): string {
+export function scrubSecrets(text: string): string {
   // Anthropic API keys: sk-ant-api03-...
   let scrubbed = text.replace(/sk-ant-[A-Za-z0-9_-]{10,}/g, '[REDACTED_API_KEY]');
   // Generic Bearer tokens

@@ -22,6 +22,7 @@ interface Props {
   isLastAssistant?: boolean;
   onActionsApplied: (messageId: string, summary: string) => void;
   onActionsDismissed: (messageId: string) => void;
+  onUndoActions: (messageId: string) => void;
   onFeedback: (messageId: string, feedback: 'up' | 'down') => void;
   onRegenerate: () => void;
   onFollowUp: (text: string) => void;
@@ -34,6 +35,7 @@ export default function ChatMessage({
   isLastAssistant,
   onActionsApplied,
   onActionsDismissed,
+  onUndoActions,
   onFeedback,
   onRegenerate,
   onFollowUp,
@@ -204,6 +206,12 @@ export default function ChatMessage({
           <MarkdownMessage content={injectStepLinks(message.content)} />
         )}
 
+        {message.verification?.footnote && (
+          <div className="mt-1.5 text-[10px] text-amber-400/70 italic border-t border-amber-400/20 pt-1">
+            {message.verification.footnote}
+          </div>
+        )}
+
         {/* Action preview (assistant messages only) */}
         {message.actions && message.actions.length > 0 && (
           <ActionPreview
@@ -214,6 +222,7 @@ export default function ChatMessage({
             summary={message.actionsSummary}
             onApplied={onActionsApplied}
             onDismissed={onActionsDismissed}
+            onUndo={onUndoActions}
           />
         )}
 

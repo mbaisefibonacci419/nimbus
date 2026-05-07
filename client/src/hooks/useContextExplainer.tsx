@@ -1,5 +1,5 @@
 /**
- * Global "Ask TelosAI" context menu for the Interview view.
+ * Global "Ask NimbusAI" context menu for the Interview view.
  *
  * Right-click any element in the wizard to get an AI explanation.
  * Walks up the DOM from the click target to find the nearest meaningful
@@ -118,7 +118,7 @@ function buildPrompt(target: ExplainerTarget, stepLabel: string | undefined): { 
 }
 
 /**
- * Hook: attach to a container ref to enable right-click → "Ask TelosAI" on any element.
+ * Hook: attach to a container ref to enable right-click → "Ask NimbusAI" on any element.
  * Returns a portal element to render in the component tree.
  */
 export function useContextExplainer(containerRef: React.RefObject<HTMLElement | null>) {
@@ -222,7 +222,7 @@ export function useContextExplainer(containerRef: React.RefObject<HTMLElement | 
                          transition-all duration-200"
             >
               <Sparkles size={12} className="text-telos-orange-400 ai-sparkle" />
-              <span>Ask <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">AI</span></span>
+              <span>Ask <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span></span>
             </button>
           </div>
         </div>,

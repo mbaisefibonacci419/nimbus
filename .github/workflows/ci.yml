@@ -1,4 +1,4 @@
-name: CI — TelosTax Test Suite
+name: CI — Nimbus Test Suite
 
 on:
   push:
@@ -12,9 +12,16 @@ concurrency:
 
 jobs:
   # ──────────────────────────────────────────────
+  # IBP Validation (required by Intuit GitHub Enterprise)
+  # ──────────────────────────────────────────────
+  validation:
+    uses: actions-intuit/ibp-wf/.github/workflows/validation.yml@v1
+
+  # ──────────────────────────────────────────────
   # Job 1: Unit & Integration Tests (Vitest)
   # ──────────────────────────────────────────────
   unit-tests:
+    needs: validation
     name: Unit & Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -37,9 +44,39 @@ jobs:
         run: npm test -w server
 
   # ──────────────────────────────────────────────
-  # Job 2: TypeScript Type-Check
+  # Job 2: AI Eval Tests (deterministic)
+  # ──────────────────────────────────────────────
+  ai-eval-tests:
+    needs: validation
+    name: AI Eval Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run LLM response parser tests
+        run: npx vitest run shared/__tests__/llmResponseParser.test.ts
+
+      - name: Run AI eval fixture suite
+        run: npx vitest run shared/__tests__/ai-evals/eval-runner.test.ts
+
+      - name: Run server route tests
+        run: npx vitest run server/__tests__/chat.test.ts
+
+  # ──────────────────────────────────────────────
+  # Job 3: TypeScript Type-Check (renumbered)
   # ──────────────────────────────────────────────
   typecheck:
+    needs: validation
     name: TypeScript Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -65,9 +102,10 @@ jobs:
         run: npm audit --audit-level=high || true
 
   # ──────────────────────────────────────────────
-  # Job 3: E2E Tests (Playwright — Chromium only in CI)
+  # Job 4: E2E Tests (Playwright — Chromium only in CI)
   # ──────────────────────────────────────────────
   e2e-tests:
+    needs: validation
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -100,9 +138,10 @@ jobs:
           retention-days: 7
 
   # ──────────────────────────────────────────────
-  # Job 4: Build Check
+  # Job 5: Build Check
   # ──────────────────────────────────────────────
   build:
+    needs: validation
     name: Production Build
     runs-on: ubuntu-latest
     timeout-minutes: 10

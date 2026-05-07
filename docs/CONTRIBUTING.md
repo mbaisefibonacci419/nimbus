@@ -1,6 +1,6 @@
-# Contributing to TelosTax
+# Contributing to Nimbus
 
-Thank you for your interest in contributing to TelosTax. This guide explains how to add features, write tests, and maintain the authority-backed standards that make this engine trustworthy.
+Thank you for your interest in contributing to Nimbus. This guide explains how to add features, write tests, and maintain the authority-backed standards that make this engine trustworthy.
 
 ## Code of Conduct
 
@@ -8,7 +8,7 @@ We are committed to providing a welcoming, inclusive, and harassment-free experi
 
 ## No Authority, No Merge
 
-Every tax computation in TelosTax must trace to a primary legal authority. If a calculation cannot cite an IRC section, Treasury Regulation, Revenue Procedure, or IRS Form/Worksheet, it will not be merged. This is the project's core integrity rule.
+Every tax computation in Nimbus must trace to a primary legal authority. If a calculation cannot cite an IRC section, Treasury Regulation, Revenue Procedure, or IRS Form/Worksheet, it will not be merged. This is the project's core integrity rule.
 
 Acceptable authority sources:
 
@@ -19,11 +19,11 @@ Acceptable authority sources:
 
 ## Project Structure
 
-TelosTax is a monorepo with three packages:
+Nimbus is a monorepo with three packages:
 
 ```
 tax-project/
-├── shared/          @telostax/engine — tax calculation engine (pure functions)
+├── shared/          @nimbus/engine — tax calculation engine (pure functions)
 ├── client/          React + Vite frontend (wizard-based tax return UI)
 └── server/          Express backend (optional AI features: chat, OCR, expense scanning)
 ```
@@ -87,6 +87,36 @@ cd shared && npx vitest
 ```
 
 See [`TESTING.md`](./TESTING.md) for the full testing guide.
+
+## No Eval, No Merge (AI Features)
+
+Every AI-facing feature — any change that touches prompt construction, LLM response parsing, intent execution, context building, PII handling, or action schemas — **must ship with eval coverage** or it will not be merged. This is the AI counterpart to "No Authority, No Merge."
+
+What counts as eval coverage:
+
+- **Deterministic tests** — at least one test per new action type, intent, or parsing path added to `shared/__tests__/llmResponseParser.test.ts` or `shared/__tests__/ai-evals/eval-runner.test.ts`
+- **Eval fixtures** — at least 3 fixtures in `shared/__tests__/ai-evals/fixtures/` covering the new behavior (happy path, edge case, and adversarial/ambiguous)
+- **Scorecard metrics** — if the feature introduces a new quality dimension, add a scorer to `scripts/eval-prompt.ts` and a target to the README scorecard table
+
+The eval suite validates four quality dimensions:
+
+| Dimension | What it checks |
+|-----------|---------------|
+| **Accuracy** | Correct action types, field values, and schema validity |
+| **Relevance** | Response addresses the user's actual question/intent |
+| **Coherence** | Message and actions are internally consistent |
+| **No Tax Harm** | No specific tax advice, fabricated rules, outcome guarantees, or suggestions to hide income |
+
+A fixture that triggers a Tax Harm pattern is an automatic hard failure regardless of accuracy.
+
+```bash
+# Run the deterministic AI eval suite
+npx vitest run shared/__tests__/llmResponseParser.test.ts shared/__tests__/ai-evals/eval-runner.test.ts
+
+# Run the live prompt regression harness (requires ANTHROPIC_API_KEY)
+npx tsx scripts/eval-prompt.ts --dry-run   # preview fixtures
+npx tsx scripts/eval-prompt.ts             # full run
+```
 
 ## How to Add a New Tax Feature
 

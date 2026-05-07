@@ -9,10 +9,10 @@ assignees: ''
 **Which calculation is wrong?**
 Describe the tax computation that appears incorrect.
 
-**What TelosTax calculated**
+**What Nimbus calculated**
 - Form/Schedule:
 - Line number:
-- TelosTax value:
+- Nimbus value:
 
 **What the correct value should be**
 - Expected value:

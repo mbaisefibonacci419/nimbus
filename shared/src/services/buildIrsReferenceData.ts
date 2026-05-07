@@ -43,6 +43,7 @@ import { EITC_BRACKETS, INVESTMENT_INCOME_LIMIT } from '../engine/eitc.js';
 // ─── Types ────────────────────────────────────────
 
 export interface IrsReferenceDataOptions {
+  taxYear?: number;
   filingStatus?: string;
   currentSection?: string;
   incomeDiscovery?: Record<string, string>;
@@ -325,6 +326,7 @@ function buildConditionalData(
  * Pulls directly from the engine's tax2025 constants.
  */
 export function buildIrsReferenceData(options: IrsReferenceDataOptions): string {
+  const refYear = options.taxYear ?? 2025;
   const fsString = options.filingStatus || 'single';
   const fs = FS_MAP[fsString] ?? FilingStatus.Single;
   const isMFS = fs === FilingStatus.MarriedFilingSeparately;
@@ -345,7 +347,7 @@ export function buildIrsReferenceData(options: IrsReferenceDataOptions): string 
   const filteredConditional = conditional.filter((line) => !sectionSet.has(line));
 
   const allLines = [
-    `TAX YEAR 2025 REFERENCE DATA (${FS_SHORT[fs]} filer):`,
+    `TAX YEAR ${refYear} REFERENCE DATA (${FS_SHORT[fs]} filer):`,
     '',
     ...baseline,
     '',

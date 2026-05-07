@@ -1,8 +1,8 @@
-# TelosTax Testing Guide
+# Nimbus Testing Guide
 
-Comprehensive reference for running, understanding, and extending the TelosTax test suite.
+Comprehensive reference for running, understanding, and extending the Nimbus test suite.
 
-**Total: 139 test files | 6,100+ tests**
+**Total: 154 test files | 6,340+ tests**
 
 ---
 
@@ -305,7 +305,7 @@ Uses a deterministic PRNG seed for reproducible random generation.
 
 ---
 
-## 4. Server Tests (2 files)
+## 4. Server Tests (3 files)
 
 ```bash
 cd server && npx vitest run
@@ -314,6 +314,57 @@ cd server && npx vitest run
 | File | Tests | Coverage |
 |------|-------|----------|
 | `piiStripper.test.ts` | ~68 | PII detection: SSN, phone, email, address, dollar amounts |
+| `chat.test.ts` | 27 | BYOK route: Zod validation, API key format, error sanitization, rate limiting |
+
+---
+
+## 5. AI Eval Framework (3 files + 6 fixture sets)
+
+**Rule: No Eval, No Merge.** Every AI-facing feature must ship with eval coverage. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full policy.
+
+```bash
+# Deterministic tests (no API key needed)
+npx vitest run shared/__tests__/llmResponseParser.test.ts
+npx vitest run shared/__tests__/ai-evals/eval-runner.test.ts
+npx vitest run server/__tests__/chat.test.ts
+
+# Live prompt regression (requires ANTHROPIC_API_KEY)
+npx tsx scripts/eval-prompt.ts --dry-run       # preview
+npx tsx scripts/eval-prompt.ts                 # full run
+npx tsx scripts/eval-prompt.ts --output evals/baseline.json
+```
+
+### 5.1 Deterministic Tests
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `llmResponseParser.test.ts` | 66 | JSON parsing, action type validation, markdown fences, truncation, edge cases |
+| `eval-runner.test.ts` | 63 | Intent-to-action fixture validation across 6 categories |
+| `chat.test.ts` | 27 | Server route: Zod schema, API key, PII strip, error sanitization |
+
+### 5.2 Eval Fixtures (60 fixtures across 6 categories)
+
+| Category | Fixtures | Coverage |
+|----------|----------|----------|
+| `income-entry.json` | 20 | W-2, 1099-NEC, freelance, multiple income sources |
+| `deduction-discovery.json` | 10 | Mortgage, charity, student loan, HSA, medical |
+| `credit-questions.json` | 10 | CTC, AOTC, EV credit, Saver's Credit |
+| `informational.json` | 10 | Filing status, deadlines, general tax questions |
+| `ambiguous-input.json` | 5 | Vague statements, incomplete information |
+| `multi-action.json` | 5 | Multiple actions per message |
+
+### 5.3 Scorecard Metrics
+
+| Metric | Target |
+|--------|--------|
+| Overall Accuracy | ≥ 85% |
+| Action Accuracy | ≥ 90% |
+| Relevance | ≥ 90% |
+| Coherence | ≥ 95% |
+| Schema Validity | ≥ 95% |
+| Hallucination Rate | ≤ 5% |
+| Tax Harm Rate | 0% |
+| Refusal Rate | ≤ 2% |
 
 ---
 
@@ -419,6 +470,11 @@ cd client && npx playwright test     # ~45s, 320+ tests across 3 browsers
 | Integration scenarios | `shared/__tests__/integration.test.ts` |
 | Boundary values | `shared/__tests__/boundary-values.test.ts` |
 | Fuzz testing | `shared/__tests__/fuzzing.test.ts` |
+| AI response parser tests | `shared/__tests__/llmResponseParser.test.ts` |
+| AI eval fixtures | `shared/__tests__/ai-evals/fixtures/*.json` |
+| AI eval runner | `shared/__tests__/ai-evals/eval-runner.test.ts` |
+| Prompt regression harness | `scripts/eval-prompt.ts` |
+| Server route tests | `server/__tests__/chat.test.ts` |
 | E2E wizard flow | `client/e2e/wizard-flow.spec.ts` |
 | E2E scenario fuzzer | `client/e2e/scenario-fuzzer/scenario-fuzzer.spec.ts` |
 | Playwright config | `client/playwright.config.ts` |

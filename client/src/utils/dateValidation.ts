@@ -1,5 +1,5 @@
 /**
- * Date validation utilities for TelosTax.
+ * Date validation utilities for Nimbus.
  *
  * Provides context-specific validation for different date field types:
  *   - Date of birth (filer, spouse, dependent)

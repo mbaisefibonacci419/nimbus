@@ -9,13 +9,13 @@
  * defense-in-depth, but the client should scan first.
  */
 
-import type { ChatContext, ChatMessage, ChatResponse, AIProvider } from '@telostax/engine';
-import { scanForPII } from '@telostax/engine';
-import type { ChatTransport, ChatTransportStatus } from './types';
+import type { ChatContext, ChatMessage, ChatResponse, AIProvider } from '@nimbus/engine';
+import { scanForPII } from '@nimbus/engine';
+import type { ChatTransport, ChatTransportStatus, StreamDeltaCallback } from './types';
 import { logOutboundRequest, consumePiiTypes, buildPiiBlockSummary } from '../privacyAuditLog';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3001';
-const TIMEOUT_MS = 60_000;
+const TIMEOUT_MS = 120_000;
 
 export class BYOKTransport implements ChatTransport {
   readonly displayName = 'BYOK (Your API Key)';
@@ -27,31 +27,55 @@ export class BYOKTransport implements ChatTransport {
     private model: string,
   ) {}
 
+  private buildRequestBody(
+    message: string,
+    conversationHistory: ChatMessage[],
+    context: ChatContext,
+  ) {
+    return {
+      message,
+      conversationHistory,
+      context,
+      provider: this.provider,
+      apiKey: this.apiKey,
+      model: this.model,
+    };
+  }
+
+  private createAbortController(signal?: AbortSignal): { controller: AbortController; timeoutId: ReturnType<typeof setTimeout> } {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    if (signal) {
+      signal.addEventListener('abort', () => controller.abort(), { once: true });
+    }
+    return { controller, timeoutId };
+  }
+
+  private logAuditTrail(message: string, context: ChatContext, responsePreview: string): void {
+    logOutboundRequest({
+      feature: 'chat',
+      provider: this.provider,
+      model: this.model,
+      redactedMessage: message,
+      piiBlocked: buildPiiBlockSummary(consumePiiTypes()),
+      contextKeysSent: Object.keys(context).filter((k) => context[k as keyof ChatContext] != null),
+      responseTruncated: scanForPII(responsePreview).sanitized,
+    }).catch(() => {});
+  }
+
   async sendMessage(
     message: string,
     conversationHistory: ChatMessage[],
     context: ChatContext,
     signal?: AbortSignal,
   ): Promise<ChatResponse> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    // If caller provides a signal (e.g. stop button), abort our controller when it fires
-    if (signal) {
-      signal.addEventListener('abort', () => controller.abort(), { once: true });
-    }
+    const { controller, timeoutId } = this.createAbortController(signal);
 
     try {
       const res = await fetch(`${API_BASE}/api/chat/byok`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message,
-          conversationHistory,
-          context,
-          provider: this.provider,
-          apiKey: this.apiKey,
-          model: this.model,
-        }),
+        body: JSON.stringify(this.buildRequestBody(message, conversationHistory, context)),
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
@@ -66,24 +90,84 @@ export class BYOKTransport implements ChatTransport {
       const json = await res.json();
       const response = json.data as ChatResponse;
 
-      // Privacy audit log — record what was sent and received (async, non-blocking)
-      logOutboundRequest({
-        feature: 'chat',
-        provider: this.provider,
-        model: this.model,
-        redactedMessage: message,
-        piiBlocked: buildPiiBlockSummary(consumePiiTypes()),
-        contextKeysSent: Object.keys(context).filter((k) => context[k as keyof ChatContext] != null),
-        responseTruncated: scanForPII(response.message.slice(0, 200)).sanitized,
-      }).catch(() => {});
-
+      this.logAuditTrail(message, context, response.message.slice(0, 200));
       return response;
     } catch (err: any) {
       clearTimeout(timeoutId);
-      if (err.name === 'AbortError') {
-        // Re-throw as-is so callers can distinguish user-abort from errors
-        throw err;
+      throw err;
+    }
+  }
+
+  async sendMessageStream(
+    message: string,
+    conversationHistory: ChatMessage[],
+    context: ChatContext,
+    onDelta: StreamDeltaCallback,
+    signal?: AbortSignal,
+  ): Promise<ChatResponse> {
+    const { controller, timeoutId } = this.createAbortController(signal);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/chat/byok/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.buildRequestBody(message, conversationHistory, context)),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => null);
+        const detail = errorBody?.error?.detail;
+        const base = errorBody?.error?.message || `Server error (${res.status})`;
+        throw new Error(detail ? `${base} ${detail}` : base);
       }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error('Streaming not supported by this browser.');
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalResponse: ChatResponse | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        // Keep the last (possibly incomplete) line in the buffer
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (payload === '[DONE]') break;
+
+          try {
+            const event = JSON.parse(payload);
+            if (event.type === 'text_delta' && typeof event.delta === 'string') {
+              onDelta(event.delta);
+            } else if (event.type === 'response_complete' && event.data) {
+              finalResponse = event.data as ChatResponse;
+            } else if (event.type === 'error') {
+              throw new Error(event.error?.message || 'Stream error from server');
+            }
+          } catch (parseErr: any) {
+            if (parseErr.message?.includes('Stream error')) throw parseErr;
+          }
+        }
+      }
+
+      if (!finalResponse) {
+        throw new Error('Stream ended without a complete response.');
+      }
+
+      this.logAuditTrail(message, context, finalResponse.message.slice(0, 200));
+      return finalResponse;
+    } catch (err: any) {
+      clearTimeout(timeoutId);
       throw err;
     }
   }
@@ -97,7 +181,6 @@ export class BYOKTransport implements ChatTransport {
       };
     }
 
-    // Basic format validation
     if (!this.apiKey.startsWith('sk-ant-')) {
       return {
         ready: false,

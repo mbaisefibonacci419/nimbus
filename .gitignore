@@ -18,6 +18,9 @@ server/data/*.db-wal
 client/playwright-report/
 client/test-results/
 
+# AI eval scorecards (contain model-specific results, regenerated on demand)
+evals/*.json
+
 # Internal audit & review docs
 client/SECURITY-AUDIT*.md
 client/UX-REVIEW*.md

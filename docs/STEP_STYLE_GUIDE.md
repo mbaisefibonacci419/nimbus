@@ -2,7 +2,7 @@
 
 > **STATUS: FINAL** — All new wizard steps must conform to this guide.
 
-Standardization guide for all wizard step components in TelosTax. Integrates with [DESIGN_PRINCIPLES.md](./DESIGN_PRINCIPLES.md) for architecture. Color conventions are included in the [UI Color Reference](#ui-color-reference) section at the end of this document.
+Standardization guide for all wizard step components in Nimbus. Integrates with [DESIGN_PRINCIPLES.md](./DESIGN_PRINCIPLES.md) for architecture. Color conventions are included in the [UI Color Reference](#ui-color-reference) section at the end of this document.
 
 ---
 
@@ -489,14 +489,14 @@ Components available for use in all step categories:
 
 ## UI Color Reference
 
-Semantic color conventions for monetary values, text, and interactive elements across the TelosTax UI.
+Semantic color conventions for monetary values, text, and interactive elements across the Nimbus UI.
 
 ### Monetary Value Colors
 
 | Color | Tailwind Class | Usage |
 |-------|---------------|-------|
 | **White** | `text-white` | Line item values in breakdown lists (neutral — context communicates meaning) |
-| **Telos Orange** | `text-telos-orange-400` | Hero totals on deduction/savings pages; section total rows (e.g., "Total Adjustments") |
+| **Nimbus Orange** | `text-telos-orange-400` | Hero totals on deduction/savings pages; section total rows (e.g., "Total Adjustments") |
 | **Emerald** | `text-emerald-400` | Refunds, credits, positive outcomes for the taxpayer |
 | **Amber** | `text-amber-400` | Taxes owed, AMT, penalties — amounts the taxpayer must pay |
 | **Red** | `text-red-400` | Losses (capital losses, negative balances in non-refund contexts) |

@@ -16,9 +16,9 @@
  *   conditions, letting the AI explain "why don't I see Schedule C?"
  */
 
-import type { TaxReturn, CalculationResult, CalculationTrace } from '@telostax/engine';
-import type { ChatContext } from '@telostax/engine';
-import { describeCondition } from '@telostax/engine';
+import type { TaxReturn, CalculationResult, CalculationTrace } from '@nimbus/engine';
+import type { ChatContext } from '@nimbus/engine';
+import { describeCondition } from '@nimbus/engine';
 import type { WizardStep } from '../store/taxReturnStore';
 import { getSuggestions, TaxSuggestion } from './suggestionService';
 import { getActiveWarnings } from './warningService';
@@ -1422,7 +1422,7 @@ const STEP_FIELD_EXTRACTORS: Record<string, (tr: TaxReturn, calc?: CalculationRe
   },
 
   expense_scanner: (_tr, _calc) => {
-    return 'User is viewing the "Smart Expense Scanner" page where they upload bank/credit card transaction exports and TelosAI categorizes them by tax relevance (business expenses, medical, charitable, home office, etc.). See deductionFinderContext for categorization results.';
+    return 'User is viewing the "Smart Expense Scanner" page where they upload bank/credit card transaction exports and NimbusAI categorizes them by tax relevance (business expenses, medical, charitable, home office, etc.). See deductionFinderContext for categorization results.';
   },
 
   document_inventory: (_tr, _calc) => {

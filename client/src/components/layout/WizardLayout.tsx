@@ -3,7 +3,7 @@ import StepSidebar from './StepSidebar';
 import ProgressBar from './ProgressBar';
 import SaveIndicator from '../common/SaveIndicator';
 import ResizeHandle from '../common/ResizeHandle';
-import TelosAIButton from '../common/TelosAIButton';
+import NimbusAIButton from '../common/NimbusAIButton';
 import FormsSkeleton from '../formsMode/FormsSkeleton';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
 import { useChatStore } from '../../store/chatStore';
@@ -132,8 +132,8 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
             onClick={() => navigate('/')}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
           >
-            <span className="font-bold text-xl sm:hidden"><span className="text-telos-orange-400">T</span><span className="text-telos-blue-400">T</span></span>
-            <span className="font-bold text-xl hidden sm:inline"><span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">Tax</span></span>
+            <span className="font-bold text-xl sm:hidden"><span className="text-telos-orange-400">N</span><span className="text-telos-blue-400">i</span></span>
+            <span className="font-bold text-xl hidden sm:inline"><span className="text-telos-orange-400">Ni</span><span className="text-telos-blue-400">mbus</span></span>
           </button>
           <span className="text-slate-400 hidden sm:inline shrink-0">2025 Tax Year</span>
 
@@ -336,8 +336,8 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
         </Suspense>
       )}
 
-      {/* Floating Telos AI button */}
-      {chatAvailable && <TelosAIButton />}
+      {/* Floating Nimbus AI button */}
+      {chatAvailable && <NimbusAIButton />}
 
       {/* Chat panel overlay */}
       {chatAvailable && (

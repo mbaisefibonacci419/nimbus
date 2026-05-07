@@ -16,7 +16,7 @@ import {
   type IPointRenderEventArgs, type ITextRenderEventArgs,
   type ITooltipRenderEventArgs, type IPointEventArgs,
 } from '@syncfusion/ej2-react-charts';
-import type { Form1040Result } from '@telostax/engine';
+import type { Form1040Result } from '@nimbus/engine';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
 
 interface TaxFlowDiagramProps {

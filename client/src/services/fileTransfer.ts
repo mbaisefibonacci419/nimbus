@@ -1,5 +1,5 @@
 /**
- * Encrypted file transfer — export/import TaxReturn as a portable .telostax file.
+ * Encrypted file transfer — export/import TaxReturn as a portable .nimbus file.
  *
  * File format: JSON with { format, version, exportedAt, salt, iv, ct }
  * Encryption: AES-256-GCM with PBKDF2-derived key (600k iterations, SHA-256)
@@ -7,14 +7,14 @@
  * The decrypted ciphertext is a JSON-stringified TaxReturn.
  */
 
-import type { TaxReturn } from '@telostax/engine';
-import { migrateReturn, needsMigration } from '@telostax/engine';
+import type { TaxReturn } from '@nimbus/engine';
+import { migrateReturn, needsMigration } from '@nimbus/engine';
 
-const FORMAT_MARKER = 'telostax-transfer';
+const FORMAT_MARKER = 'nimbus-transfer';
 const FORMAT_VERSION = 1;
 const PBKDF2_ITERATIONS = 600_000;
 
-export interface TelosTaxFile {
+export interface NimbusFile {
   format: typeof FORMAT_MARKER;
   version: number;
   exportedAt: string;
@@ -23,7 +23,7 @@ export interface TelosTaxFile {
   ct: number[];
 }
 
-function isTelosTaxFile(obj: unknown): obj is TelosTaxFile {
+function isNimbusFile(obj: unknown): obj is NimbusFile {
   if (typeof obj !== 'object' || obj === null) return false;
   const o = obj as Record<string, unknown>;
   return o.format === FORMAT_MARKER
@@ -50,7 +50,7 @@ async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey>
   );
 }
 
-/** Encrypt a TaxReturn into a downloadable .telostax Blob. */
+/** Encrypt a TaxReturn into a downloadable .nimbus Blob. */
 export async function exportReturnToFile(taxReturn: TaxReturn, password: string): Promise<Blob> {
   const plaintext = JSON.stringify(taxReturn);
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -62,7 +62,7 @@ export async function exportReturnToFile(taxReturn: TaxReturn, password: string)
     new TextEncoder().encode(plaintext),
   );
 
-  const file: TelosTaxFile = {
+  const file: NimbusFile = {
     format: FORMAT_MARKER,
     version: FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
@@ -80,7 +80,7 @@ export type ImportResult =
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
-/** Read and decrypt a .telostax file. Returns the TaxReturn or an error. */
+/** Read and decrypt a .nimbus file. Returns the TaxReturn or an error. */
 export async function importReturnFromFile(file: File, password: string): Promise<ImportResult> {
   if (file.size > MAX_FILE_SIZE) {
     return { ok: false, error: 'invalid_file', message: 'File is too large. Maximum size is 50 MB.' };
@@ -97,11 +97,11 @@ export async function importReturnFromFile(file: File, password: string): Promis
   try {
     parsed = JSON.parse(text);
   } catch {
-    return { ok: false, error: 'invalid_file', message: 'This is not a valid .telostax file.' };
+    return { ok: false, error: 'invalid_file', message: 'This is not a valid .nimbus file.' };
   }
 
-  if (!isTelosTaxFile(parsed)) {
-    return { ok: false, error: 'invalid_file', message: 'This is not a valid .telostax file.' };
+  if (!isNimbusFile(parsed)) {
+    return { ok: false, error: 'invalid_file', message: 'This is not a valid .nimbus file.' };
   }
 
   if (parsed.version !== FORMAT_VERSION) {

@@ -1,0 +1,145 @@
+[
+  {
+    "id": "multi-w2-and-freelance",
+    "description": "User mentions both W-2 and freelance income in one message",
+    "input": {
+      "message": "I made $150,000 at Google and did $20,000 freelancing on the side",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes", "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income", "add_income"],
+      "actionFields": [
+        { "type": "add_income", "incomeType": "w2" },
+        { "type": "add_income", "incomeType": "1099nec" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "multi-filing-status-and-dependent",
+    "description": "User sets filing status and mentions dependent",
+    "input": {
+      "message": "I'm married filing jointly and we have one child",
+      "context": {
+        "currentStep": "filing_status",
+        "currentSection": "getting_started",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_filing_status"],
+      "actionFields": [
+        { "type": "set_filing_status", "status": "married_filing_jointly" }
+      ],
+      "suggestedStep": "dependents",
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "multi-multiple-business-expenses",
+    "description": "User lists multiple business expenses",
+    "input": {
+      "message": "My business expenses include $1,200 for office supplies, $500 for software, and $3,000 for advertising",
+      "context": {
+        "currentStep": "business_expenses",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "1099nec": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_business_expense", "add_business_expense", "add_business_expense"],
+      "actionFields": [
+        { "type": "add_business_expense" },
+        { "type": "add_business_expense" },
+        { "type": "add_business_expense" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "multi-income-and-navigate",
+    "description": "User adds income and asks to move to next section",
+    "input": {
+      "message": "My wages were $65,000. Let's move on to deductions.",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income", "navigate"],
+      "actionFields": [
+        { "type": "add_income", "incomeType": "w2", "fieldsContain": { "wages": 65000 } },
+        { "type": "navigate" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "multi-add-dependent",
+    "description": "User describes their dependent child",
+    "input": {
+      "message": "I have a 10-year-old daughter named Emma who lives with me",
+      "context": {
+        "currentStep": "dependents",
+        "currentSection": "getting_started",
+        "filingStatus": "head_of_household",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_dependent"],
+      "actionFields": [
+        { "type": "add_dependent" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "multi-two-w2s",
+    "description": "User had two jobs and provides both W-2s",
+    "input": {
+      "message": "I had two jobs: $45,000 at Company A and $30,000 at Company B",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income", "add_income"],
+      "actionFields": [
+        { "type": "add_income", "incomeType": "w2" },
+        { "type": "add_income", "incomeType": "w2" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

@@ -7,7 +7,7 @@
  * All matching is client-side. Data never leaves the browser.
  */
 
-import type { TaxReturn } from '@telostax/engine';
+import type { TaxReturn } from '@nimbus/engine';
 
 // ─── Types ───────────────────────────────────────
 

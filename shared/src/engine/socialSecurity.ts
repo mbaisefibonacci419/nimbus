@@ -37,7 +37,9 @@ export function calculateTaxableSocialSecurity(
   filingStatus: FilingStatus,
   taxExemptInterest: number = 0,
   livedApartFromSpouse: boolean = false,
+  socialSecurityConstants?: typeof SOCIAL_SECURITY,
 ): SocialSecurityResult {
+  const SS = socialSecurityConstants ?? SOCIAL_SECURITY;
   if (totalBenefits <= 0) {
     return { totalBenefits: 0, taxableBenefits: 0, taxablePercentage: 0, provisionalIncome: 0 };
   }
@@ -46,7 +48,7 @@ export function calculateTaxableSocialSecurity(
   const halfBenefits = totalBenefits * 0.5;
   const provisionalIncome = round2(otherIncome + taxExemptInterest + halfBenefits);
 
-  const { baseAmount, adjustedBase } = getThresholds(filingStatus, livedApartFromSpouse);
+  const { baseAmount, adjustedBase } = getThresholds(filingStatus, livedApartFromSpouse, SS);
 
   let taxableBenefits: number;
   let taxablePercentage: number;
@@ -87,22 +89,26 @@ export function calculateTaxableSocialSecurity(
   };
 }
 
-function getThresholds(filingStatus: FilingStatus, livedApartFromSpouse: boolean = false): { baseAmount: number; adjustedBase: number } {
+function getThresholds(
+  filingStatus: FilingStatus,
+  livedApartFromSpouse: boolean = false,
+  ss: typeof SOCIAL_SECURITY,
+): { baseAmount: number; adjustedBase: number } {
   switch (filingStatus) {
     case FilingStatus.MarriedFilingSeparately:
       // IRC §86(c)(1)(C)(ii): MFS filers who lived apart from their spouse for the entire
       // taxable year use Single filing thresholds instead of the $0 MFS base amount.
       if (livedApartFromSpouse) {
-        return { baseAmount: SOCIAL_SECURITY.SINGLE_BASE_AMOUNT, adjustedBase: SOCIAL_SECURITY.SINGLE_ADJUSTED_BASE };
+        return { baseAmount: ss.SINGLE_BASE_AMOUNT, adjustedBase: ss.SINGLE_ADJUSTED_BASE };
       }
-      return { baseAmount: SOCIAL_SECURITY.MFS_BASE_AMOUNT, adjustedBase: SOCIAL_SECURITY.MFS_BASE_AMOUNT };
+      return { baseAmount: ss.MFS_BASE_AMOUNT, adjustedBase: ss.MFS_BASE_AMOUNT };
     case FilingStatus.MarriedFilingJointly:
-      return { baseAmount: SOCIAL_SECURITY.MFJ_BASE_AMOUNT, adjustedBase: SOCIAL_SECURITY.MFJ_ADJUSTED_BASE };
+      return { baseAmount: ss.MFJ_BASE_AMOUNT, adjustedBase: ss.MFJ_ADJUSTED_BASE };
     case FilingStatus.QualifyingSurvivingSpouse:
       // IRC §86(c)(1)(A)(ii) and Pub 915: QSS uses MFJ thresholds for SS benefit taxation
-      return { baseAmount: SOCIAL_SECURITY.MFJ_BASE_AMOUNT, adjustedBase: SOCIAL_SECURITY.MFJ_ADJUSTED_BASE };
+      return { baseAmount: ss.MFJ_BASE_AMOUNT, adjustedBase: ss.MFJ_ADJUSTED_BASE };
     default:
       // Single, HoH use single thresholds.
-      return { baseAmount: SOCIAL_SECURITY.SINGLE_BASE_AMOUNT, adjustedBase: SOCIAL_SECURITY.SINGLE_ADJUSTED_BASE };
+      return { baseAmount: ss.SINGLE_BASE_AMOUNT, adjustedBase: ss.SINGLE_ADJUSTED_BASE };
   }
 }

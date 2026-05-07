@@ -46,6 +46,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
     messages,
     isOpen,
     isLoading,
+    streamingContent,
     hasAcceptedDisclaimer,
     error,
     piiWarning,
@@ -55,6 +56,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
     sendDocumentMessage,
     markActionsApplied,
     markActionsDismissed,
+    undoActions,
     setMessageFeedback,
     regenerateLastResponse,
     editAndResend,
@@ -81,7 +83,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
     setShowScrollDown(distanceFromBottom > 100);
   }, []);
 
-  // Auto-scroll to bottom when new messages arrive (only if already near bottom)
+  // Auto-scroll to bottom when new messages arrive or streaming content updates
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (!el) {
@@ -89,11 +91,10 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
       return;
     }
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    // Auto-scroll if user is near the bottom (within 150px) or it's a new loading state
     if (distanceFromBottom < 150 || isLoading) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, streamingContent]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -198,7 +199,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-telos-orange-400" />
                 <h2 className="text-sm font-semibold">
-                  <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">AI</span> <span className="text-slate-300">Assistant</span>
+                  <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span> <span className="text-slate-300">Assistant</span>
                 </h2>
                 {/* Mode indicator — clickable tag to open settings */}
                 <button
@@ -283,6 +284,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
                       isLastAssistant={msg.id === lastAssistantId}
                       onActionsApplied={markActionsApplied}
                       onActionsDismissed={markActionsDismissed}
+                      onUndoActions={undoActions}
                       onFeedback={setMessageFeedback}
                       onRegenerate={regenerateLastResponse}
                       onFollowUp={sendMessage}
@@ -291,8 +293,14 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
                     />
                   ))}
 
-                  {/* Thinking indicator — contextual reasoning steps */}
-                  {isLoading && (
+                  {/* Streaming response — shows tokens as they arrive */}
+                  {isLoading && streamingContent ? (
+                    <div className="flex justify-start mb-3">
+                      <div className="max-w-[85%] rounded-xl px-3.5 py-2.5 bg-surface-700 border border-slate-600/50">
+                        <p className="text-sm text-slate-200 whitespace-pre-wrap">{streamingContent}<span className="inline-block w-1.5 h-4 bg-telos-blue-400 animate-pulse ml-0.5 align-text-bottom rounded-sm" /></p>
+                      </div>
+                    </div>
+                  ) : isLoading && (
                     <ThinkingIndicator
                       userMessage={messages.filter((m) => m.role === 'user').pop()?.content}
                       section={section}

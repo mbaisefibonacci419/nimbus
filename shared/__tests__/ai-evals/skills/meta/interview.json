@@ -1,0 +1,66 @@
+[
+  {
+    "id": "skill-meta-income-interview",
+    "description": "Help me enter my income (start income interview)",
+    "input": {
+      "message": "Help me enter my income—I am not sure where to start",
+      "context": {
+        "currentStep": "welcome",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["navigate"],
+      "actionFields": [{ "type": "navigate", "stepId": "income_overview" }],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-meta-deduction-discovery",
+    "description": "What deductions can I take (start deduction discovery)",
+    "input": {
+      "message": "What deductions can I take this year?",
+      "context": {
+        "currentStep": "tax_summary",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["navigate"],
+      "actionFields": [{ "type": "navigate", "stepId": "deduction_method" }],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-meta-ambiguous-income-type",
+    "description": "Ambiguous income type should ask a clarifying question",
+    "input": {
+      "message": "I have a form from work but I do not know if it is a W-2 or 1099",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "shouldAskClarification": true
+    }
+  }
+]

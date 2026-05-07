@@ -7,8 +7,8 @@
  * Pure HTML/CSS flex divs.
  */
 
-import { calculateProgressiveTax } from '@telostax/engine';
-import type { FilingStatus, BracketDetail } from '@telostax/engine';
+import { calculateProgressiveTax } from '@nimbus/engine';
+import type { FilingStatus, BracketDetail } from '@nimbus/engine';
 import type { ScenarioColor } from '../types';
 
 // Map tax rates to consistent colors — avoids index-shift when brackets are filtered

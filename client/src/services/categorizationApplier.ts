@@ -8,7 +8,7 @@
  * can confirm before committing.
  */
 
-import type { TaxReturn } from '@telostax/engine';
+import type { TaxReturn } from '@nimbus/engine';
 import type { CategorizedTransaction, TransactionCategory, TransactionSubCategory } from './transactionCategorizerTypes';
 import { CATEGORY_META, BUSINESS_SUB_CATEGORY_META } from './transactionCategorizerTypes';
 

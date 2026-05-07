@@ -7,7 +7,7 @@ export default function WelcomeStep() {
       {/* Hero */}
       <div className="text-center pt-4 pb-8">
         <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-          <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">Tax</span>
+          <span className="text-telos-orange-400">Ni</span><span className="text-telos-blue-400">mbus</span>
         </h1>
         <p className="text-xl text-slate-300 max-w-lg mx-auto leading-relaxed">
           Let's prepare your 2025 tax return.

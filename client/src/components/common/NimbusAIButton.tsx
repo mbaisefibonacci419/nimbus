@@ -1,5 +1,5 @@
 /**
- * Telos AI Button — floating sparkle + expandable toolbar in the bottom-right.
+ * Nimbus AI Button — floating sparkle + expandable toolbar in the bottom-right.
  *
  * Collapsed: sparkle icon toggles chat panel open/close.
  * Hover: pill expands left to show "Guide me" action button.
@@ -14,7 +14,7 @@ import { useChatStore } from '../../store/chatStore';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
 import { getGuidePrompt } from '../../data/starterPrompts';
 
-export default function TelosAIButton() {
+export default function NimbusAIButton() {
   const { isOpen: chatOpen, togglePanel, openWithPrompt } = useChatStore();
   const activeToolId = useTaxReturnStore((s) => s.activeToolId);
   const viewMode = useTaxReturnStore((s) => s.viewMode);
@@ -73,7 +73,7 @@ export default function TelosAIButton() {
                          text-slate-300 hover:bg-surface-600 hover:text-white transition-colors"
               title="Ask AI about this step"
             >
-              <span>Guide me with <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">AI</span></span>
+              <span>Guide me with <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span></span>
             </button>
           </div>
         </div>

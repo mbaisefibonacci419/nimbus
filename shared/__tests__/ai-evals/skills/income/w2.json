@@ -1,0 +1,163 @@
+[
+  {
+    "id": "skill-w2-basic-withholding",
+    "description": "Basic W-2 with wages and withholding",
+    "input": {
+      "message": "I got a W-2 from Acme Corp for $75,000 with $12,000 withheld",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery", "add_income"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "w2" },
+        {
+          "type": "add_income",
+          "incomeType": "w2",
+          "fieldsContain": {
+            "employerName": "Acme Corp",
+            "wages": 75000,
+            "federalTaxWithheld": 12000
+          }
+        }
+      ],
+      "suggestedStep": "w2_income",
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-w2-state-withholding",
+    "description": "W-2 with state tax withholding",
+    "input": {
+      "message": "My W-2 shows $92,000 in wages, $8,200 federal withheld, and $4,100 California state tax withheld",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "w2",
+          "fieldsContain": {
+            "wages": 92000,
+            "federalTaxWithheld": 8200,
+            "stateTaxWithheld": 4100,
+            "state": "CA"
+          }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-w2-two-jobs",
+    "description": "Multiple W-2s in one message",
+    "input": {
+      "message": "I have two W-2s: $55,000 from Delta LLC and $18,000 from a weekend job at ShopMart",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery", "add_income", "add_income"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "w2" },
+        {
+          "type": "add_income",
+          "incomeType": "w2",
+          "fieldsContain": { "employerName": "Delta LLC", "wages": 55000 }
+        },
+        {
+          "type": "add_income",
+          "incomeType": "w2",
+          "fieldsContain": { "employerName": "ShopMart", "wages": 18000 }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-w2-spouse",
+    "description": "Spouse W-2 with isSpouse flag",
+    "input": {
+      "message": "My spouse's W-2 from City Hospital shows $62,000 in wages",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "w2",
+          "fieldsContain": {
+            "employerName": "City Hospital",
+            "wages": 62000,
+            "isSpouse": true
+          }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-w2-box12-codes",
+    "description": "W-2 with Box 12 codes (401k deferral and HSA employer contribution)",
+    "input": {
+      "message": "My W-2 shows $88,000 wages; Box 12 has code D for $19,500 and code W for $750 employer HSA",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "w2",
+          "fieldsContain": {
+            "wages": 88000,
+            "box12": [
+              { "code": "D", "amount": 19500 },
+              { "code": "W", "amount": 750 }
+            ]
+          }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

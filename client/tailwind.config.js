@@ -11,7 +11,7 @@ export default {
           600: '#475569',
         },
         telos: {
-          // Telos Orange — brand primary accent (replaces emerald)
+          // Nimbus Orange — brand primary accent (replaces emerald)
           orange: {
             50: '#FFF7ED',
             100: '#FFEDD5',
@@ -24,7 +24,7 @@ export default {
             800: '#8B3E00',
             900: '#6B2F00',
           },
-          // Telos Blue — brand secondary / actions (replaces blue)
+          // Nimbus Blue — brand secondary / actions (replaces blue)
           blue: {
             50: '#EFF6FF',
             100: '#DBEAFE',

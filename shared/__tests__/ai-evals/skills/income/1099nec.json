@@ -1,0 +1,115 @@
+[
+  {
+    "id": "skill-1099nec-basic",
+    "description": "Basic freelance 1099-NEC",
+    "input": {
+      "message": "I received a 1099-NEC for $32,000 from Design Co LLC for contract design work",
+      "context": {
+        "currentStep": "1099nec_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes", "1099nec": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "1099nec",
+          "fieldsContain": { "payerName": "Design Co LLC", "amount": 32000 }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-1099nec-business-association",
+    "description": "1099-NEC tied to a business name and EIN context",
+    "input": {
+      "message": "My LLC BrightFox received a 1099-NEC for $48,500 from Payer Inc, EIN 12-3456789",
+      "context": {
+        "currentStep": "1099nec_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "1099nec",
+          "fieldsContain": {
+            "payerName": "Payer Inc",
+            "payerEin": "12-3456789",
+            "amount": 48500,
+            "businessId": "BrightFox"
+          }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-1099nec-vague",
+    "description": "Vague freelance income should ask for clarification",
+    "input": {
+      "message": "I did some side gigs this year and got paid but paperwork is messy",
+      "context": {
+        "currentStep": "self_employment_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "shouldAskClarification": true
+    }
+  },
+  {
+    "id": "skill-1099nec-multiple",
+    "description": "Multiple 1099-NECs in one message",
+    "input": {
+      "message": "I have two 1099-NECs: $15,000 from Client A and $22,500 from Client B",
+      "context": {
+        "currentStep": "1099nec_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "1099nec": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income", "add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "1099nec",
+          "fieldsContain": { "payerName": "Client A", "amount": 15000 }
+        },
+        {
+          "type": "add_income",
+          "incomeType": "1099nec",
+          "fieldsContain": { "payerName": "Client B", "amount": 22500 }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

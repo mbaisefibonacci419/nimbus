@@ -63,7 +63,7 @@ export default function NudgeCard({ nudge, onEnableAndGo, onAskAI, onDismiss }: 
                          transition-all duration-200"
             >
               <Sparkles size={11} className="text-telos-orange-400" />
-              <span>Ask <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">AI</span></span>
+              <span>Ask <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span></span>
             </button>
           </div>
         </div>

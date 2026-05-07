@@ -143,7 +143,7 @@ export default function ExpenseScannerToolView() {
         title="Smart Expense Scanner"
         description={isPrivate
           ? 'AI-powered transaction categorization requires BYOK mode.'
-          : 'Upload transactions, select what to look for, and let TelosAI categorize your expenses by tax relevance.'
+          : 'Upload transactions, select what to look for, and let NimbusAI categorize your expenses by tax relevance.'
         }
       />
 
@@ -156,7 +156,7 @@ export default function ExpenseScannerToolView() {
               <p className="text-sm font-medium text-telos-blue-300 mb-1">Unlock Smart Expense Scanner</p>
               <p className="text-xs text-slate-400 mb-3">
                 Add your own API key to scan your bank and credit card transactions
-                for tax-relevant expenses. TelosAI categorizes every transaction by
+                for tax-relevant expenses. NimbusAI categorizes every transaction by
                 type — business expenses, medical, charitable, home office, and more.
               </p>
               <button

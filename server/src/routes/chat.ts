@@ -1,5 +1,5 @@
 /**
- * Chat Routes — POST /api/chat/byok, GET /api/chat/status
+ * Chat Routes — POST /api/chat/byok, POST /api/chat/byok/stream, GET /api/chat/status
  *
  * BYOK mode only — user provides their own Anthropic API key,
  * proxied through this server as a CORS relay.
@@ -11,12 +11,12 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { stripPII, stripConversationHistory, stripContext } from '../services/piiStripper.js';
-import { anthropicCompletionWithKey } from '../services/anthropicClient.js';
+import { anthropicCompletionWithKey, anthropicStreamWithKey } from '../services/anthropicClient.js';
 import { config } from '../config.js';
-import { SYSTEM_PROMPT } from '../services/systemPrompt.js';
-import { handleLLMError, handleRouteError } from '../services/errorSanitizer.js';
+import { buildSystemPrompt } from '../services/systemPrompt.js';
+import { handleLLMError, handleRouteError, sanitizeLLMErrorMessage, scrubSecrets } from '../services/errorSanitizer.js';
 import { initRateLimitTable, checkRateLimit as sharedCheckRateLimit, getClientIp, sendRateLimitResponse } from '../services/rateLimiter.js';
-import type { ChatResponse } from '@telostax/engine';
+import type { ChatResponse } from '@nimbus/engine';
 
 const router = Router();
 
@@ -148,6 +148,13 @@ router.post('/byok', async (req: Request, res: Response) => {
       context as Record<string, unknown>,
     );
 
+    const systemPrompt = buildSystemPrompt({
+      currentSection: sanitizedContext.currentSection as string | undefined,
+      incomeDiscovery: sanitizedContext.incomeDiscovery as Record<string, string> | undefined,
+      activeToolId: (sanitizedContext as { activeToolId?: string | null }).activeToolId ?? undefined,
+      taxYear: sanitizedContext.taxYear as number | undefined,
+    });
+
     // 5. Call Anthropic with the user's key (one-shot, key never stored)
     let response: ChatResponse;
     try {
@@ -156,7 +163,7 @@ router.post('/byok', async (req: Request, res: Response) => {
         model,
         messages,
         sanitizedContext,
-        SYSTEM_PROMPT,
+        systemPrompt,
       );
     } catch (err: any) {
       if (handleLLMError(err, res, 'byok-chat')) return;
@@ -168,6 +175,108 @@ router.post('/byok', async (req: Request, res: Response) => {
   } catch (err) {
     // IMPORTANT: Never log the request body (contains the user's API key)
     handleRouteError(err, res, 'byok-chat');
+  }
+});
+
+/**
+ * POST /api/chat/byok/stream
+ * BYOK streaming — same validation and PII handling as /byok; delivers SSE events.
+ */
+router.post('/byok/stream', async (req: Request, res: Response) => {
+  const clientIp = getClientIp(req);
+  if (!clientIp) {
+    res.status(400).json({ error: { message: 'Unable to determine client IP.', code: 'INVALID_IP' } });
+    return;
+  }
+  if (!sharedCheckRateLimit(clientIp, 'chat', config.byokRateLimitMax, config.rateLimitWindowMs)) {
+    sendRateLimitResponse(res, 'Too many requests. Please wait a moment and try again.', Math.ceil(config.rateLimitWindowMs / 1000));
+    return;
+  }
+
+  const parseResult = BYOKRequestSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    const body = req.body || {};
+    console.error('[BYOK stream validation failed]', {
+      messageLength: typeof body.message === 'string' ? body.message.length : typeof body.message,
+      historyLength: Array.isArray(body.conversationHistory) ? body.conversationHistory.length : 0,
+      historyContentLengths: Array.isArray(body.conversationHistory)
+        ? body.conversationHistory.map((m: { content?: string }) => m?.content?.length ?? 0)
+        : [],
+      provider: body.provider,
+      model: body.model,
+      issues: parseResult.error.issues.map((i) => ({ path: i.path, message: i.message })),
+    });
+    res.status(400).json({
+      error: {
+        message: 'Invalid request body.',
+        code: 'VALIDATION_ERROR',
+        detail: parseResult.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+      },
+    });
+    return;
+  }
+
+  const { message, conversationHistory, context, apiKey, model } = parseResult.data;
+
+  if (!apiKey.startsWith('sk-ant-')) {
+    res.status(400).json({
+      error: {
+        message: 'Invalid Anthropic API key format. Keys start with "sk-ant-".',
+        code: 'INVALID_API_KEY',
+      },
+    });
+    return;
+  }
+
+  const { messages, sanitizedContext } = prepareMessages(
+    message,
+    conversationHistory as Array<{ role: string; content: string }>,
+    context as Record<string, unknown>,
+  );
+
+  const abortController = new AbortController();
+  const onClose = () => {
+    abortController.abort();
+  };
+  req.once('close', onClose);
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+
+  const writeSse = (payload: Record<string, unknown>) => {
+    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+  };
+
+  const systemPrompt = buildSystemPrompt({
+    currentSection: sanitizedContext.currentSection as string | undefined,
+    incomeDiscovery: sanitizedContext.incomeDiscovery as Record<string, string> | undefined,
+    activeToolId: (sanitizedContext as { activeToolId?: string | null }).activeToolId ?? undefined,
+    taxYear: sanitizedContext.taxYear as number | undefined,
+  });
+
+  try {
+    const response = await anthropicStreamWithKey(
+      apiKey,
+      model,
+      messages,
+      sanitizedContext,
+      systemPrompt,
+      (delta) => writeSse({ type: 'text_delta', delta }),
+      abortController.signal,
+    );
+    writeSse({ type: 'response_complete', data: response });
+    res.write('data: [DONE]\n\n');
+    res.end();
+  } catch (err: unknown) {
+    const rawMsg = err instanceof Error ? err.message : String(err);
+    console.error('[byok-chat-stream] Provider error:', scrubSecrets(rawMsg));
+    writeSse({ type: 'error', error: { message: sanitizeLLMErrorMessage(err) } });
+    res.write('data: [DONE]\n\n');
+    res.end();
+  } finally {
+    req.off('close', onClose);
   }
 });
 

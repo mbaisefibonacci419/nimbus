@@ -1,0 +1,226 @@
+[
+  {
+    "id": "credit-ctc-eligibility",
+    "description": "Child Tax Credit eligibility with dependents",
+    "input": {
+      "message": "I have two kids under 17. Do I qualify for the Child Tax Credit?",
+      "context": {
+        "currentStep": "credits_overview",
+        "currentSection": "credits",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 2,
+        "incomeTypeCounts": { "w2": 1 },
+        "traceContext": "AGI: ~$90,000"
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["Child Tax Credit"]
+    }
+  },
+  {
+    "id": "credit-eitc-question",
+    "description": "EITC eligibility question",
+    "input": {
+      "message": "Am I eligible for the Earned Income Credit?",
+      "context": {
+        "currentStep": "credits_overview",
+        "currentSection": "credits",
+        "filingStatus": "head_of_household",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 1,
+        "incomeTypeCounts": { "w2": 1 },
+        "traceContext": "AGI: ~$35,000"
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["Earned Income"]
+    }
+  },
+  {
+    "id": "credit-education-aotc",
+    "description": "American Opportunity Tax Credit question",
+    "input": {
+      "message": "I'm a sophomore in college. Can I get the education credit?",
+      "context": {
+        "currentStep": "education_credits",
+        "currentSection": "credits",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["education"]
+    }
+  },
+  {
+    "id": "credit-ev-credit",
+    "description": "Electric vehicle credit question",
+    "input": {
+      "message": "I bought a new Tesla Model 3 this year. Is there a tax credit for that?",
+      "context": {
+        "currentStep": "other_credits",
+        "currentSection": "credits",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["credit"]
+    }
+  },
+  {
+    "id": "credit-dependent-care",
+    "description": "Child and dependent care credit",
+    "input": {
+      "message": "I paid $12,000 for daycare for my two children. Can I claim the child care credit?",
+      "context": {
+        "currentStep": "dependent_care_credit",
+        "currentSection": "credits",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 2,
+        "incomeTypeCounts": { "w2": 2 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["care"]
+    }
+  },
+  {
+    "id": "credit-savers-credit",
+    "description": "Saver's Credit (Retirement Savings Contributions Credit)",
+    "input": {
+      "message": "I'm 28 and contributed to my 401k. Do I qualify for the saver's credit?",
+      "context": {
+        "currentStep": "other_credits",
+        "currentSection": "credits",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 },
+        "traceContext": "AGI: ~$30,000"
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["saver"]
+    }
+  },
+  {
+    "id": "credit-energy-efficiency",
+    "description": "Energy efficiency home improvement credit",
+    "input": {
+      "message": "I installed new energy-efficient windows and a heat pump in my house. Are there tax credits for that?",
+      "context": {
+        "currentStep": "other_credits",
+        "currentSection": "credits",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["energy"]
+    }
+  },
+  {
+    "id": "credit-adoption",
+    "description": "Adoption credit question",
+    "input": {
+      "message": "We adopted a child this year and spent $25,000 on adoption expenses. Is there a credit?",
+      "context": {
+        "currentStep": "other_credits",
+        "currentSection": "credits",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 1,
+        "incomeTypeCounts": { "w2": 2 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["adoption"]
+    }
+  },
+  {
+    "id": "credit-premium-tax",
+    "description": "Premium Tax Credit for marketplace insurance",
+    "input": {
+      "message": "I bought health insurance through the marketplace. Do I get a premium tax credit?",
+      "context": {
+        "currentStep": "other_credits",
+        "currentSection": "credits",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "1099nec": 1 },
+        "traceContext": "AGI: ~$45,000"
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["premium"]
+    }
+  },
+  {
+    "id": "credit-foreign-tax",
+    "description": "Foreign tax credit question",
+    "input": {
+      "message": "I paid $800 in foreign taxes on my international stock dividends. Can I claim a credit?",
+      "context": {
+        "currentStep": "other_credits",
+        "currentSection": "credits",
+        "filingStatus": "single",
+        "incomeDiscovery": { "dividends": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1, "1099div": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["foreign"]
+    }
+  }
+]

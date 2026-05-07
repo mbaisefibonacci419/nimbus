@@ -10,9 +10,9 @@ import { createPortal } from 'react-dom';
 import { PdfViewer, Toolbar, Magnification, Navigation, FormFields, FormDesigner, Print, TextSearch } from '@syncfusion/ej2-pdfviewer';
 import type { FormFieldFocusOutEventArgs, FormFieldClickArgs } from '@syncfusion/ej2-pdfviewer';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
-import type { IRSFormTemplate } from '@telostax/engine';
-import { classifyFields } from '@telostax/engine';
-import type { ClassifiedField } from '@telostax/engine';
+import type { IRSFormTemplate } from '@nimbus/engine';
+import { classifyFields } from '@nimbus/engine';
+import type { ClassifiedField } from '@nimbus/engine';
 import { populateFormFields, updateComputedFields, enforceReadOnlyDOM, pdfLibToNormalizedKey, normalizeSyncfusionName } from '../../services/formsModeFiller';
 import { ensureDiscoveryFlags } from '../../services/formsModeSync';
 import { resolveSourcePathFromLineId } from '../../services/traceFormLinker';
@@ -460,7 +460,7 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
         </div>
       )}
 
-      {/* ─── Clicked-field "Ask TelosAI" tooltip (portaled to body for z-index) ──── */}
+      {/* ─── Clicked-field "Ask NimbusAI" tooltip (portaled to body for z-index) ──── */}
       {clickedField && createPortal(
         <div
           ref={clickedFieldRef}
@@ -495,14 +495,14 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
                          transition-all duration-200"
             >
               <Sparkles size={12} className="text-telos-orange-400 ai-sparkle" />
-              <span>Ask <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">AI</span></span>
+              <span>Ask <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span></span>
             </button>
           </div>
         </div>,
         document.body,
       )}
 
-      {/* ─── AI Floating Toolbar — styled to match TelosAIButton ──── */}
+      {/* ─── AI Floating Toolbar — styled to match NimbusAIButton ──── */}
       {status === 'ready' && taxReturn && calculation && (
         <div className="absolute bottom-6 right-6 z-30 flex flex-col items-end gap-2">
           {/* Field selector dropdown (renders above the toolbar) */}
@@ -579,7 +579,7 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
                   }`}
                   title="Ask AI about a specific field"
                 >
-                  <span>Ask <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">AI</span></span>
+                  <span>Ask <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span></span>
                   <ChevronDown size={14} className={`transition-transform ${fieldSelectorOpen ? 'rotate-180' : ''}`} />
                 </button>
 

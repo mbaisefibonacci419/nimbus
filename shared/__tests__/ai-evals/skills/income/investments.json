@@ -1,0 +1,121 @@
+[
+  {
+    "id": "skill-inv-1099int",
+    "description": "Basic 1099-INT interest income",
+    "input": {
+      "message": "My bank sent a 1099-INT with $340 in interest from my savings",
+      "context": {
+        "currentStep": "interest_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "1099int": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "1099int",
+          "fieldsContain": { "payerName": "Regional Bank", "amount": 340 }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-inv-1099div-qualified",
+    "description": "1099-DIV with ordinary and qualified dividends",
+    "input": {
+      "message": "Fidelity 1099-DIV shows $2,400 ordinary dividends and $1,600 qualified dividends",
+      "context": {
+        "currentStep": "dividend_income",
+        "currentSection": "income",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "1099div": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "1099div",
+          "fieldsContain": {
+            "payerName": "Fidelity",
+            "ordinaryDividends": 2400,
+            "qualifiedDividends": 1600
+          }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-inv-1099b-stock-sale",
+    "description": "1099-B stock sale proceeds",
+    "input": {
+      "message": "Charles Schwab 1099-B: sold stock for $8,200 proceeds, cost basis $6,100, long-term",
+      "context": {
+        "currentStep": "1099b_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "1099b": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income"],
+      "actionFields": [
+        {
+          "type": "add_income",
+          "incomeType": "1099b",
+          "fieldsContain": {
+            "brokerName": "Charles Schwab",
+            "proceeds": 8200,
+            "costBasis": 6100,
+            "isLongTerm": true
+          }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-inv-mixed",
+    "description": "Mixed investment income in one message",
+    "input": {
+      "message": "I have $900 in interest, $1,200 in dividends, and a short-term stock gain of $400 on my 1099-B",
+      "context": {
+        "currentStep": "income_overview",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "1099int": "yes", "1099div": "yes", "1099b": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_income", "add_income", "add_income"],
+      "actionFields": [
+        { "type": "add_income", "incomeType": "1099int", "fieldsContain": { "amount": 900 } },
+        { "type": "add_income", "incomeType": "1099div", "fieldsContain": { "ordinaryDividends": 1200 } },
+        {
+          "type": "add_income",
+          "incomeType": "1099b",
+          "fieldsContain": { "proceeds": 400, "isLongTerm": false }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

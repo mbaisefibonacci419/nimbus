@@ -1,0 +1,98 @@
+[
+  {
+    "id": "skill-above-line-hsa",
+    "description": "HSA contribution (above-the-line)",
+    "input": {
+      "message": "I contributed $3,850 to my HSA outside payroll",
+      "context": {
+        "currentStep": "hsa_deduction",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "standard",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_field"],
+      "actionFields": [
+        { "type": "update_field", "field": "hsaContribution", "value": 3850 }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-above-line-ira",
+    "description": "Traditional IRA contribution",
+    "input": {
+      "message": "I put $7,000 into my traditional IRA for the year",
+      "context": {
+        "currentStep": "ira_deduction",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_field"],
+      "actionFields": [
+        { "type": "update_field", "field": "iraContribution", "value": 7000 }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-above-line-student-loan",
+    "description": "Student loan interest",
+    "input": {
+      "message": "I paid $2,800 in student loan interest on my qualifying loans",
+      "context": {
+        "currentStep": "adjustments",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_field"],
+      "actionFields": [
+        { "type": "update_field", "field": "studentLoanInterest", "value": 2800 }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-above-line-solo-401k",
+    "description": "Self-employment retirement (Solo 401k deferral)",
+    "input": {
+      "message": "For my Schedule C business I deferred $20,500 into a solo 401k",
+      "context": {
+        "currentStep": "se_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "1099nec": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_se_retirement"],
+      "actionFields": [
+        {
+          "type": "update_se_retirement",
+          "fieldsContain": { "solo401kDeferral": 20500 }
+        }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

@@ -16,8 +16,10 @@ import { round2 } from './utils.js';
 export function calculateProgressiveTax(
   taxableIncome: number,
   filingStatus: FilingStatus,
+  bracketOverride?: Record<FilingStatus, TaxBracket[]>,
 ): { tax: number; brackets: BracketDetail[]; marginalRate: number } {
-  const brackets = TAX_BRACKETS_2025[filingStatus];
+  const allBrackets = bracketOverride ?? TAX_BRACKETS_2025;
+  const brackets = allBrackets[filingStatus];
   if (!brackets) {
     throw new Error(`Unknown filing status: ${filingStatus}`);
   }
@@ -60,8 +62,13 @@ export function calculateProgressiveTax(
  * @scope Progressive tax bracket computation
  * @limitations None
  */
-export function getMarginalRate(taxableIncome: number, filingStatus: FilingStatus): number {
-  const brackets = TAX_BRACKETS_2025[filingStatus];
+export function getMarginalRate(
+  taxableIncome: number,
+  filingStatus: FilingStatus,
+  bracketOverride?: Record<FilingStatus, TaxBracket[]>,
+): number {
+  const allBrackets = bracketOverride ?? TAX_BRACKETS_2025;
+  const brackets = allBrackets[filingStatus];
   const income = Math.max(0, taxableIncome);
 
   for (let i = brackets.length - 1; i >= 0; i--) {
@@ -79,8 +86,9 @@ export function getMarginalRate(taxableIncome: number, filingStatus: FilingStatu
 export function traceProgressiveTax(
   taxableIncome: number,
   filingStatus: FilingStatus,
+  bracketOverride?: Record<FilingStatus, TaxBracket[]>,
 ): { tax: number; brackets: BracketDetail[]; marginalRate: number; traces: CalculationTrace[] } {
-  const result = calculateProgressiveTax(taxableIncome, filingStatus);
+  const result = calculateProgressiveTax(taxableIncome, filingStatus, bracketOverride);
   const bracketTraces: CalculationTrace[] = result.brackets
     .filter((b) => b.taxAtRate > 0)
     .map((b) => ({

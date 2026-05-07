@@ -1,16 +1,21 @@
 /**
- * Action Preview — shows proposed LLM actions as readable cards.
+ * Action Preview — shows proposed LLM actions as selectable cards.
  *
- * Displays what the AI wants to do (e.g., "Add W-2: Acme Corp, $75,000 wages")
- * with "Apply All" and "Dismiss" buttons. After applying, shows a
- * green checkmark confirmation.
+ * Each action gets a checkbox so the user can cherry-pick which changes
+ * to apply. Defaults to all selected. "Apply Selected" executes only
+ * the checked actions; "Dismiss" skips all.
  */
 
-import { Check, X, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import type { ChatAction } from '@telostax/engine';
+import { Check, X, Loader2, Square, CheckSquare, Undo2 } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import type { ChatAction } from '@nimbus/engine';
+import { calculateForm1040, FilingStatus } from '@nimbus/engine';
 import { executeActions, summarizeExecution } from '../../services/intentExecutor';
+import { computeActionDelta } from '../../services/actionDeltaService';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
+import { useChatStore } from '../../store/chatStore';
+import { useUndoStore } from '../../store/undoStore';
+import { getReturn } from '../../api/client';
 
 // ─── Action Description ──────────────────────────
 
@@ -63,10 +68,18 @@ function describeAction(action: ChatAction): string {
     case 'remove_item': {
       const rlabel = INCOME_LABELS[action.itemType] || action.itemType;
       const matchDesc = Object.entries(action.match)
-        .map(([k, v]) => typeof v === 'number' ? `$${v.toLocaleString()}` : String(v))
+        .map(([_k, v]) => typeof v === 'number' ? `$${v.toLocaleString()}` : String(v))
         .join(', ');
       return `Remove ${rlabel} (${matchDesc})`;
     }
+    case 'update_home_office':
+      return `Update home office: ${Object.keys(action.fields).length} field${Object.keys(action.fields).length === 1 ? '' : 's'}`;
+    case 'update_vehicle':
+      return `Update vehicle: ${Object.keys(action.fields).length} field${Object.keys(action.fields).length === 1 ? '' : 's'}`;
+    case 'update_business':
+      return `Update business: ${Object.keys(action.fields).length} field${Object.keys(action.fields).length === 1 ? '' : 's'}`;
+    case 'update_se_retirement':
+      return `Update SE retirement: ${Object.keys(action.fields).length} field${Object.keys(action.fields).length === 1 ? '' : 's'}`;
     case 'no_action':
       return 'No action';
     default:
@@ -109,6 +122,7 @@ interface Props {
   summary?: string;
   onApplied: (messageId: string, summary: string) => void;
   onDismissed: (messageId: string) => void;
+  onUndo: (messageId: string) => void;
 }
 
 export default function ActionPreview({
@@ -119,17 +133,69 @@ export default function ActionPreview({
   summary,
   onApplied,
   onDismissed,
+  onUndo,
 }: Props) {
   const [isApplying, setIsApplying] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(() => new Set(actions.map((_, i) => i)));
   const returnId = useTaxReturnStore((s) => s.returnId);
+  const canUndo = useUndoStore((s) => s.hasSnapshot(messageId));
+
+  const toggleAction = useCallback((index: number) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }, []);
+
+  const toggleAll = useCallback(() => {
+    setSelected((prev) => {
+      if (prev.size === actions.length) return new Set();
+      return new Set(actions.map((_, i) => i));
+    });
+  }, [actions.length]);
 
   const handleApply = async () => {
-    if (!returnId || isApplying) return;
+    if (!returnId || isApplying || selected.size === 0) return;
     setIsApplying(true);
 
     try {
-      const result = executeActions(actions, returnId);
-      const summaryText = summarizeExecution(result);
+      const beforeCalc = useTaxReturnStore.getState().calculation;
+
+      // Snapshot the current return before mutating
+      const currentReturn = getReturn(returnId);
+      useUndoStore.getState().saveSnapshot(messageId, currentReturn);
+
+      const selectedActions = actions.filter((_, i) => selected.has(i));
+      const result = executeActions(selectedActions, returnId);
+      const skippedCount = actions.length - selected.size;
+      let summaryText = summarizeExecution(result);
+      if (skippedCount > 0) {
+        summaryText += `\n(${skippedCount} action${skippedCount === 1 ? '' : 's'} skipped)`;
+      }
+
+      const updatedReturn = getReturn(returnId);
+      const returnWithDefaults = {
+        ...updatedReturn,
+        filingStatus: updatedReturn.filingStatus || FilingStatus.Single,
+      };
+      let afterCalc: ReturnType<typeof calculateForm1040> | null = null;
+      try {
+        afterCalc = calculateForm1040(returnWithDefaults, { enabled: true });
+      } catch {
+        afterCalc = null;
+      }
+      const delta = computeActionDelta(beforeCalc, afterCalc);
+      useTaxReturnStore.getState().setCalculation(afterCalc);
+
+      if (delta.significant) {
+        useChatStore.getState().injectProactiveMessage(
+          `📊 **Impact:** ${delta.summaryText}`,
+          ['How was this calculated?', 'What else can I do to lower my tax?'],
+        );
+      }
+
       onApplied(messageId, summaryText);
     } catch {
       onApplied(messageId, 'Error applying actions');
@@ -138,13 +204,26 @@ export default function ActionPreview({
     }
   };
 
-  // Already applied — show confirmation
+  // Already applied — show confirmation with optional undo
   if (applied) {
     return (
       <div className="mt-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2">
-        <div className="flex items-center gap-2 text-green-400 text-xs font-medium mb-1">
-          <Check className="w-3.5 h-3.5" />
-          Applied
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2 text-green-400 text-xs font-medium">
+            <Check className="w-3.5 h-3.5" />
+            Applied
+          </div>
+          {canUndo && (
+            <button
+              onClick={() => onUndo(messageId)}
+              className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400
+                         hover:text-amber-400 transition-colors"
+              title="Undo these changes"
+            >
+              <Undo2 className="w-3 h-3" />
+              Undo
+            </button>
+          )}
         </div>
         {summary && (
           <pre className="text-xs text-slate-400 whitespace-pre-wrap font-sans">{summary}</pre>
@@ -165,21 +244,53 @@ export default function ActionPreview({
     );
   }
 
-  // Active — show proposed actions with Apply/Dismiss buttons
+  const allSelected = selected.size === actions.length;
+  const noneSelected = selected.size === 0;
+  const buttonLabel = allSelected
+    ? 'Apply All'
+    : noneSelected
+      ? 'Select actions'
+      : `Apply ${selected.size} of ${actions.length}`;
+
+  // Active — show proposed actions with per-action checkboxes
   return (
     <div className="mt-2 rounded-lg border border-telos-orange-500/30 bg-telos-orange-500/5 px-3 py-2">
-      <p className="text-xs font-medium text-telos-orange-300 mb-2">
-        Proposed changes:
-      </p>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-medium text-telos-orange-300">
+          Proposed changes:
+        </p>
+        {actions.length > 1 && (
+          <button
+            onClick={toggleAll}
+            className="text-[10px] text-slate-400 hover:text-slate-300 transition-colors"
+          >
+            {allSelected ? 'Deselect all' : 'Select all'}
+          </button>
+        )}
+      </div>
 
       <ul className="space-y-1 mb-3">
         {actions.map((action, i) => (
-          <li
-            key={i}
-            className="text-xs text-slate-300 flex items-start gap-2"
-          >
-            <span className="text-telos-orange-400 mt-0.5">&bull;</span>
-            <span>{describeAction(action)}</span>
+          <li key={i} className="flex items-start gap-2">
+            <button
+              onClick={() => toggleAction(i)}
+              className="mt-0.5 shrink-0 text-telos-orange-400 hover:text-telos-orange-300 transition-colors"
+              aria-label={selected.has(i) ? 'Deselect action' : 'Select action'}
+            >
+              {selected.has(i) ? (
+                <CheckSquare className="w-3.5 h-3.5" />
+              ) : (
+                <Square className="w-3.5 h-3.5 text-slate-500" />
+              )}
+            </button>
+            <span
+              className={`text-xs cursor-pointer transition-colors ${
+                selected.has(i) ? 'text-slate-300' : 'text-slate-500 line-through'
+              }`}
+              onClick={() => toggleAction(i)}
+            >
+              {describeAction(action)}
+            </span>
           </li>
         ))}
       </ul>
@@ -187,7 +298,7 @@ export default function ActionPreview({
       <div className="flex items-center gap-2">
         <button
           onClick={handleApply}
-          disabled={isApplying}
+          disabled={isApplying || noneSelected}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md
                      bg-telos-orange-600 hover:bg-telos-orange-500 text-white
                      transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -197,7 +308,7 @@ export default function ActionPreview({
           ) : (
             <Check className="w-3 h-3" />
           )}
-          Apply All
+          {buttonLabel}
         </button>
         <button
           onClick={() => onDismissed(messageId)}

@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import type { TaxReturn, CalculationResult, Form1040Result, CreditsResult, ScheduleCResult, ScheduleEResult, ScheduleFResult } from '@telostax/engine';
-import { FilingStatus } from '@telostax/engine';
+import type { TaxReturn, CalculationResult, Form1040Result, CreditsResult, ScheduleCResult, ScheduleEResult, ScheduleFResult } from '@nimbus/engine';
+import { FilingStatus } from '@nimbus/engine';
 import { assessAuditRisk, RiskLevel } from '../services/auditRiskService';
 
 // ─── Helpers ─────────────────────────────────────

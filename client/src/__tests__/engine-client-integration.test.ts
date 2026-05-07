@@ -12,9 +12,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { calculateForm1040 } from '@telostax/engine';
-import type { TaxReturn } from '@telostax/engine';
-import { FilingStatus } from '@telostax/engine';
+import { calculateForm1040 } from '@nimbus/engine';
+import type { TaxReturn } from '@nimbus/engine';
+import { FilingStatus } from '@nimbus/engine';
 import { getActiveWarnings } from '../services/warningService';
 import { getSuggestions } from '../services/suggestionService';
 

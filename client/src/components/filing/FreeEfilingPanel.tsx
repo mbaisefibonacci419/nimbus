@@ -9,8 +9,8 @@
  * Uses assessFilingOptions to show personalized eligibility badges.
  */
 import { useMemo, useState } from 'react';
-import type { TaxReturn, CalculationResult, FilingOptionsAssessment, EligibilityStatus } from '@telostax/engine';
-import { assessFilingOptions, FILING_URLS } from '@telostax/engine';
+import type { TaxReturn, CalculationResult, FilingOptionsAssessment, EligibilityStatus } from '@nimbus/engine';
+import { assessFilingOptions, FILING_URLS } from '@nimbus/engine';
 import TransferGuidePanel from './TransferGuidePanel';
 import {
   ArrowLeft,

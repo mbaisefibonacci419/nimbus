@@ -57,11 +57,11 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
   // Brute-force protection: exponential backoff after 3 failed attempts.
   // Persisted in sessionStorage so refreshing the page doesn't reset the counter.
   const [failCount, setFailCount] = useState(() => {
-    const stored = sessionStorage.getItem('telostax:lock-fails');
+    const stored = sessionStorage.getItem('nimbus:lock-fails');
     return stored ? parseInt(stored, 10) || 0 : 0;
   });
   const [lockedUntil, setLockedUntil] = useState(() => {
-    const stored = sessionStorage.getItem('telostax:lock-until');
+    const stored = sessionStorage.getItem('nimbus:lock-until');
     const val = stored ? parseInt(stored, 10) || 0 : 0;
     return val > Date.now() ? val : 0;
   });
@@ -69,13 +69,13 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
 
   // Sync to sessionStorage when values change
   useEffect(() => {
-    sessionStorage.setItem('telostax:lock-fails', String(failCount));
+    sessionStorage.setItem('nimbus:lock-fails', String(failCount));
   }, [failCount]);
   useEffect(() => {
     if (lockedUntil > 0) {
-      sessionStorage.setItem('telostax:lock-until', String(lockedUntil));
+      sessionStorage.setItem('nimbus:lock-until', String(lockedUntil));
     } else {
-      sessionStorage.removeItem('telostax:lock-until');
+      sessionStorage.removeItem('nimbus:lock-until');
     }
   }, [lockedUntil]);
 
@@ -145,8 +145,8 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
       } else {
         setFailCount(0);
         setLockedUntil(0);
-        sessionStorage.removeItem('telostax:lock-fails');
-        sessionStorage.removeItem('telostax:lock-until');
+        sessionStorage.removeItem('nimbus:lock-fails');
+        sessionStorage.removeItem('nimbus:lock-until');
       }
     } catch {
       setError('Something went wrong. Please try again.');
@@ -285,8 +285,8 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold">
-            <span className="text-telos-orange-400">Telos</span>
-            <span className="text-telos-blue-400">Tax</span>
+            <span className="text-telos-orange-400">Ni</span>
+            <span className="text-telos-blue-400">mbus</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">Free, private, open-source tax prep.</p>
         </div>

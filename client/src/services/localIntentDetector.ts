@@ -1,17 +1,19 @@
 /**
  * Local Intent Detector
  *
- * Catches simple, high-confidence user intents (like "delete the X W-2")
- * and builds ChatResponse actions directly — no LLM round-trip needed.
+ * Catches simple, high-confidence user intents (navigation, refund summaries,
+ * completeness checks, field reads, deletion) and builds ChatResponse actions
+ * directly — no LLM round-trip needed.
  *
- * This exists because LLMs reliably refuse to generate remove_item actions
- * due to safety priors around deletion, even when the system prompt explicitly
- * permits it. By handling deletion intent locally, we guarantee it works
- * across all models and providers.
+ * Deletion is handled locally because LLMs reliably refuse to generate
+ * remove_item actions due to safety priors around deletion, even when the
+ * system prompt explicitly permits it.
  */
 
-import type { ChatResponse } from '@telostax/engine';
-import { useTaxReturnStore } from '../store/taxReturnStore';
+import type { ChatResponse } from '@nimbus/engine';
+import type { Form1040Result } from '@nimbus/engine';
+import { useTaxReturnStore, WIZARD_STEPS } from '../store/taxReturnStore';
+import { buildDocumentInventory } from './documentInventoryService';
 
 // ─── Item Type Detection ─────────────────────────
 
@@ -53,16 +55,256 @@ const ITEM_TYPES: ItemTypePattern[] = [
   { itemType: 'education-credits', label: 'education credit', patterns: [/education\s*credit/i], fieldName: 'educationCredits', nameField: 'institution', suggestedStep: 'education_credits' },
 ];
 
+// ─── Navigation ───────────────────────────────────
+
+const NAV_PREFIX =
+  /^(?:go\s*to|show|take\s*me\s*to|open|navigate\s*to|jump\s*to|switch\s*to)\s+/i;
+
+function normalizeAliasKey(s: string): string {
+  return s.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+/** Maps common phrases to wizard step ids (ids must exist in WIZARD_STEPS where possible). */
+function buildStepAliasMap(): Map<string, string> {
+  const m = new Map<string, string>();
+  const add = (aliases: string[], stepId: string) => {
+    for (const a of aliases) m.set(normalizeAliasKey(a), stepId);
+  };
+
+  add(['w-2', 'w2'], 'w2_income');
+  add(['deductions', 'deduction'], 'deduction_method');
+  add(['credits', 'credit'], 'child_tax_credit');
+  add(['review', 'summary'], 'tax_summary');
+  add(['dependents', 'dependent'], 'dependents');
+  add(['filing status', 'status'], 'filing_status');
+  add(['personal info', 'my info'], 'personal_info');
+  add(['state', 'state taxes'], 'state_overview');
+  add(['self employment', 'self-employment', 'schedule c', 'self employment income'], 'business_info');
+  add(['1099-nec', '1099nec'], '1099nec_income');
+  add(['itemized', 'itemized deductions'], 'itemized_deductions');
+  add(['standard deduction'], 'deduction_method');
+  add(['ira', 'ira contributions', 'retirement', 'retirement contributions'], 'ira_contribution_ded');
+  add(['hsa', 'hsa contributions'], 'hsa_contributions');
+  add(['education', 'education credits'], 'education_credits');
+
+  for (const it of ITEM_TYPES) {
+    m.set(normalizeAliasKey(it.itemType.replace(/-/g, ' ')), it.suggestedStep);
+    m.set(normalizeAliasKey(it.label), it.suggestedStep);
+  }
+
+  return m;
+}
+
+const STEP_ALIASES = buildStepAliasMap();
+
+function stepLabel(stepId: string): string {
+  return WIZARD_STEPS.find((s) => s.id === stepId)?.label ?? 'that section';
+}
+
+function formatUsd(n: number): string {
+  const rounded = Math.round(n * 100) / 100;
+  return `$${rounded.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+}
+
+function tryNavigationIntent(trimmed: string): ChatResponse | null {
+  if (!NAV_PREFIX.test(trimmed)) return null;
+
+  let target = trimmed.replace(NAV_PREFIX, '').replace(/^(?:the|my|a)\s+/i, '').trim();
+  target = target.replace(/[?.!]+$/g, '').trim();
+  if (!target) return null;
+
+  const key = normalizeAliasKey(target);
+  const stepId = STEP_ALIASES.get(key);
+  if (!stepId) return null;
+
+  const label = stepLabel(stepId);
+  return {
+    message: `Navigating to ${label}.`,
+    actions: [{ type: 'navigate', stepId }],
+    suggestedStep: stepId,
+    followUpChips: ['What do I enter here?', 'Explain this section', 'Go to review'],
+  };
+}
+
+// ─── Refund / amount owed ────────────────────────
+
+function normalizeQuestion(s: string): string {
+  return s.toLowerCase().trim().replace(/[?.!]+$/g, '').replace(/\s+/g, ' ');
+}
+
+function tryRefundOrOwedIntent(trimmed: string): ChatResponse | null {
+  const t = normalizeQuestion(trimmed);
+  const matches =
+    /\bwhat'?s my refund\b/.test(t) ||
+    /\bwhat is my refund\b/.test(t) ||
+    /\bhow much do i owe\b/.test(t) ||
+    /\bwhat do i owe\b/.test(t) ||
+    t === 'my refund' ||
+    t === 'refund amount' ||
+    t === 'amount owed' ||
+    t === 'total tax' ||
+    t === 'my tax';
+
+  if (!matches) return null;
+
+  const { calculation } = useTaxReturnStore.getState();
+  if (!calculation?.form1040) {
+    return {
+      message:
+        "I don't have your tax calculation yet. Complete more sections and I can tell you.",
+      actions: [],
+      suggestedStep: 'tax_summary',
+      followUpChips: ['Go to income', 'Go to deductions', 'What is missing?'],
+    };
+  }
+
+  const f = calculation.form1040;
+  const refund = f.refundAmount ?? 0;
+  const owed = f.amountOwed ?? 0;
+  const totalTax = f.totalTax ?? 0;
+
+  let message: string;
+  if (refund > 0 && owed <= 0) {
+    message = `Based on your return so far, your federal refund is about ${formatUsd(refund)}.`;
+  } else if (owed > 0 && refund <= 0) {
+    message = `Based on your return so far, you owe about ${formatUsd(owed)} in federal tax.`;
+  } else if (totalTax > 0) {
+    message = `Your current federal income tax is about ${formatUsd(totalTax)}. Withholding and payments may still change your refund or balance due.`;
+  } else {
+    message =
+      'Your return looks balanced so far — no federal refund or amount owed based on the current calculation.';
+  }
+
+  return {
+    message,
+    actions: [],
+    suggestedStep: 'refund_payment',
+    followUpChips: ['How was this calculated?', 'What can I do to lower my tax?', 'Review my return'],
+  };
+}
+
+// ─── Completeness ────────────────────────────────
+
+function tryCompletenessIntent(trimmed: string): ChatResponse | null {
+  const t = normalizeQuestion(trimmed);
+  const matches =
+    /\bam i done\b/.test(t) ||
+    /\bwhat'?s missing\b/.test(t) ||
+    /\bwhat is missing\b/.test(t) ||
+    /\bwhat do i still need\b/.test(t) ||
+    /\bis my return complete\b/.test(t) ||
+    /\bwhat'?s left\b/.test(t) ||
+    /\bwhat is left\b/.test(t);
+
+  if (!matches) return null;
+
+  const { taxReturn } = useTaxReturnStore.getState();
+  if (!taxReturn) return null;
+
+  const inv = buildDocumentInventory(taxReturn);
+  const pct = inv.overallCompleteness;
+  const pendingForms = inv.totalFormsPending;
+  const weakSections = inv.nonIncomeSections.filter((s) => s.status !== 'complete');
+
+  let message = `Your return is about ${pct}% complete based on forms and sections tracked here.`;
+  if (pendingForms > 0) {
+    message += ` ${pendingForms} income form group${pendingForms === 1 ? ' is' : 's are'} still waiting for entries.`;
+  }
+  if (weakSections.length > 0) {
+    const names = weakSections.map((s) => s.label).join(', ');
+    message += ` These areas may still need attention: ${names}.`;
+  }
+  if (pendingForms === 0 && weakSections.length === 0) {
+    message +=
+      " Everything that we can check looks complete — you're ready to review the totals and filing steps.";
+  }
+
+  return {
+    message,
+    actions: [],
+    suggestedStep: 'tax_summary',
+    followUpChips: ["Guide me through what's left", 'Go to review', 'What is my refund?'],
+  };
+}
+
+// ─── Form 1040 field reads ───────────────────────
+
+type Form1040NumericKey = keyof Pick<
+  Form1040Result,
+  | 'totalWages'
+  | 'totalIncome'
+  | 'agi'
+  | 'taxableIncome'
+  | 'totalCredits'
+  | 'deductionAmount'
+  | 'totalTax'
+>;
+
+function tryFieldReadIntent(trimmed: string): ChatResponse | null {
+  const t = trimmed.toLowerCase().replace(/[?.!]+$/g, '').trim();
+
+  let field: Form1040NumericKey | null = null;
+  let descriptor = '';
+
+  if (
+    /\b(wages|w-2\s*wages|box\s*1|what did i enter for wages|my wages)\b/.test(t) ||
+    (/\bhow much\b/.test(t) && /\bwages\b/.test(t))
+  ) {
+    field = 'totalWages';
+    descriptor = 'Total wages (Form W-2, Box 1)';
+  } else if (/\b(total income|how much income)\b/.test(t) || t === 'total income') {
+    field = 'totalIncome';
+    descriptor = 'Total income';
+  } else if (/\bagi\b/.test(t) || /adjusted gross income/.test(t) || /\bwhat'?s my agi\b/.test(t)) {
+    field = 'agi';
+    descriptor = 'Adjusted gross income (AGI)';
+  } else if (/\btaxable\s+income\b/.test(t)) {
+    field = 'taxableIncome';
+    descriptor = 'Taxable income';
+  } else if (/\btotal\s+credits\b/.test(t)) {
+    field = 'totalCredits';
+    descriptor = 'Total credits';
+  } else if (/\btotal\s+deductions\b/.test(t)) {
+    field = 'deductionAmount';
+    descriptor = 'Deduction taken (standard or itemized)';
+  } else {
+    return null;
+  }
+
+  const { calculation } = useTaxReturnStore.getState();
+  const raw = calculation?.form1040?.[field];
+  if (typeof raw !== 'number') return null;
+
+  return {
+    message: `Your ${descriptor} is ${formatUsd(raw)} with the current return data.`,
+    actions: [],
+    suggestedStep: 'review_form_1040',
+    followUpChips: ['How was this calculated?', 'Explain my taxes', 'Go to review'],
+  };
+}
+
 // ─── Deletion Intent Detection ───────────────────
 
 const DELETE_VERBS = /^(?:delete|remove|drop|get rid of|take out|clear|erase)\b/i;
 
 /**
- * Try to detect a deletion intent from the user's message.
+ * Try to detect a local intent from the user's message.
  * Returns a synthetic ChatResponse if detected, or null to fall through to the LLM.
  */
 export function detectLocalIntent(message: string): ChatResponse | null {
   const trimmed = message.trim();
+
+  const navigation = tryNavigationIntent(trimmed);
+  if (navigation) return navigation;
+
+  const refund = tryRefundOrOwedIntent(trimmed);
+  if (refund) return refund;
+
+  const completeness = tryCompletenessIntent(trimmed);
+  if (completeness) return completeness;
+
+  const fieldRead = tryFieldReadIntent(trimmed);
+  if (fieldRead) return fieldRead;
 
   // Must start with a delete verb
   if (!DELETE_VERBS.test(trimmed)) return null;

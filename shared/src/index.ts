@@ -1,5 +1,12 @@
 export * from './types/index.js';
 export * from './constants/tax2025.js';
+export {
+  getConstants,
+  isSupportedYear,
+  getSupportedYears,
+  DEFAULT_TAX_YEAR,
+} from './constants/taxYearRegistry.js';
+export type { TaxYearConstants, ProvisionFlags, BracketEntry } from './constants/taxYearRegistry.js';
 export * from './engine/utils.js';
 export * from './engine/brackets.js';
 export * from './engine/scheduleC.js';
@@ -54,6 +61,7 @@ export * from './engine/deceasedSpouse.js';
 export * from './engine/solo401k.js';
 export * from './engine/form7206.js';
 export * from './engine/form1040.js';
+export { isProvisionActive, getProvisionFlags, type ProvisionKey } from './engine/provisionGuard.js';
 
 // AMT (Form 6251)
 export * from './engine/amt.js';
@@ -139,6 +147,10 @@ export * from './services/filingOptionsService.js';
 
 // Dynamic IRS reference data for AI chat
 export * from './services/buildIrsReferenceData.js';
+
+// Anthropic tool_use schemas (optional; production still uses JSON mode)
+export { ACTION_TOOL_SCHEMAS, type ToolDefinition } from './services/actionToolSchemas.js';
+export { parseToolUseResponse } from './services/toolResponseParser.js';
 
 // Calculation trace engine (inspired by IRS Direct File Fact Graph)
 export * from './engine/traceBuilder.js';

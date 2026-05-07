@@ -1,0 +1,237 @@
+[
+  {
+    "id": "deduction-hsa-contribution",
+    "description": "HSA contribution deduction",
+    "input": {
+      "message": "I contributed $3,850 to my HSA through my employer",
+      "context": {
+        "currentStep": "hsa_deduction",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "standard",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_field"],
+      "actionFields": [
+        { "type": "update_field" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-mortgage-interest",
+    "description": "Mortgage interest deduction for itemizers",
+    "input": {
+      "message": "I paid $18,000 in mortgage interest. Here's my 1098.",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 2,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        { "type": "update_itemized", "fieldsContain": { "mortgageInterest": 18000 } }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-salt-cap",
+    "description": "SALT deduction up to $10,000 cap",
+    "input": {
+      "message": "I paid $15,000 in state income taxes and $8,000 in property taxes",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        { "type": "update_itemized" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-charitable-cash",
+    "description": "Cash charitable donation",
+    "input": {
+      "message": "I donated $5,000 to my church and $2,000 to the Red Cross",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        { "type": "update_itemized" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-student-loan-interest",
+    "description": "Student loan interest deduction",
+    "input": {
+      "message": "I paid $2,500 in student loan interest last year",
+      "context": {
+        "currentStep": "adjustments",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_field"],
+      "actionFields": [
+        { "type": "update_field" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-ira-contribution",
+    "description": "Traditional IRA contribution deduction",
+    "input": {
+      "message": "I contributed $6,500 to my traditional IRA",
+      "context": {
+        "currentStep": "ira_deduction",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_field"],
+      "actionFields": [
+        { "type": "update_field" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-choose-standard",
+    "description": "User wants to take the standard deduction",
+    "input": {
+      "message": "I'll just take the standard deduction",
+      "context": {
+        "currentStep": "deduction_method",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_deduction_method"],
+      "actionFields": [
+        { "type": "set_deduction_method", "method": "standard" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-choose-itemized",
+    "description": "User wants to itemize deductions",
+    "input": {
+      "message": "I want to itemize my deductions",
+      "context": {
+        "currentStep": "deduction_method",
+        "currentSection": "deductions",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 2 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_deduction_method"],
+      "actionFields": [
+        { "type": "set_deduction_method", "method": "itemized" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-medical-expenses",
+    "description": "Medical expenses exceeding 7.5% AGI threshold",
+    "input": {
+      "message": "I had $15,000 in medical expenses last year including surgery and prescriptions",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "deductionMethod": "itemized",
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_itemized"],
+      "actionFields": [
+        { "type": "update_itemized" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "deduction-se-health-insurance",
+    "description": "Self-employed health insurance deduction",
+    "input": {
+      "message": "I'm self-employed and paid $6,000 for my health insurance premiums",
+      "context": {
+        "currentStep": "se_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "1099nec": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_se_retirement"],
+      "actionFields": [
+        { "type": "update_se_retirement" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

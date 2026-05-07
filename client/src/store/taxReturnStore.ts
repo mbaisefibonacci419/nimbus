@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { TaxReturn, CalculationResult, evaluateCondition, setDeepPath } from '@telostax/engine';
-import type { StepCondition } from '@telostax/engine';
+import { TaxReturn, CalculationResult, evaluateCondition, setDeepPath } from '@nimbus/engine';
+import type { StepCondition } from '@nimbus/engine';
 import { writeReturn } from '../api/client';
 import { isEncryptionSetup } from '../services/crypto';
 
@@ -14,6 +14,52 @@ import { isEncryptionSetup } from '../services/crypto';
 // timer fires and overwrites it with stale pre-navigation state.
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 let autoSaveCallback: (() => void) | null = null;
+
+/** Warning count after the last proactive evaluation (step transitions). */
+let previousProactiveWarningCount = 0;
+
+function scheduleProactiveMessageEval(): void {
+  setTimeout(() => {
+    void (async () => {
+      try {
+        const { evaluateProactive } = await import('../services/proactiveEngine');
+        const { getActiveWarnings, getTotalWarningCount } = await import('../services/warningService');
+        const { useChatStore } = await import('./chatStore');
+        const state = useTaxReturnStore.getState();
+        const tr = state.taxReturn;
+        if (!tr) return;
+        const calc = state.calculation;
+        const step = state.getCurrentStep();
+        const stepId = step?.id ?? 'welcome';
+        const section = step?.section ?? 'my_info';
+        const dismissed = new Set<string>();
+        for (const id of tr.dismissedNudges || []) {
+          if (id.startsWith('proactive:')) {
+            dismissed.add(id.slice('proactive:'.length));
+          }
+        }
+        const result = evaluateProactive(
+          tr,
+          calc,
+          stepId,
+          section,
+          previousProactiveWarningCount,
+          dismissed,
+        );
+        const warnTotal = getTotalWarningCount(getActiveWarnings(tr, calc ?? undefined));
+        previousProactiveWarningCount = warnTotal;
+        if (!result) return;
+        const chips =
+          result.trigger.type === 'high_value_suggestion'
+            ? [result.trigger.chatPrompt]
+            : undefined;
+        useChatStore.getState().injectProactiveMessage(result.message, chips);
+      } catch {
+        // Proactive nudges are best-effort; never block navigation
+      }
+    })();
+  }, 0);
+}
 
 function debouncedAutoSave(onSaved?: () => void) {
   if (autoSaveTimer) clearTimeout(autoSaveTimer);
@@ -423,6 +469,7 @@ export const useTaxReturnStore = create<TaxReturnState>((set, get) => ({
         set({ taxReturn: updated });
         writeReturn(updated);
       }
+      scheduleProactiveMessageEval();
     }
   },
 
@@ -439,6 +486,7 @@ export const useTaxReturnStore = create<TaxReturnState>((set, get) => ({
         set({ taxReturn: updated });
         writeReturn(updated);
       }
+      scheduleProactiveMessageEval();
     }
   },
 

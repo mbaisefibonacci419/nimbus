@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { Calculator, Shield, History, Calendar, FileInput, Download, FlaskConical, FolderOpen, ScanSearch, Hourglass, Tag } from 'lucide-react';
-import type { TaxReturn } from '@telostax/engine';
+import type { TaxReturn } from '@nimbus/engine';
 
 export interface SidebarTool {
   id: string;

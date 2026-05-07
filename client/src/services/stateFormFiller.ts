@@ -8,9 +8,9 @@
  * as a third data source.
  */
 import { PDFDocument, PDFButton } from 'pdf-lib';
-import type { TaxReturn, CalculationResult, StateCalculationResult } from '@telostax/engine';
-import type { StateFieldMapping, StateFormTemplate } from '@telostax/engine';
-import { STATE_FORM_REGISTRY } from '@telostax/engine';
+import type { TaxReturn, CalculationResult, StateCalculationResult } from '@nimbus/engine';
+import type { StateFieldMapping, StateFormTemplate } from '@nimbus/engine';
+import { STATE_FORM_REGISTRY } from '@nimbus/engine';
 
 // ─── Template Cache ─────────────────────────────────────────────
 const stateTemplateCache = new Map<string, Uint8Array>();

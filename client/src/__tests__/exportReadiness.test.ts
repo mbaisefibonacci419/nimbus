@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import type { TaxReturn } from '@telostax/engine';
-import { FilingStatus } from '@telostax/engine';
+import type { TaxReturn } from '@nimbus/engine';
+import { FilingStatus } from '@nimbus/engine';
 import { checkExportReadiness } from '../services/exportReadiness';
 
 // ─── Helpers ─────────────────────────────────────

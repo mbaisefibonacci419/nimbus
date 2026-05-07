@@ -27,8 +27,8 @@
  *   });
  */
 
-import type { TaxReturn, CalculationResult } from '@telostax/engine';
-import { checkPlausibility, FilingStatus, SANCTIONED_COUNTRIES, QCD } from '@telostax/engine';
+import type { TaxReturn, CalculationResult } from '@nimbus/engine';
+import { checkPlausibility, FilingStatus, SANCTIONED_COUNTRIES, QCD } from '@nimbus/engine';
 import {
   validateDateOfBirth,
   validateSaleDate,

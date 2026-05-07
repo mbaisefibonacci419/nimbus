@@ -28,7 +28,7 @@ export default function PledgePage() {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center mb-4">
-            <span className="font-bold text-5xl"><span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">Tax</span></span>
+            <span className="font-bold text-5xl"><span className="text-telos-orange-400">Ni</span><span className="text-telos-blue-400">mbus</span></span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
             About This Project
@@ -38,12 +38,12 @@ export default function PledgePage() {
           </p>
         </div>
 
-        {/* What is TelosTax */}
+        {/* What is Nimbus */}
         <div className="card mb-4">
-          <h2 className="text-lg font-semibold text-white mb-3">What is TelosTax?</h2>
+          <h2 className="text-lg font-semibold text-white mb-3">What is Nimbus?</h2>
           <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
             <p>
-              TelosTax is a project from <a href="https://www.telos.news" target="_blank" rel="noopener noreferrer" className="text-telos-blue-400 hover:text-telos-blue-300 underline">Telos News</a>.
+              Nimbus is a project from <a href="https://www.telos.news" target="_blank" rel="noopener noreferrer" className="text-telos-blue-400 hover:text-telos-blue-300 underline">Telos News</a>.
               It was built by a journalist with no coding
               experience and no specialized knowledge of tax law, using Anthropic's Claude Code
               as an AI coding assistant. The entire app — over 230,000 lines of code across a tax
@@ -113,7 +113,7 @@ export default function PledgePage() {
               <p className="text-sm text-slate-300 leading-relaxed">
                 This tool is for informational purposes only and does not constitute tax advice.
                 Do not use this app to file your taxes without having your return carefully reviewed
-                by a qualified tax professional. TelosTax needs vetting by tax experts and human
+                by a qualified tax professional. Nimbus needs vetting by tax experts and human
                 coders, which is why it's available as a free, open-source project. The tax engine
                 may contain errors. If you're a tax professional or developer who'd like to help
                 stress-test the app, please get in touch.
@@ -138,7 +138,7 @@ export default function PledgePage() {
               Americans should be pushed to do this while filing their taxes.
             </p>
             <p>
-              TelosTax is proof that a full-featured tax preparation app can be built to respect
+              Nimbus is proof that a full-featured tax preparation app can be built to respect
               your privacy instead of exploiting it.
             </p>
           </div>
@@ -210,13 +210,13 @@ export default function PledgePage() {
         <div className="card mt-4 bg-surface-800">
           <h2 className="text-lg font-semibold text-white mb-3">Get involved</h2>
           <p className="text-sm text-slate-300 leading-relaxed mb-4">
-            TelosTax is an open-source project that needs help from tax professionals and
+            Nimbus is an open-source project that needs help from tax professionals and
             developers. If you'd like to contribute, dig into the code, or stress-test the
             engine, the project is on GitHub.
           </p>
           <div className="flex flex-wrap gap-3">
             <a
-              href="https://github.com/telosnews/TelosTax"
+              href="https://github.com/telosnews/Nimbus"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary inline-flex items-center gap-2 text-sm"

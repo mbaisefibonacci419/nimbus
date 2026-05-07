@@ -9,11 +9,11 @@
  * The old direct fetch calls are replaced by transport.sendMessage().
  */
 
-import type { ChatContext, ChatMessage, ChatResponse, ChatStatus } from '@telostax/engine';
-import { scanForPII } from '@telostax/engine';
+import type { ChatContext, ChatMessage, ChatResponse, ChatStatus } from '@nimbus/engine';
+import { scanForPII } from '@nimbus/engine';
 import { useAISettingsStore } from '../store/aiSettingsStore';
 import { getTransport } from './chat/transportFactory';
-import type { ChatTransportStatus } from './chat/types';
+import type { ChatTransportStatus, StreamDeltaCallback } from './chat/types';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3001';
 
@@ -76,7 +76,7 @@ export async function getTransportStatus(): Promise<ChatTransportStatus> {
 }
 
 /**
- * Send a chat message via the active transport.
+ * Send a chat message via the active transport (batch mode, no streaming).
  * Caller should run checkForPII() first and handle PII warnings.
  * Throws in Private mode (no transport available).
  */
@@ -92,4 +92,23 @@ export async function sendChatMessage(
     throw new Error('AI chat is not available in Private Mode. Switch to BYOK to enable AI-powered features.');
   }
   return transport.sendMessage(message, conversationHistory, context, signal);
+}
+
+/**
+ * Send a chat message via SSE streaming. Calls onDelta with each text token.
+ * Falls back to batch mode if the transport doesn't support streaming.
+ */
+export async function sendChatMessageStream(
+  message: string,
+  conversationHistory: ChatMessage[],
+  context: ChatContext,
+  onDelta: StreamDeltaCallback,
+  signal?: AbortSignal,
+): Promise<ChatResponse> {
+  const settings = useAISettingsStore.getState();
+  const transport = getTransport(settings);
+  if (!transport) {
+    throw new Error('AI chat is not available in Private Mode. Switch to BYOK to enable AI-powered features.');
+  }
+  return transport.sendMessageStream(message, conversationHistory, context, onDelta, signal);
 }

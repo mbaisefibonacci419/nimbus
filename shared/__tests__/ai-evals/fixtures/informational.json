@@ -1,0 +1,225 @@
+[
+  {
+    "id": "info-refund-status",
+    "description": "User asks about their refund amount",
+    "input": {
+      "message": "How much is my refund?",
+      "context": {
+        "currentStep": "review",
+        "currentSection": "review",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 },
+        "traceContext": "Federal refund: ~$2,400 | AGI: ~$50,000 | Tax: ~$5,600 | Withholding: ~$8,000"
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["refund"]
+    }
+  },
+  {
+    "id": "info-tax-bracket",
+    "description": "User asks about their tax bracket",
+    "input": {
+      "message": "What tax bracket am I in?",
+      "context": {
+        "currentStep": "review",
+        "currentSection": "review",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 },
+        "traceContext": "Taxable income: ~$38,000 | Marginal rate: 12%"
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["bracket"]
+    }
+  },
+  {
+    "id": "info-standard-deduction-amount",
+    "description": "User asks what the standard deduction is",
+    "input": {
+      "message": "What is the standard deduction for 2025?",
+      "context": {
+        "currentStep": "deduction_method",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["standard deduction"]
+    }
+  },
+  {
+    "id": "info-agi-explanation",
+    "description": "User asks what AGI means",
+    "input": {
+      "message": "What is adjusted gross income?",
+      "context": {
+        "currentStep": "income_summary",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["adjusted gross income"]
+    }
+  },
+  {
+    "id": "info-filing-deadline",
+    "description": "User asks about the filing deadline",
+    "input": {
+      "message": "When is the deadline to file my taxes?",
+      "context": {
+        "currentStep": "welcome",
+        "currentSection": "getting_started",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "info-why-owe",
+    "description": "User asks why they owe taxes",
+    "input": {
+      "message": "Why do I owe money? I thought I'd get a refund.",
+      "context": {
+        "currentStep": "review",
+        "currentSection": "review",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes", "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1, "1099nec": 1 },
+        "traceContext": "Balance due: ~$3,200 | SE tax: ~$4,200 | W-2 withholding: ~$6,000 | AGI: ~$80,000"
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "info-se-tax-explanation",
+    "description": "User asks about self-employment tax",
+    "input": {
+      "message": "What is self-employment tax and why am I paying it?",
+      "context": {
+        "currentStep": "se_tax_summary",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "1099nec": 2 },
+        "traceContext": "SE income: ~$60,000 | SE tax: ~$8,500"
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["self-employment"]
+    }
+  },
+  {
+    "id": "info-marginal-vs-effective",
+    "description": "User asks about marginal vs effective tax rate",
+    "input": {
+      "message": "What's the difference between my marginal tax rate and effective tax rate?",
+      "context": {
+        "currentStep": "review",
+        "currentSection": "review",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 },
+        "traceContext": "Marginal rate: 22% | Effective rate: ~14% | AGI: ~$65,000"
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["marginal"]
+    }
+  },
+  {
+    "id": "info-head-of-household",
+    "description": "User asks about Head of Household requirements",
+    "input": {
+      "message": "Do I qualify as head of household?",
+      "context": {
+        "currentStep": "filing_status",
+        "currentSection": "getting_started",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 1,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["head of household"]
+    }
+  },
+  {
+    "id": "info-what-is-qbi",
+    "description": "User asks about QBI deduction",
+    "input": {
+      "message": "What is the qualified business income deduction?",
+      "context": {
+        "currentStep": "qbi_deduction",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "selfEmployment": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "1099nec": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["qualified business income"]
+    }
+  }
+]

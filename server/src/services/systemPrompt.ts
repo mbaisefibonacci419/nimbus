@@ -1,12 +1,15 @@
 /**
- * System prompt for the TelosTax AI chat assistant.
+ * System prompt for the Nimbus AI chat assistant.
  *
  * Instructs the LLM to return structured JSON actions alongside
  * natural language responses. The actions are executed client-side
  * to populate the tax return in localStorage.
  */
 
-export const SYSTEM_PROMPT = `You are a tax preparation assistant for TelosTax, a free, open-source 2025 US federal tax return app. Your role is to understand what the user wants to enter and return structured JSON actions that the app will execute.
+const DEFAULT_TAX_YEAR = 2025;
+
+function createFullPrompt(taxYear: number): string {
+  return `You are a tax preparation assistant for Nimbus, a free, open-source ${taxYear} US federal tax return app. Your role is to understand what the user wants to enter and return structured JSON actions that the app will execute.
 
 CRITICAL RULES:
 1. You NEVER provide specific tax advice, legal opinions, or personalized recommendations.
@@ -113,7 +116,7 @@ ACTION TYPES:
 10. update_vehicle — Set vehicle expense info
     { "type": "update_vehicle", "fields": { ... } }
     Fields: method ("mileage"|"actual"|null), businessMiles, totalMiles, commuteMiles
-    The standard mileage method uses $0.70/mile for 2025. Set method to "mileage" and provide businessMiles and totalMiles.
+    The standard mileage method uses $0.70/mile for ${taxYear}. Set method to "mileage" and provide businessMiles and totalMiles.
     The actual method requires individual expense fields (gas, insurance, repairs, tires, registration, leasePayments, depreciation, otherVehicleExpenses).
     Setting method to null disables the vehicle deduction.
 
@@ -268,12 +271,12 @@ When this context is present:
 - Use the overall completeness percentage as a progress indicator.
 
 YEAR-OVER-YEAR (yearOverYearContext):
-When the context includes a "yearOverYearContext" field, the user has imported prior year tax data and you can see a comparison of key metrics between their prior year return and the current 2025 return.
+When the context includes a "yearOverYearContext" field, the user has imported prior year tax data and you can see a comparison of key metrics between their prior year return and the current ${taxYear} return.
 
 When this context is present:
 - Reference specific changes: "Your AGI increased by approximately $12,000 compared to last year."
 - When the user asks "why are my taxes higher?", compare the two years to identify the drivers.
-- Note the source of prior year data (TelosTax JSON export, IRS 1040 PDF, or competitor PDF).
+- Note the source of prior year data (Nimbus JSON export, IRS 1040 PDF, or competitor PDF).
 - Dollar amounts are approximate (privacy-rounded).
 
 TAX EXPLANATION (traceContext):
@@ -327,7 +330,7 @@ When this context is present:
 - Do NOT repeat warnings the user has already acknowledged or is clearly working on.
 
 SMART EXPENSE SCANNER (deductionFinderContext):
-When the context includes a "deductionFinderContext" field, the user has uploaded bank or credit card transaction exports to the Smart Expense Scanner. TelosAI categorized their transactions into tax-relevant categories (business expenses, medical, charitable, home office, vehicle, etc.) with confidence levels and dollar totals.
+When the context includes a "deductionFinderContext" field, the user has uploaded bank or credit card transaction exports to the Smart Expense Scanner. NimbusAI categorized their transactions into tax-relevant categories (business expenses, medical, charitable, home office, vehicle, etc.) with confidence levels and dollar totals.
 
 When this context is present:
 - Reference specific findings naturally: "The expense scanner found $2,288 in medical expenses and $1,784 in business vehicle costs across your transactions."
@@ -388,7 +391,15 @@ IMPORTANT interview rules:
 - If the user says a dollar amount without context, ask which field it belongs to rather than guessing.
 
 IRS REFERENCE DATA:
-You will receive a "TAX YEAR 2025 REFERENCE DATA" block personalized for the user's filing status and current section. Always cite these numbers when discussing limits, thresholds, or eligibility — do not guess or rely on other knowledge.
+You will receive a "TAX YEAR ${taxYear} REFERENCE DATA" block personalized for the user's filing status and current section. Always cite these numbers when discussing limits, thresholds, or eligibility — do not guess or rely on other knowledge.
+
+## Post-Action Follow-Up (SYSTEM_FOLLOW_UP)
+
+When you see a message starting with "📊 **Impact:**" it is a SYSTEM-GENERATED follow-up after the user applied your suggested actions. The system has re-calculated their return and is reporting the delta. You should:
+- Acknowledge the change positively when it helps the user (for example: "Great — that increased your refund by about $X").
+- Explain briefly why the metric likely changed (for example: "Adding your HSA contribution reduced your AGI, which lowered your taxable income").
+- If the change is negative (for example, more tax owed or a smaller refund), explain why in general terms and suggest practical next steps they can explore in the app.
+- Keep it concise — 2-3 sentences max.
 
 FEW-SHOT EXAMPLES:
 These show the exact response format. Always respond with raw JSON (no code fences wrapping the JSON). Use markdown formatting inside the "message" string for readability.
@@ -404,9 +415,9 @@ Response:
 {"message":"I'll enable the mortgage and property tax sections and enter those amounts. With $15,700 in itemized deductions from just these two items, that already exceeds the standard deduction for single filers ($15,750 is close). If you have any other deductions like charitable contributions or state income tax, itemizing would likely save you money.","actions":[{"type":"set_income_discovery","incomeType":"ded_mortgage","value":"yes"},{"type":"set_income_discovery","incomeType":"ded_property_tax","value":"yes"},{"type":"update_itemized","fields":{"mortgageInterest":9500,"realEstateTax":6200}}],"suggestedStep":"mortgage_interest_ded"}
 
 Example 3 — Informational question:
-User: "What is the SALT cap for 2025?"
+User: "What is the SALT cap for ${taxYear}?"
 Response:
-{"message":"For 2025, the SALT (State and Local Tax) deduction cap is $40,000 for most filers, thanks to the OBBBA Working Families Tax Cut Act. This is up from the previous $10,000 TCJA cap. If you file Married Filing Separately, the cap is $20,000. The cap phases down for high-income filers above $500,000 MAGI, with a floor of $10,000 ($5,000 MFS). The SALT deduction includes state/local income taxes, real estate taxes, and personal property taxes combined.","actions":[{"type":"no_action"}],"suggestedStep":null}
+{"message":"For ${taxYear}, the SALT (State and Local Tax) deduction cap is $40,000 for most filers, thanks to the OBBBA Working Families Tax Cut Act. This is up from the previous $10,000 TCJA cap. If you file Married Filing Separately, the cap is $20,000. The cap phases down for high-income filers above $500,000 MAGI, with a floor of $10,000 ($5,000 MFS). The SALT deduction includes state/local income taxes, real estate taxes, and personal property taxes combined.","actions":[{"type":"no_action"}],"suggestedStep":null}
 
 Example 4 — Home office + vehicle setup:
 User: "I have a home office, 200 sq ft in a 1,800 sq ft house, simplified method. I drove 6,000 business miles out of 12,000 total."
@@ -423,18 +434,18 @@ User: "I want to max out my Solo 401(k) — $23,500 employee deferral and 20% em
 Response:
 {"message":"I'll enter your Solo 401(k) employee deferral of $23,500. The engine will calculate and cap the employer contribution at 20% of your adjusted net SE income.","actions":[{"type":"update_se_retirement","fields":{"solo401kEmployeeDeferral":23500}}],"suggestedStep":"se_retirement"}
 
-TELOSTAX APP FEATURES:
-TelosTax is a full-featured tax preparation app. When users ask what the app can do, refer to these real features:
+NIMBUS APP FEATURES:
+Nimbus is a full-featured tax preparation app. When users ask what the app can do, refer to these real features:
 
 1. Document Import & OCR (Import Data step):
    - Upload photos or PDFs of ANY tax form (W-2, 1099-NEC, 1099-INT, 1099-DIV, 1099-B, 1099-R, K-1, etc.) and the app extracts the data via OCR.
    - AI Enhancement: After OCR, an AI model reviews the raw extraction and corrects common OCR errors (misread digits, wrong field mapping).
    - Drag-and-drop or click-to-upload. Supports JPG, PNG, PDF.
-   - Prior year imports: TelosTax JSON, IRS 1040 PDF, or competitor software PDFs for year-over-year comparison.
+   - Prior year imports: Nimbus JSON, IRS 1040 PDF, or competitor software PDFs for year-over-year comparison.
    - CSV bulk import for 1099-B and 1099-DA (capital gains/digital assets with many transactions).
    - Transaction exports (CSV/PDF) for the Smart Expense Scanner.
 
-2. AI Chat Assistant (Telos AI):
+2. AI Chat Assistant (Nimbus AI):
    - Voice input (speech-to-text) for hands-free data entry while reading paper forms.
    - Text-to-speech on responses.
    - Contextual "Guide Me" help on every step.
@@ -442,7 +453,7 @@ TelosTax is a full-featured tax preparation app. When users ask what the app can
    - Inline edit and retry on messages.
 
 3. Tools (accessible from the sidebar):
-   - Smart Expense Scanner: Upload transaction exports and let TelosAI categorize expenses by tax relevance (business, medical, charitable, home office, etc.).
+   - Smart Expense Scanner: Upload transaction exports and let NimbusAI categorize expenses by tax relevance (business, medical, charitable, home office, etc.).
    - Tax Scenario Lab: Create what-if scenarios (e.g., "What if I contribute more to my IRA?") with instant impact calculations.
    - Audit Risk Assessment: Identifies IRS audit risk factors with mitigation advice.
    - Tax Calendar: Personalized deadlines for filing, estimated payments, and contribution limits.
@@ -474,4 +485,134 @@ IMPORTANT: If a user types personal names in chat, those names WILL reach you �
 
 If a user asks what happens to data sent to Anthropic: Anthropic's API data is NOT used for model training. API data is retained for up to 30 days for safety monitoring, then automatically deleted. See anthropic.com/privacy for current policy details. Users can verify exactly what was sent via the Privacy Audit Log in AI Settings.
 
-TAX YEAR: 2025. All thresholds, brackets, and limits are for tax year 2025.`;
+TAX YEAR: ${taxYear}. All thresholds, brackets, and limits are for tax year ${taxYear}.`;
+}
+
+const FULL_SYSTEM_PROMPT = createFullPrompt(DEFAULT_TAX_YEAR);
+
+const MARKERS = [
+  'ACTION TYPES:',
+  'FORM ROUTING GUIDE:',
+  'FEATURE-SPECIFIC GUIDANCE:',
+  'VALIDATION WARNINGS (warningsContext):',
+  'GUIDED INTERVIEW MODE:',
+  'IRS REFERENCE DATA:',
+  '## Post-Action Follow-Up (SYSTEM_FOLLOW_UP)',
+  'FEW-SHOT EXAMPLES:',
+  'NIMBUS APP FEATURES:',
+  'PRIVACY:',
+  'TAX YEAR:',
+] as const;
+
+function idx(full: string, marker: string): number {
+  const i = full.indexOf(marker);
+  if (i < 0) throw new Error(`systemPrompt: missing marker ${marker}`);
+  return i;
+}
+
+function slicePromptSections(full: string) {
+  const I = MARKERS.map((m) => idx(full, m));
+  return {
+    CORE_IDENTITY: full.slice(0, I[0]),
+    ACTION_SCHEMAS: full.slice(I[0], I[1]),
+    CONTEXT_INSTRUCTIONS_PREFIX: full.slice(I[1], I[2]),
+    FEATURE_GUIDE_BODY: full.slice(I[2], I[3]),
+    CONTEXT_INSTRUCTIONS_SUFFIX: full.slice(I[3], I[4]),
+    INTERVIEW_MODE: full.slice(I[4], I[5]),
+    IRS_REFERENCE_LINE: full.slice(I[5], I[6]),
+    SYSTEM_FOLLOW_UP: full.slice(I[6], I[7]),
+    FEW_SHOT_EXAMPLES: full.slice(I[7], I[8]),
+    APP_FEATURES: full.slice(I[8], I[9]),
+    PRIVACY_RULES: full.slice(I[9], I[10]),
+    TAX_YEAR_FOOTER: full.slice(I[10]),
+  };
+}
+
+const SECTIONS = slicePromptSections(FULL_SYSTEM_PROMPT);
+
+/** FORM ROUTING GUIDE through DEDUCTION DISCOVERY (full file-order block incl. feature-specific). */
+export const CONTEXT_INSTRUCTIONS =
+  SECTIONS.CONTEXT_INSTRUCTIONS_PREFIX +
+  SECTIONS.FEATURE_GUIDE_BODY +
+  SECTIONS.CONTEXT_INSTRUCTIONS_SUFFIX;
+
+/** FEATURE-SPECIFIC GUIDANCE through QBI plus IRS REFERENCE DATA block (non-adjacent in full prompt — used for conditional loading). */
+export const FEATURE_GUIDE = SECTIONS.FEATURE_GUIDE_BODY + '\n\n' + SECTIONS.IRS_REFERENCE_LINE;
+
+export const CORE_IDENTITY = SECTIONS.CORE_IDENTITY;
+export const ACTION_SCHEMAS = SECTIONS.ACTION_SCHEMAS;
+export const INTERVIEW_MODE = SECTIONS.INTERVIEW_MODE;
+export const IRS_REFERENCE_LINE = SECTIONS.IRS_REFERENCE_LINE;
+export const SYSTEM_FOLLOW_UP = SECTIONS.SYSTEM_FOLLOW_UP;
+export const FEW_SHOT_EXAMPLES = SECTIONS.FEW_SHOT_EXAMPLES;
+export const APP_FEATURES = SECTIONS.APP_FEATURES;
+export const PRIVACY_RULES = SECTIONS.PRIVACY_RULES;
+export const TAX_YEAR_FOOTER = SECTIONS.TAX_YEAR_FOOTER;
+
+function joinContextInstructions(
+  prefix: string,
+  suffix: string,
+  featureBody: string | null,
+): string {
+  if (featureBody) return prefix + featureBody + suffix;
+  return prefix + '\n\n' + suffix;
+}
+
+export interface PromptSkillOptions {
+  currentSection?: string;
+  incomeDiscovery?: Record<string, string>;
+  activeToolId?: string | null;
+  taxYear?: number;
+}
+
+export function buildSystemPrompt(options?: PromptSkillOptions): string {
+  if (options === undefined) {
+    return FULL_SYSTEM_PROMPT;
+  }
+
+  const taxYear = options.taxYear ?? DEFAULT_TAX_YEAR;
+  const sections = taxYear === DEFAULT_TAX_YEAR ? SECTIONS : slicePromptSections(createFullPrompt(taxYear));
+
+  const section = (options.currentSection ?? '').toLowerCase();
+  const defaultPath = section === '';
+
+  let includeFeatureGuide = defaultPath || section === 'income' || section === 'self_employment';
+  let includeInterviewMode = defaultPath || section === 'income' || section === 'self_employment' || section === 'deductions';
+
+  if (section === 'credits' || section === 'state' || section === 'review') {
+    includeFeatureGuide = false;
+    includeInterviewMode = false;
+  }
+  if (section === 'deductions') {
+    includeFeatureGuide = false;
+    includeInterviewMode = true;
+  }
+
+  const includeAppFeatures = defaultPath || Boolean(options.activeToolId);
+
+  const featureBody = includeFeatureGuide ? sections.FEATURE_GUIDE_BODY : null;
+  const contextBlock = joinContextInstructions(
+    sections.CONTEXT_INSTRUCTIONS_PREFIX,
+    sections.CONTEXT_INSTRUCTIONS_SUFFIX,
+    featureBody,
+  );
+
+  const parts: string[] = [sections.CORE_IDENTITY, sections.ACTION_SCHEMAS, contextBlock];
+  if (includeInterviewMode) parts.push(sections.INTERVIEW_MODE);
+  if (includeFeatureGuide) parts.push(sections.IRS_REFERENCE_LINE);
+  parts.push(sections.SYSTEM_FOLLOW_UP, sections.FEW_SHOT_EXAMPLES);
+  if (includeAppFeatures) parts.push(sections.APP_FEATURES);
+  parts.push(sections.PRIVACY_RULES, sections.TAX_YEAR_FOOTER);
+
+  return parts.join('');
+}
+
+if (buildSystemPrompt() !== FULL_SYSTEM_PROMPT) {
+  throw new Error('buildSystemPrompt() without args must equal FULL_SYSTEM_PROMPT');
+}
+if (buildSystemPrompt({}) !== FULL_SYSTEM_PROMPT) {
+  throw new Error('buildSystemPrompt({}) must equal FULL_SYSTEM_PROMPT');
+}
+
+/** Backward compat — full prompt with all sections */
+export const SYSTEM_PROMPT = buildSystemPrompt();

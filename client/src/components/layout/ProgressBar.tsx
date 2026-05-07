@@ -137,7 +137,7 @@ export default function ProgressBar() {
           >
             <Sparkles className="w-4 h-4 text-telos-orange-400 group-hover:text-telos-orange-300 transition-colors" />
             <span className="hidden sm:inline text-sm font-semibold">
-              <span className="text-telos-orange-400">Telos</span><span className="text-telos-blue-400">AI</span> <span className="text-slate-300">Assistant</span>
+              <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span> <span className="text-slate-300">Assistant</span>
             </span>
           </button>
         )}

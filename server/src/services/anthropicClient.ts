@@ -13,8 +13,8 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { parseResponse, buildIrsReferenceData } from '@telostax/engine';
-import type { ChatResponse } from '@telostax/engine';
+import { parseResponse, buildIrsReferenceData } from '@nimbus/engine';
+import type { ChatResponse } from '@nimbus/engine';
 
 /** Claude 3.x models support assistant prefill; 4+ do not. */
 function supportsAssistantPrefill(model: string): boolean {
@@ -87,6 +87,80 @@ export async function anthropicCompletionWithKey(
 
   // With prefill the "{" is NOT echoed in the response — prepend it
   return parseResponse(usePrefill ? '{' + raw : raw);
+}
+
+/**
+ * Stream a chat completion using BYOK. Invokes `onTextDelta` for each text delta from the model,
+ * then parses the full reply with `parseResponse` (same JSON rules as non-streaming).
+ *
+ * @param signal - Optional abort signal (e.g. client disconnected) to cancel the upstream request.
+ */
+export async function anthropicStreamWithKey(
+  apiKey: string,
+  model: string,
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  context: Record<string, unknown>,
+  systemPrompt: string,
+  onTextDelta: (delta: string) => void,
+  signal?: AbortSignal,
+): Promise<ChatResponse> {
+  const client = new Anthropic({
+    apiKey,
+    timeout: 120_000,
+    defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
+  });
+
+  const referenceData = buildIrsReferenceData({
+    filingStatus: context.filingStatus as string | undefined,
+    currentSection: context.currentSection as string | undefined,
+    incomeDiscovery: context.incomeDiscovery as Record<string, string> | undefined,
+    deductionMethod: context.deductionMethod as string | undefined,
+    dependentCount: context.dependentCount as number | undefined,
+  });
+  const contextSuffix = `\n\n${referenceData}\n\nCURRENT CONTEXT:\n${JSON.stringify(context, null, 2)}`;
+
+  const usePrefill = supportsAssistantPrefill(model);
+
+  const mappedMessages: Anthropic.MessageParam[] = messages.map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
+  if (usePrefill) {
+    mappedMessages.push({ role: 'assistant', content: '{' });
+  }
+
+  const stream = client.messages.stream(
+    {
+      model,
+      max_tokens: 8192,
+      temperature: 0.3,
+      system: [
+        {
+          type: 'text' as const,
+          text: systemPrompt,
+          cache_control: { type: 'ephemeral' as const },
+        },
+        {
+          type: 'text' as const,
+          text: contextSuffix,
+        },
+      ],
+      messages: mappedMessages,
+    },
+    { signal },
+  );
+
+  let accumulated = '';
+
+  stream.on('text', (delta) => {
+    onTextDelta(delta);
+    accumulated += delta;
+  });
+
+  await stream.done();
+
+  const raw = usePrefill ? '{' + accumulated : accumulated;
+  return parseResponse(raw);
 }
 
 /**

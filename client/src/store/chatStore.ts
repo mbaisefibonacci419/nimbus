@@ -11,9 +11,10 @@
  */
 
 import { create } from 'zustand';
-import type { ChatAction, ChatResponse } from '@telostax/engine';
+import type { ChatAction, ChatResponse } from '@nimbus/engine';
 import {
   sendChatMessage,
+  sendChatMessageStream,
   checkChatStatus,
   checkForPII,
 } from '../services/chatService';
@@ -32,7 +33,13 @@ import {
 } from '../services/chatPersistence';
 import { useTaxReturnStore, WIZARD_STEPS } from './taxReturnStore';
 import { useAISettingsStore } from './aiSettingsStore';
+import { useUndoStore } from './undoStore';
+import { writeReturn } from '../api/client';
 import { isImageFile } from '../hooks/useDocumentImport';
+import {
+  validateResponseGrounding,
+  type GroundingDiscrepancy,
+} from '../services/responseValidator';
 
 // ─── Types ────────────────────────────────────────
 
@@ -73,6 +80,12 @@ export interface ChatMessageUI {
   followUpChips?: string[];
   /** Attached document metadata (user messages only). */
   attachment?: ChatAttachment;
+  /** Post-response grounding check: dollar amounts vs current calculation. */
+  verification?: {
+    verified: boolean;
+    discrepancies?: GroundingDiscrepancy[];
+    footnote?: string;
+  };
 }
 
 /** PII warning state for display in the chat UI. */
@@ -94,6 +107,8 @@ interface ChatState {
   messages: ChatMessageUI[];
   isOpen: boolean;
   isLoading: boolean;
+  /** Accumulated streaming text while the LLM response is being received. */
+  streamingContent: string | null;
   hasAcceptedDisclaimer: boolean;
   isAvailable: boolean;
   modelName: string | null;
@@ -114,6 +129,8 @@ interface ChatState {
   dismissPIIWarning: () => void;
   markActionsApplied: (messageId: string, summary: string) => void;
   markActionsDismissed: (messageId: string) => void;
+  /** Undo applied actions for a message — restores the snapshot and resets message state. */
+  undoActions: (messageId: string) => void;
   /** Set thumbs up/down feedback on a message. Clicking the same thumb toggles it off. */
   setMessageFeedback: (messageId: string, feedback: 'up' | 'down') => void;
   /** Re-send the last user message with fresh context, replacing the last assistant response. */
@@ -133,6 +150,10 @@ interface ChatState {
   openWithPrompt: (prompt: string, extraContext?: string) => Promise<void>;
   /** Attach a document (PDF/image), run extraction, and propose import actions. */
   sendDocumentMessage: (file: File) => Promise<void>;
+  /** Insert an assistant message locally (no LLM). Used for proactive step-transition nudges. */
+  injectProactiveMessage: (message: string, followUpChips?: string[]) => void;
+  /** Persist a proactive nudge category to the return so it is not shown again. */
+  dismissProactiveCategory: (category: string) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────
@@ -161,6 +182,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isOpen: false,
   isLoading: false,
+  streamingContent: null,
   hasAcceptedDisclaimer: false,
   isAvailable: false,
   modelName: null,
@@ -179,7 +201,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       _activeAbortController.abort();
       _activeAbortController = null;
     }
-    set({ isLoading: false });
+    set({ isLoading: false, streamingContent: null });
   },
 
   hydrateForReturn: (returnId: string) => {
@@ -269,6 +291,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ),
     });
     _persistMessages(get);
+  },
+
+  undoActions: (messageId: string) => {
+    const snapshot = useUndoStore.getState().getSnapshot(messageId);
+    if (!snapshot) return;
+
+    writeReturn(snapshot);
+    useTaxReturnStore.getState().setReturn(snapshot);
+
+    set({
+      messages: get().messages.map((m) =>
+        m.id === messageId
+          ? { ...m, actionsApplied: false, actionsSummary: undefined }
+          : m,
+      ),
+    });
+    _persistMessages(get);
+    useUndoStore.getState().removeSnapshot(messageId);
   },
 
   setMessageFeedback: (messageId: string, feedback: 'up' | 'down') => {
@@ -493,6 +533,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
       });
     }
   },
+
+  injectProactiveMessage: (message: string, followUpChips?: string[]) => {
+    const assistantMsg: ChatMessageUI = {
+      id: generateMessageId(),
+      role: 'assistant',
+      content: message,
+      timestamp: Date.now(),
+      ...(followUpChips && followUpChips.length > 0 ? { followUpChips } : {}),
+    };
+    set({ messages: [...get().messages, assistantMsg] });
+    _persistMessages(get);
+  },
+
+  dismissProactiveCategory: (category: string) => {
+    const tr = useTaxReturnStore.getState().taxReturn;
+    if (!tr) return;
+    const key = `proactive:${category}`;
+    const current = tr.dismissedNudges || [];
+    if (current.includes(key)) return;
+    useTaxReturnStore.getState().updateField('dismissedNudges', [...current, key]);
+  },
 }));
 
 // ─── Internal Send Logic ─────────────────────────
@@ -571,10 +632,25 @@ async function _doSendMessage(
     // Create AbortController for this request (enables stop button)
     _activeAbortController = new AbortController();
 
-    // Call the active transport via chatService
-    const response: ChatResponse = await sendChatMessage(text, history, context, _activeAbortController.signal);
+    // Stream response — tokens arrive incrementally via onDelta callback
+    set({ streamingContent: '' });
+    const response: ChatResponse = await sendChatMessageStream(
+      text,
+      history,
+      context,
+      (delta) => {
+        const current = get().streamingContent ?? '';
+        set({ streamingContent: current + delta });
+      },
+      _activeAbortController.signal,
+    );
 
-    // Add assistant response
+    // Add assistant response (final, complete version from parsed JSON)
+    const grounding = validateResponseGrounding(
+      response.message,
+      useTaxReturnStore.getState().calculation ?? null,
+    );
+
     const assistantMsg: ChatMessageUI = {
       id: generateMessageId(),
       role: 'assistant',
@@ -585,11 +661,20 @@ async function _doSendMessage(
           ? response.actions.filter((a) => a.type !== 'no_action')
           : undefined,
       followUpChips: response.followUpChips,
+      ...(grounding.footnote
+        ? {
+            verification: {
+              verified: grounding.verified,
+              discrepancies: grounding.discrepancies,
+              footnote: grounding.footnote,
+            },
+          }
+        : {}),
     };
 
     const updatedWithAssistant = [...get().messages, assistantMsg];
     _activeAbortController = null;
-    set({ messages: updatedWithAssistant, isLoading: false });
+    set({ messages: updatedWithAssistant, isLoading: false, streamingContent: null });
     _persistMessages(get);
 
     // Handle navigation suggestion
@@ -601,13 +686,13 @@ async function _doSendMessage(
     }
   } catch (err: any) {
     _activeAbortController = null;
-    // If the user aborted, don't show an error
     if (err.name === 'AbortError') {
-      set({ isLoading: false });
+      set({ isLoading: false, streamingContent: null });
       return;
     }
     set({
       isLoading: false,
+      streamingContent: null,
       error: err.message || 'Something went wrong. Please try again.',
     });
   }

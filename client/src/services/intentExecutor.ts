@@ -8,8 +8,8 @@
  * actions. Returns a summary of what was applied and what failed.
  */
 
-import type { ChatAction } from '@telostax/engine';
-import { FilingStatus } from '@telostax/engine';
+import type { ChatAction } from '@nimbus/engine';
+import { FilingStatus } from '@nimbus/engine';
 import {
   addIncomeItem,
   updateReturn,

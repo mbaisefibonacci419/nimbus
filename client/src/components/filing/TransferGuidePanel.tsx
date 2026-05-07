@@ -1,14 +1,14 @@
 /**
  * TransferGuidePanel — Interactive line-by-line copy helper.
  *
- * Bridges the gap between TelosTax's calculated values and
+ * Bridges the gap between Nimbus's calculated values and
  * IRS Free Fillable Forms. Users can copy individual line values
  * or an entire form's values for manual transfer.
  */
 import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
-import type { TaxReturn, CalculationResult, TransferGuideData, TransferGuideForm } from '@telostax/engine';
-import { generateTransferGuide, FILING_URLS } from '@telostax/engine';
+import type { TaxReturn, CalculationResult, TransferGuideData, TransferGuideForm } from '@nimbus/engine';
+import { generateTransferGuide, FILING_URLS } from '@nimbus/engine';
 import CalloutCard from '../common/CalloutCard';
 import {
   ArrowLeft,

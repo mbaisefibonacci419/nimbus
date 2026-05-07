@@ -1,6 +1,21 @@
 import { FilingStatus, Schedule1AInfo, Schedule1AResult } from '../types/index.js';
 import { SCHEDULE_1A } from '../constants/tax2025.js';
 import { round2 } from './utils.js';
+import { isProvisionActive } from './provisionGuard.js';
+
+function emptySchedule1AResult(): Schedule1AResult {
+  return {
+    tipsDeduction: 0,
+    overtimeDeduction: 0,
+    carLoanInterestDeduction: 0,
+    seniorDeduction: 0,
+    totalDeduction: 0,
+    tipsPhaseOutReduction: 0,
+    overtimePhaseOutReduction: 0,
+    carLoanPhaseOutReduction: 0,
+    seniorPhaseOutReduction: 0,
+  };
+}
 
 /**
  * Calculate Schedule 1-A — Additional Deductions (One Big Beautiful Bill Act).
@@ -30,7 +45,17 @@ export function calculateSchedule1A(
   filingStatus: FilingStatus,
   taxpayerAge65OrOlder: boolean,
   spouseAge65OrOlder: boolean = false,
+  taxYear: number = 2025,
 ): Schedule1AResult {
+  try {
+    if (!isProvisionActive(taxYear, 'schedule1A')) {
+      return emptySchedule1AResult();
+    }
+  } catch {
+    // Year not yet registered in provision map — Schedule 1-A treated as inactive.
+    return emptySchedule1AResult();
+  }
+
   const isMFS = filingStatus === FilingStatus.MarriedFilingSeparately;
   const isMFJ = filingStatus === FilingStatus.MarriedFilingJointly ||
     filingStatus === FilingStatus.QualifyingSurvivingSpouse;

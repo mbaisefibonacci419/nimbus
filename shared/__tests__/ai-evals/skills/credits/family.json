@@ -1,0 +1,92 @@
+[
+  {
+    "id": "skill-credit-ctc",
+    "description": "Child Tax Credit eligibility question",
+    "input": {
+      "message": "I have two kids ages 8 and 12. Do I qualify for the Child Tax Credit?",
+      "context": {
+        "currentStep": "credits_overview",
+        "currentSection": "credits",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 2,
+        "incomeTypeCounts": { "w2": 2 },
+        "traceContext": "AGI: ~$95,000"
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["Child Tax Credit"]
+    }
+  },
+  {
+    "id": "skill-credit-dependent-care-entry",
+    "description": "Dependent care credit expense entry",
+    "input": {
+      "message": "I paid $9,500 last year for daycare for my son so I could work full time",
+      "context": {
+        "currentStep": "dependent_care_credit",
+        "currentSection": "credits",
+        "filingStatus": "head_of_household",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 1,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["update_field"],
+      "actionFields": [
+        { "type": "update_field", "field": "dependentCareExpenses", "value": 9500 }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "skill-credit-eitc",
+    "description": "EITC eligibility question",
+    "input": {
+      "message": "My wages were about $28,500 and I have one child—could I get the Earned Income Credit?",
+      "context": {
+        "currentStep": "credits_overview",
+        "currentSection": "credits",
+        "filingStatus": "head_of_household",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 1,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["Earned Income"]
+    }
+  },
+  {
+    "id": "skill-credit-aotc",
+    "description": "American Opportunity / education credit question",
+    "input": {
+      "message": "My daughter is a freshman in college—can we claim the American Opportunity credit for tuition?",
+      "context": {
+        "currentStep": "education_credits",
+        "currentSection": "credits",
+        "filingStatus": "married_filing_jointly",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 1,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": ["no_action"],
+      "actionFields": [{ "type": "no_action" }],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "messageContains": ["education"]
+    }
+  }
+]

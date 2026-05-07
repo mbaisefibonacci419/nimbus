@@ -1,0 +1,112 @@
+[
+  {
+    "id": "ambiguous-how-much",
+    "description": "Ambiguous income statement without type or source",
+    "input": {
+      "message": "I made some money on the side",
+      "context": {
+        "currentStep": "income_discovery",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "shouldAskClarification": true
+    }
+  },
+  {
+    "id": "ambiguous-deduction-or-credit",
+    "description": "User mentions something that could be a deduction or credit",
+    "input": {
+      "message": "I spent money on school",
+      "context": {
+        "currentStep": "deduction_method",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "shouldAskClarification": true
+    }
+  },
+  {
+    "id": "ambiguous-filing-status-unsure",
+    "description": "User is unsure about filing status",
+    "input": {
+      "message": "I got divorced in November. What should my filing status be?",
+      "context": {
+        "currentStep": "filing_status",
+        "currentSection": "getting_started",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 1,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "shouldAskClarification": true
+    }
+  },
+  {
+    "id": "ambiguous-vague-tax-question",
+    "description": "Very vague tax question",
+    "input": {
+      "message": "Can I write this off?",
+      "context": {
+        "currentStep": "itemized_deductions",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": { "w2": 1 }
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "shouldAskClarification": true
+    }
+  },
+  {
+    "id": "ambiguous-unclear-amount",
+    "description": "Income mentioned without a clear dollar amount",
+    "input": {
+      "message": "I had a W-2 from my job",
+      "context": {
+        "currentStep": "w2_income",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": { "w2": "yes" },
+        "dependentCount": 0,
+        "incomeTypeCounts": {}
+      }
+    },
+    "expected": {
+      "actionTypes": [],
+      "actionFields": [],
+      "suggestedStep": null,
+      "hasMessage": true,
+      "shouldAskClarification": true
+    }
+  }
+]
