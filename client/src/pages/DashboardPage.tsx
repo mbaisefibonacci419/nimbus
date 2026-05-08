@@ -366,9 +366,8 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
 
         {/* Value props */}
         <div className="grid sm:grid-cols-3 gap-3 mb-8">
-          <button
-            onClick={() => navigate('/pledge')}
-            className="card flex flex-col items-center text-center py-5 px-4 hover:border-slate-500 transition-colors group cursor-pointer"
+          <div
+            className="card flex flex-col items-center text-center py-5 px-4"
           >
             <span className="relative mb-2.5">
               <CircleDollarSign className="w-6 h-6 text-emerald-400" />
@@ -376,10 +375,9 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
                 <span className="block w-7 h-0.5 bg-emerald-400 rotate-45 rounded-full" />
               </span>
             </span>
-            <h3 className="font-semibold text-slate-200 text-sm mb-1 group-hover:text-white transition-colors">Free</h3>
+            <h3 className="font-semibold text-slate-200 text-sm mb-1">Free</h3>
             <p className="text-xs text-slate-400 leading-relaxed">No upsells, no hidden fees, no data collection.</p>
-            <span className="text-xs text-slate-400 mt-2 group-hover:text-white transition-colors">Learn more &rarr;</span>
-          </button>
+          </div>
           <button
             onClick={() => navigate('/privacy')}
             className="card flex flex-col items-center text-center py-5 px-4 hover:border-slate-500 transition-colors group cursor-pointer"
@@ -596,10 +594,6 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
             This tool is for informational purposes only and does not constitute tax advice.
           </p>
           <div className="flex items-center justify-center gap-3 mt-3 text-xs">
-            <button onClick={() => navigate('/pledge')} className="text-slate-400 hover:text-slate-300 transition-colors">
-              About
-            </button>
-            <span className="text-slate-700">&middot;</span>
             <button onClick={() => navigate('/terms')} className="text-slate-400 hover:text-slate-300 transition-colors">
               Terms of Service
             </button>

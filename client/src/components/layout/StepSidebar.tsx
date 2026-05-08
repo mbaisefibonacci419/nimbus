@@ -144,18 +144,6 @@ export default function StepSidebar({ onStepClick }: StepSidebarProps) {
   return (
     <>
       <aside role="navigation" aria-label="Tax return steps" className="w-full shrink-0 bg-surface-800 border-r border-slate-700 h-full flex flex-col">
-        {/* About link */}
-        <div className="px-3 pt-3 pb-1">
-          <button
-            onClick={() => navigate('/pledge')}
-            className="w-full px-3 py-2 text-xs font-bold tracking-wider text-telos-orange-400 hover:text-telos-orange-300
-                       border border-telos-orange-500/30 hover:border-telos-orange-500/50 bg-telos-orange-500/5 hover:bg-telos-orange-500/10
-                       rounded-lg transition-colors text-center uppercase"
-          >
-            Learn more about this project
-          </button>
-        </div>
-
         {/* Scrollable step list */}
         <div className="flex-1 overflow-y-auto py-4">
           {sectionSteps.map((section, sectionIdx) => {

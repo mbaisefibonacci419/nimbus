@@ -435,71 +435,179 @@ export const useChatStore = create<ChatState>((set, get) => ({
     };
 
     try {
-      // Lazy-import extraction functions to avoid loading Syncfusion/Tesseract eagerly
-      const { extractFromPDF, extractFromPDFWithOCR, extractFromImage } =
+      const { extractPDFServerSide } = await import('../services/aiExtractionService');
+      const { extractFromPDF, extractFromPDFWithOCR, extractFromImage, FORM_TYPE_LABELS, INCOME_TYPE_STEP_MAP } =
         await import('../services/pdfImporter');
 
-      let result;
+      let extractedFields: Record<string, { value: string | number | boolean; confidence: string }> = {};
+      let formType = '';
+      let formTypeConfidence: 'high' | 'medium' | 'low' = 'low';
+      let extractionMethod = 'local';
+      let localResult: import('../services/pdfImporter').PDFExtractResult | null = null;
+
       if (isImage) {
-        result = await extractFromImage(file, onProgress);
+        localResult = await extractFromImage(file, onProgress);
       } else {
-        // Try digital extraction first
-        result = await extractFromPDF(file);
-        // If the PDF is scanned, auto-fallback to OCR (no confirmation dialog in chat)
-        if (result.ocrAvailable && (result.confidence === 'low' || !result.formType)) {
-          updateAttachment({ status: 'ocr-processing', ocrStage: 'loading', ocrProgress: 0 });
-          result = await extractFromPDFWithOCR(file, onProgress);
+        // Try server-side Docling/Vision extraction first (best quality)
+        const settings = useAISettingsStore.getState();
+        const apiKeyForRequest = settings._decryptedApiKey || undefined;
+        try {
+          const serverResult = await extractPDFServerSide(
+            file,
+            null,
+            settings.byokModel || 'claude-sonnet-4-6',
+            apiKeyForRequest,
+          );
+          if (serverResult && Object.keys(serverResult.fields).length > 0) {
+            extractedFields = serverResult.fields;
+            formType = serverResult.formType || '';
+            formTypeConfidence = serverResult.formTypeConfidence || 'low';
+            extractionMethod = serverResult.method || 'docling';
+          }
+        } catch (serverErr) {
+          console.warn('[chat] Server-side PDF extraction failed, falling back to local', serverErr);
+        }
+
+        // Fall back to local pdfjs-dist extraction if server extraction didn't work
+        if (Object.keys(extractedFields).length === 0) {
+          localResult = await extractFromPDF(file);
+          if (localResult.ocrAvailable && (localResult.confidence === 'low' || !localResult.formType)) {
+            updateAttachment({ status: 'ocr-processing', ocrStage: 'loading', ocrProgress: 0 });
+            localResult = await extractFromPDFWithOCR(file, onProgress);
+          }
         }
       }
 
-      // Mark extraction complete on the user message
-      updateAttachment({
-        status: 'done',
-        formType: result.formType || undefined,
-      });
-
+      // Build unified extraction result for chat response generation
+      let response: ChatResponse;
       const aiMode = useAISettingsStore.getState().mode;
 
-      let response;
-      if (aiMode === 'private') {
-        // Private mode: generate synthetic response locally (no LLM)
-        response = buildActionsFromExtraction(result);
+      if (Object.keys(extractedFields).length > 0) {
+        // Server-side extraction succeeded — build response from fields
+        updateAttachment({ status: 'done', formType: formType || undefined });
+
+        const dataForActions: Record<string, unknown> = {};
+        for (const [key, field] of Object.entries(extractedFields)) {
+          dataForActions[key] = field.value;
+        }
+
+        // Map form type to income type
+        const FORM_TO_INCOME: Record<string, string> = {
+          'W-2': 'w2', '1099-INT': '1099int', '1099-DIV': '1099div', '1099-R': '1099r',
+          '1099-NEC': '1099nec', '1099-MISC': '1099misc', '1099-G': '1099g', '1099-B': '1099b',
+          '1099-K': '1099k', 'SSA-1099': 'ssa1099', '1099-SA': '1099sa', '1099-Q': '1099q',
+          '1098': '1098', '1098-T': '1098t', '1098-E': '1098e', '1095-A': '1095a',
+          'K-1': 'k1', 'W-2G': 'w2g', '1099-C': '1099c', '1099-S': '1099s',
+        };
+        const incomeType = FORM_TO_INCOME[formType] || null;
+
+        if (aiMode === 'private' || !incomeType) {
+          // Build a synthetic response
+          const actions: import('@nimbus/engine').ChatAction[] = [];
+          if (incomeType) {
+            actions.push({ type: 'add_income', incomeType, fields: dataForActions });
+          }
+
+          const formLabel = formType ? (FORM_TYPE_LABELS[formType as keyof typeof FORM_TYPE_LABELS] || formType) : 'document';
+          const payerInfo = dataForActions.employerName || dataForActions.payerName || '';
+          const confNote = formTypeConfidence !== 'high' ? ` (${formTypeConfidence} confidence — please verify)` : '';
+          const msg = actions.length > 0
+            ? `I extracted data from your **${formLabel}**${payerInfo ? ` from **${payerInfo}**` : ''}${confNote} using AI-powered document analysis. Review the proposed changes below.`
+            : `I analyzed your document but couldn't determine the form type. Please try the Import Documents panel for better results.`;
+
+          response = {
+            message: msg,
+            actions,
+            suggestedStep: incomeType ? (INCOME_TYPE_STEP_MAP[incomeType] || null) : null,
+            followUpChips: actions.length > 0
+              ? ['What step should I go to next?', 'Import another document']
+              : ['Try importing again', 'Enter this data manually'],
+          };
+        } else {
+          // BYOK: send the extracted fields to the LLM for a richer response
+          const fieldLines = Object.entries(extractedFields).map(([key, f]) => {
+            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s: string) => s.toUpperCase());
+            const val = typeof f.value === 'number' ? `$${f.value.toLocaleString()}` : String(f.value);
+            return `  ${label}: ${val} (${f.confidence})`;
+          }).join('\n');
+          const summary = `Form type: ${formType} (${formTypeConfidence} confidence)\nExtracted fields:\n${fieldLines}`;
+          const piiCheck = checkForPII(summary);
+          const safeSummary = piiCheck.hasPII ? piiCheck.sanitized : summary;
+
+          const llmMessage = `I've attached a tax document (${file.name}). Here's what was extracted via AI-powered analysis:\n\n${safeSummary}\n\nPlease review this and propose add_income actions to import this into my return. If any values look wrong or suspicious, flag them.`;
+
+          const taxStore = useTaxReturnStore.getState();
+          const currentStep = taxStore.getCurrentStep();
+          const visibleSteps = taxStore.getVisibleSteps();
+          const activeToolId = taxStore.activeToolId;
+          const stepId = activeToolId || currentStep?.id || 'unknown';
+          const section = activeToolId ? 'tools' : (currentStep?.section || 'unknown');
+          const context = buildChatContext(taxStore.taxReturn, stepId, section, taxStore.calculation, visibleSteps, WIZARD_STEPS);
+          context.documentExtractionContext = safeSummary;
+
+          const history = get().messages
+            .filter((m) => m.role === 'user' || m.role === 'assistant')
+            .slice(-10)
+            .map((m) => ({ role: m.role, content: m.content }))
+            .filter((m) => m.content.length > 0 && m.content.length <= 20_000);
+
+          _activeAbortController = new AbortController();
+          set({ streamingContent: '' });
+          response = await sendChatMessageStream(
+            llmMessage,
+            history,
+            context,
+            (delta) => {
+              const current = get().streamingContent ?? '';
+              set({ streamingContent: current + delta });
+            },
+            _activeAbortController.signal,
+          );
+          _activeAbortController = null;
+        }
+      } else if (localResult) {
+        // Local extraction result — use existing logic
+        updateAttachment({ status: 'done', formType: localResult.formType || undefined });
+
+        if (aiMode === 'private') {
+          response = buildActionsFromExtraction(localResult);
+        } else {
+          const rawSummary = buildExtractionContextText(localResult);
+          const piiCheck = checkForPII(rawSummary);
+          const extractionSummary = piiCheck.hasPII ? piiCheck.sanitized : rawSummary;
+          const llmMessage = `I've attached a tax document (${file.name}). Here's what was extracted:\n\n${extractionSummary}\n\nPlease review this and propose add_income actions to import this into my return.`;
+
+          const taxStore = useTaxReturnStore.getState();
+          const currentStep = taxStore.getCurrentStep();
+          const visibleSteps = taxStore.getVisibleSteps();
+          const activeToolId = taxStore.activeToolId;
+          const stepId = activeToolId || currentStep?.id || 'unknown';
+          const section = activeToolId ? 'tools' : (currentStep?.section || 'unknown');
+          const context = buildChatContext(taxStore.taxReturn, stepId, section, taxStore.calculation, visibleSteps, WIZARD_STEPS);
+          context.documentExtractionContext = extractionSummary;
+
+          const history = get().messages
+            .filter((m) => m.role === 'user' || m.role === 'assistant')
+            .slice(-10)
+            .map((m) => ({ role: m.role, content: m.content }))
+            .filter((m) => m.content.length > 0 && m.content.length <= 20_000);
+
+          _activeAbortController = new AbortController();
+          set({ streamingContent: '' });
+          response = await sendChatMessageStream(
+            llmMessage,
+            history,
+            context,
+            (delta) => {
+              const current = get().streamingContent ?? '';
+              set({ streamingContent: current + delta });
+            },
+            _activeAbortController.signal,
+          );
+          _activeAbortController = null;
+        }
       } else {
-        // BYOK: send extraction context to LLM for a richer response.
-        // Run through PII scanner to strip SSNs, names, addresses that OCR may have captured.
-        const rawSummary = buildExtractionContextText(result);
-        const piiCheck = checkForPII(rawSummary);
-        const extractionSummary = piiCheck.hasPII ? piiCheck.sanitized : rawSummary;
-        const llmMessage =
-          `I've attached a tax document (${file.name}). Here's what was extracted:\n\n${extractionSummary}\n\nPlease review this and propose add_income actions to import this into my return. If any values look wrong or suspicious, flag them.`;
-
-        // Use the existing send pipeline
-        const taxStore = useTaxReturnStore.getState();
-        const currentStep = taxStore.getCurrentStep();
-        const visibleSteps = taxStore.getVisibleSteps();
-        const activeToolId = taxStore.activeToolId;
-        const stepId = activeToolId || currentStep?.id || 'unknown';
-        const section = activeToolId ? 'tools' : (currentStep?.section || 'unknown');
-
-        const context = buildChatContext(
-          taxStore.taxReturn,
-          stepId,
-          section,
-          taxStore.calculation,
-          visibleSteps,
-          WIZARD_STEPS,
-        );
-
-        // Include extraction data in context
-        context.documentExtractionContext = extractionSummary;
-
-        const history = get().messages
-          .filter((m) => m.role === 'user' || m.role === 'assistant')
-          .slice(-10)
-          .map((m) => ({ role: m.role, content: m.content }))
-          .filter((m) => m.content.length > 0 && m.content.length <= 20_000);
-
-        response = await sendChatMessage(llmMessage, history, context);
+        throw new Error('Could not extract data from this document. Please try a different file.');
       }
 
       // Add assistant response with actions
@@ -515,10 +623,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         followUpChips: response.followUpChips,
       };
 
-      set({ messages: [...get().messages, assistantMsg], isLoading: false });
+      set({ messages: [...get().messages, assistantMsg], isLoading: false, streamingContent: null });
       _persistMessages(get);
 
-      // Handle navigation suggestion
       if (
         response.suggestedStep &&
         (!response.actions || response.actions.every((a) => a.type === 'no_action'))
@@ -526,9 +633,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
         useTaxReturnStore.getState().goToStep(response.suggestedStep);
       }
     } catch (err: any) {
+      _activeAbortController = null;
       updateAttachment({ status: 'error', errorMessage: err.message });
       set({
         isLoading: false,
+        streamingContent: null,
         error: `Document extraction failed: ${err.message || 'Unknown error'}`,
       });
     }

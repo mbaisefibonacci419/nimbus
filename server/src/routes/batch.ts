@@ -20,6 +20,7 @@ import { rawAnthropicCompletionWithKey } from '../services/anthropicClient.js';
 import { handleLLMError, handleRouteError } from '../services/errorSanitizer.js';
 import { stripPII } from '../services/piiStripper.js';
 import { config } from '../config.js';
+import { resolveBYOKAnthropicKey, validateBYOKAnthropicKey } from '../services/byokApiKey.js';
 import { checkRateLimit as sharedCheckRateLimit, getClientIp, sendRateLimitResponse } from '../services/rateLimiter.js';
 import {
   MERCHANT_CLASSIFY_PROMPT,
@@ -40,7 +41,7 @@ const MerchantClassifySchema = z.object({
     deductionMethod: z.enum(['standard', 'itemized']).default('standard'),
   }),
   provider: z.literal('anthropic'),
-  apiKey: z.string().min(1).max(200),
+  apiKey: z.string().max(200).optional().default(''),
   model: z.string().min(1).max(100),
 });
 
@@ -92,14 +93,15 @@ router.post('/classify-merchants', async (req: Request, res: Response) => {
       return;
     }
 
-    const { merchants, context, apiKey, model } = parseResult.data;
+    const { merchants, context, apiKey: clientKeyField, model } = parseResult.data;
 
-    // 3. Validate API key format
-    if (!apiKey.startsWith('sk-ant-')) {
+    const { apiKey, trimmedClientKey } = resolveBYOKAnthropicKey(clientKeyField);
+    const keyValidation = validateBYOKAnthropicKey(trimmedClientKey, apiKey);
+    if (!keyValidation.ok) {
       res.status(400).json({
         error: {
-          message: 'Invalid Anthropic API key format. Keys start with "sk-ant-".',
-          code: 'INVALID_API_KEY',
+          message: keyValidation.message,
+          code: keyValidation.code,
         },
       });
       return;
@@ -147,7 +149,7 @@ router.post('/classify-merchants', async (req: Request, res: Response) => {
 const CategorizeSchema = z.object({
   prompt: z.string().min(1).max(50000),
   provider: z.literal('anthropic'),
-  apiKey: z.string().min(1).max(200),
+  apiKey: z.string().max(200).optional().default(''),
   model: z.string().min(1).max(100),
 });
 
@@ -177,7 +179,7 @@ router.post('/categorize-transactions', async (req: Request, res: Response) => {
       return;
     }
 
-    const { prompt: rawPrompt, apiKey, model } = parseResult.data;
+    const { prompt: rawPrompt, apiKey: clientKeyField, model } = parseResult.data;
 
     // Strip PII from the categorization prompt (defense-in-depth)
     const piiResult = stripPII(rawPrompt);
@@ -186,10 +188,11 @@ router.post('/categorize-transactions', async (req: Request, res: Response) => {
       console.log(`[batch/categorize] Stripped ${piiResult.strippedCount} PII items (${piiResult.strippedTypes.join(', ')})`);
     }
 
-    // Validate API key format
-    if (!apiKey.startsWith('sk-ant-')) {
+    const { apiKey, trimmedClientKey } = resolveBYOKAnthropicKey(clientKeyField);
+    const keyValidation = validateBYOKAnthropicKey(trimmedClientKey, apiKey);
+    if (!keyValidation.ok) {
       res.status(400).json({
-        error: { message: 'Invalid Anthropic API key format. Keys start with "sk-ant-".', code: 'INVALID_API_KEY' },
+        error: { message: keyValidation.message, code: keyValidation.code },
       });
       return;
     }

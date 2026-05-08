@@ -8,7 +8,8 @@
  * All deterministic features work (engine, warnings, suggestions, nudges,
  * deduction finder patterns, audit risk, document import). No LLM chat.
  *
- * BYOK Mode: user provides their own Anthropic API key for AI chat features.
+ * BYOK Mode: Anthropic API key for AI chat — yours (encrypted locally) or server-managed
+ * when useServerKey is true.
  */
 
 // ─── AI Modes ─────────────────────────────────────
@@ -39,14 +40,21 @@ export interface AISettings {
   // ── Consent ──
   /** Whether user has accepted the data consent for cloud AI modes. */
   hasConsentedToCloudAI: boolean;
+
+  /**
+   * When true (default), API requests omit the user's key and the server uses
+   * ANTHROPIC_API_KEY. Set false when the user saves their own key.
+   */
+  useServerKey: boolean;
 }
 
 /** Default AI settings for new users. */
 export const DEFAULT_AI_SETTINGS: AISettings = {
-  mode: 'private',
+  mode: 'byok',
   byokProvider: 'anthropic',
   byokApiKey: '',
   byokApiKeys: { anthropic: '' },
-  byokModel: 'claude-haiku-4-5-20251001',
-  hasConsentedToCloudAI: false,
+  byokModel: 'claude-sonnet-4-6',
+  hasConsentedToCloudAI: true,
+  useServerKey: true,
 };

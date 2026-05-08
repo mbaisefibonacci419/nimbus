@@ -18,6 +18,8 @@ import { logOutboundRequest, buildPiiBlockSummary } from './privacyAuditLog';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3001';
 
+const VISION_MEDIA_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
 // ─── Types ──────────────────────────────────────────
 
 export type FieldConfidence = 'high' | 'medium' | 'low';
@@ -126,13 +128,152 @@ const FIELD_LABELS: Record<string, string> = {
 // ─── A. API Client ──────────────────────────────────
 
 /**
+ * Upload a PDF to the server for extraction using Docling (local Python)
+ * with automatic fallback to Claude Vision (API key required).
+ * This is the primary extraction path — no "Enhance with AI" step needed.
+ */
+export async function extractPDFServerSide(
+  file: File,
+  formTypeHint: string | null,
+  model: string,
+  apiKey?: string,
+): Promise<AIExtractionResult & { method?: string }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 180_000);
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (formTypeHint) formData.append('formTypeHint', formTypeHint);
+    formData.append('model', model);
+    if (apiKey) formData.append('apiKey', apiKey);
+
+    const resp = await fetch(`${API_BASE}/api/extract/pdf`, {
+      method: 'POST',
+      signal: controller.signal,
+      body: formData,
+    });
+
+    if (!resp.ok) {
+      const body = await resp.json().catch(() => null);
+      const msg = body?.error?.message || `HTTP ${resp.status}`;
+      throw new Error(msg);
+    }
+
+    const json = await resp.json();
+    return json.data as AIExtractionResult & { method?: string };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/** Raw base64 (no data: prefix) from a local file. */
+export async function fileToBase64Data(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const s = reader.result as string;
+      const comma = s.indexOf(',');
+      resolve(comma >= 0 ? s.slice(comma + 1) : s);
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('FileReader failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Map an image file to an Anthropic vision media_type, using type and extension.
+ */
+export function resolveVisionMediaType(
+  file: File,
+): 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' | null {
+  const t = file.type.toLowerCase();
+  if (t === 'image/jpg' || t === 'image/jpeg') return 'image/jpeg';
+  if (t === 'image/png' || t === 'image/webp' || t === 'image/gif') return t;
+  const n = file.name.toLowerCase();
+  if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+  if (n.endsWith('.png')) return 'image/png';
+  if (n.endsWith('.webp')) return 'image/webp';
+  if (n.endsWith('.gif')) return 'image/gif';
+  return VISION_MEDIA_TYPES.has(t) ? (t as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif') : null;
+}
+
+/**
+ * Send a document image to Claude Vision for field extraction (BYOK).
+ * The image is not PII-stripped; the user trades redaction for accuracy.
+ */
+export async function extractFieldsWithVision(
+  imageBase64: string,
+  mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
+  formTypeHint: string | null,
+  provider: AIProvider,
+  apiKey: string | undefined,
+  model: string,
+): Promise<AIExtractionResult> {
+  if (provider !== 'anthropic') {
+    throw new Error('Vision extraction requires Anthropic (BYOK).');
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 120_000);
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/extract/vision`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        imageBase64,
+        mediaType,
+        formTypeHint,
+        provider: 'anthropic',
+        model,
+        ...(apiKey ? { apiKey } : {}),
+      }),
+    });
+
+    if (!resp.ok) {
+      const body = await resp.json().catch(() => null);
+      const msg = body?.error?.message || `HTTP ${resp.status}`;
+      throw new Error(msg);
+    }
+
+    const json = await resp.json();
+    const result = json.data as AIExtractionResult;
+
+    const approxKb = Math.max(1, Math.round((imageBase64.length * 3) / 4 / 1024));
+
+    logOutboundRequest({
+      feature: 'document-extract',
+      requestKind: 'vision-extraction',
+      provider,
+      model,
+      redactedMessage:
+        `[vision-extraction] ${mediaType} document image (~${approxKb} KB decoded), form hint: ${formTypeHint ?? 'none'} — full image sent to provider (not text-redacted)`,
+      piiBlocked: [],
+      contextKeysSent: ['vision-image', 'formTypeHint'],
+      responseTruncated: `${Object.keys(result.fields).length} fields extracted, type: ${result.formType}`,
+    }).catch(() => {});
+
+    return result;
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      throw new Error('AI extraction timed out. Please try again.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
  * Send PII-stripped OCR text to the AI extraction endpoint.
  * Runs scanForPII() client-side as the primary PII gate.
  */
 export async function extractFieldsWithAI(
   ocrText: string,
   formTypeHint: string | null,
-  aiSettings: { provider: AIProvider; apiKey: string; model: string },
+  aiSettings: { provider: AIProvider; apiKey?: string; model: string },
 ): Promise<AIExtractionResult> {
   // Primary PII gate — strip before sending
   const piiResult = scanForPII(ocrText);
@@ -150,8 +291,8 @@ export async function extractFieldsWithAI(
         ocrText: sanitizedText,
         formTypeHint,
         provider: aiSettings.provider,
-        apiKey: aiSettings.apiKey,
         model: aiSettings.model,
+        ...(aiSettings.apiKey ? { apiKey: aiSettings.apiKey } : {}),
       }),
     });
 

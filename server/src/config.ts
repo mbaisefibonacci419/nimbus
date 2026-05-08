@@ -1,7 +1,14 @@
 /**
  * Server configuration — reads from environment variables.
- * Loaded via `import 'dotenv/config'` in index.ts.
+ * Loads `.env` from the repository root (see dotenv bootstrap below).
  */
+
+import { config as loadEnv } from 'dotenv';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+loadEnv({ path: resolve(__dirname, '../../.env') });
 
 export const config = {
   /** Maximum number of conversation history messages to forward to the LLM. */
@@ -26,4 +33,7 @@ export const config = {
   tipLinkSmall: process.env.STRIPE_TIP_LINK_SMALL || '',
   tipLinkMedium: process.env.STRIPE_TIP_LINK_MEDIUM || '',
   tipLinkLarge: process.env.STRIPE_TIP_LINK_LARGE || '',
+
+  /** Server-side Anthropic API key (used when the client omits apiKey). */
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
 };

@@ -31,6 +31,8 @@ export interface PrivacyAuditEntry {
   id: string;
   timestamp: string;
   feature: 'chat' | 'expense-scanner' | 'document-extract';
+  /** Sub-type for document extraction — e.g. full image sent to Claude Vision. */
+  requestKind?: 'vision-extraction';
   direction: 'outbound';
   provider: string;
   model: string;

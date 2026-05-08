@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import WizardPage from './pages/WizardPage';
-import PledgePage from './pages/PledgePage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import OfflineBanner from './components/common/OfflineBanner';
@@ -27,6 +26,7 @@ export default function App() {
       // Already unlocked (e.g. HMR reload during dev)
       loadAllReturns()
         .then(() => useAISettingsStore.getState().loadApiKey())
+        .then(() => useAISettingsStore.getState().checkServerKey())
         .then(() => useDeductionFinderStore.getState().loadDecrypted?.())
         .then(() => setAppState('unlocked'));
     } else if (isEncryptionSetup()) {
@@ -94,6 +94,7 @@ export default function App() {
         await setupEncryption(passphrase);
         await loadAllReturns(); // encrypts any existing plaintext returns
         await useAISettingsStore.getState().loadApiKey();
+        await useAISettingsStore.getState().checkServerKey();
         await useDeductionFinderStore.getState().loadDecrypted?.();
         setAppState('unlocked');
         return true;
@@ -103,6 +104,7 @@ export default function App() {
       if (ok) {
         await loadAllReturns();
         await useAISettingsStore.getState().loadApiKey();
+        await useAISettingsStore.getState().checkServerKey();
         await useDeductionFinderStore.getState().loadDecrypted?.();
         setAppState('unlocked');
       }
@@ -116,14 +118,13 @@ export default function App() {
   // ─── Render ───
 
   const location = useLocation();
-  const publicPaths = ['/pledge', '/terms', '/privacy'];
+  const publicPaths = ['/terms', '/privacy'];
   const isPublicPage = publicPaths.includes(location.pathname);
 
   // Public pages are always accessible
   if (isPublicPage) {
     return (
       <Routes>
-        <Route path="/pledge" element={<PledgePage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
       </Routes>
@@ -159,7 +160,6 @@ export default function App() {
               ? <DashboardPage lockMode={appState === 'lock-setup' ? 'setup' : 'unlock'} onUnlock={handleUnlock} lockError={lockError} />
               : <DashboardPage />
           } />
-          <Route path="/pledge" element={<PledgePage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/return/:id/*" element={isLocked ? <Navigate to="/" replace /> : <WizardPage />} />

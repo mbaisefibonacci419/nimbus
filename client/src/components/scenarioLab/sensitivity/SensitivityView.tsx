@@ -166,14 +166,14 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
             chartArea={{ border: { width: 0 } }}
             tooltip={{
               enable: true,
-              fill: '#1E293B',
-              border: { color: '#475569', width: 1 },
+              fill: '#1C1C1F',
+              border: { color: '#3E3E44', width: 1 },
               textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
             }}
             crosshair={{
               enable: true,
               lineType: 'Vertical',
-              line: { color: '#475569', width: 1 },
+              line: { color: '#3E3E44', width: 1 },
             }}
             tooltipRender={tooltipRender}
             axisLabelRender={axisLabelRender}
@@ -183,7 +183,7 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
               maximum: activeConfig.max,
               labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
               majorGridLines: { width: 0 },
-              lineStyle: { color: '#334155', width: 1 },
+              lineStyle: { color: '#2C2C31', width: 1 },
               majorTickLines: { width: 0 },
               stripLines: [{
                 start: currentValue,
@@ -198,7 +198,7 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
             }}
             primaryYAxis={{
               labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
-              majorGridLines: { color: '#1E293B', width: 0.5 },
+              majorGridLines: { color: '#1C1C1F', width: 0.5 },
               lineStyle: { width: 0 },
               majorTickLines: { width: 0 },
             }}

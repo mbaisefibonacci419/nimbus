@@ -105,7 +105,7 @@ function formatMonth(yyyyMm: string): string {
 
 interface CategorizeOptions {
   provider: string;
-  apiKey: string;
+  apiKey?: string;
   model: string;
 }
 
@@ -163,8 +163,8 @@ export async function categorizeWithAI(
         body: JSON.stringify({
           prompt,
           provider: options.provider,
-          apiKey: options.apiKey,
           model: options.model,
+          ...(options.apiKey ? { apiKey: options.apiKey } : {}),
         }),
       });
 

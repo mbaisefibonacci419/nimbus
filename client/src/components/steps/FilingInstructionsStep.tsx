@@ -10,7 +10,6 @@
  * its own panel component with a back button to return here.
  */
 import { useMemo, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { TaxReturn, CalculationResult } from '@nimbus/engine';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
 import { calculateForm1040, FilingStatus, assessFilingOptions, assessEstimatedPaymentNeed } from '@nimbus/engine';
@@ -42,7 +41,6 @@ import {
 type FilingView = 'hub' | 'paper' | 'efiling' | 'preparer';
 
 export default function FilingInstructionsStep() {
-  const navigate = useNavigate();
   const { taxReturn, updateField } = useTaxReturnStore();
   const [view, setView] = useState<FilingView>('hub');
 
@@ -109,7 +107,6 @@ function HubView({
   onSelect: (view: FilingView) => void;
   updateField: (field: string, value: unknown) => void;
 }) {
-  const navigate = useNavigate();
   const assessment = useMemo(
     () => assessFilingOptions(taxReturn, result),
     [taxReturn, result],
@@ -340,12 +337,6 @@ function HubView({
               may contain errors. If you&apos;re a tax professional or developer who&apos;d like to help
               stress-test the app, please get in touch.
             </p>
-            <button
-              onClick={() => navigate('/pledge')}
-              className="inline-flex items-center gap-1 mt-2 text-xs text-telos-blue-400 hover:text-telos-blue-300 transition-colors"
-            >
-              Learn more about this project &rarr;
-            </button>
           </div>
         </div>
       </div>

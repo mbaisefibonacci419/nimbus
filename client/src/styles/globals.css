@@ -1,19 +1,35 @@
+/* Syncfusion — Tailwind Dark base theme (chart components) */
+@import '@syncfusion/ej2-base/styles/tailwind-dark.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Syncfusion — Tailwind Dark theme (chart components) */
-@import '@syncfusion/ej2-base/styles/tailwind-dark.css';
-@import '@syncfusion/ej2-react-charts/styles/tailwind-dark.css';
-@import '@syncfusion/ej2-react-circulargauge/styles/tailwind-dark.css';
+/* Hide Syncfusion trial license banner and popup */
+.e-dlg-container,
+.e-dlg-overlay,
+div[style*="e-dlg"],
+div[class*="e-license"],
+span[class*="e-license"],
+div[class*="e-control"][class*="e-dialog"],
+div[style*="position: fixed"][style*="z-index"],
+div[class*="e-footer"],
+div[class*="e-dlg"] {
+  display: none !important;
+}
 
+body > div[style*="background"][style*="position: fixed"],
+body > div[style*="z-index: 999999"],
+body > div[style*="z-index: 99999"],
+body > div[style*="Claim your free"] {
+  display: none !important;
+}
 
 @layer base {
   body {
     @apply bg-surface-900 text-slate-100 font-sans;
   }
 
-  /* Custom scrollbar for dark theme */
   ::-webkit-scrollbar {
     width: 8px;
   }
@@ -39,11 +55,11 @@
   }
 
   .card-selected {
-    @apply card cursor-pointer border-telos-orange-500 bg-telos-orange-500/10;
+    @apply card cursor-pointer border-nimbus-emerald-500 bg-nimbus-emerald-500/10;
   }
 
   .btn-primary {
-    @apply bg-telos-blue-600 hover:bg-telos-blue-500 text-white font-medium
+    @apply bg-nimbus-violet-600 hover:bg-nimbus-violet-500 text-white font-medium
       px-6 py-3 rounded-lg transition-colors duration-200
       disabled:opacity-50 disabled:cursor-not-allowed;
   }
@@ -57,7 +73,7 @@
   .input-field {
     @apply bg-surface-900 border border-slate-600 rounded-lg px-4 py-3
       text-white placeholder-slate-500 w-full
-      focus:outline-none focus:ring-2 focus:ring-telos-blue-500 focus:border-transparent
+      focus:outline-none focus:ring-2 focus:ring-nimbus-violet-500 focus:border-transparent
       transition-all duration-200;
   }
 
@@ -85,8 +101,6 @@
 
 
 /* ── Accessibility: Reduce motion ──────────────────────────── */
-/* Disable animations/transitions for users with vestibular     */
-/* motion disorders who enable "Reduce motion" in their OS.     */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

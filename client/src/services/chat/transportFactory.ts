@@ -26,8 +26,10 @@ function buildCacheKey(settings: AISettings): string {
     case 'private':
       return 'private';
     case 'byok': {
-      const decryptedKey = useAISettingsStore.getState()._decryptedApiKey;
-      return `byok:${settings.byokProvider}:${decryptedKey}:${settings.byokModel}`;
+      const { _decryptedApiKey, useServerKey } = useAISettingsStore.getState();
+      const keyPart =
+        useServerKey && !_decryptedApiKey ? 'server' : _decryptedApiKey;
+      return `byok:${settings.byokProvider}:${keyPart}:${settings.byokModel}`;
     }
   }
 }
@@ -53,10 +55,11 @@ export function getTransport(settings: AISettings): ChatTransport | null {
   // Dispose old transport if it exists
   cachedTransport?.dispose?.();
 
-  const decryptedKey = useAISettingsStore.getState()._decryptedApiKey;
+  const { _decryptedApiKey, useServerKey } = useAISettingsStore.getState();
+  const transportKey = useServerKey && !_decryptedApiKey ? '' : _decryptedApiKey;
   cachedTransport = new BYOKTransport(
     settings.byokProvider,
-    decryptedKey,
+    transportKey,
     settings.byokModel,
   );
 

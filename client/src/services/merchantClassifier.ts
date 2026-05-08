@@ -28,7 +28,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface ClassifyOptions {
   provider: string;
-  apiKey: string;
+  apiKey?: string;
   model: string;
 }
 
@@ -68,8 +68,8 @@ export async function classifyMerchantsWithAI(
             deductionMethod: context.deductionMethod,
           },
           provider: options.provider,
-          apiKey: options.apiKey,
           model: options.model,
+          ...(options.apiKey ? { apiKey: options.apiKey } : {}),
         }),
       });
 

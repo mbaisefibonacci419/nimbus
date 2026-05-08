@@ -10,7 +10,7 @@
  */
 
 import type { ChatContext, ChatMessage, ChatResponse, AIProvider } from '@nimbus/engine';
-import { scanForPII } from '@nimbus/engine';
+import { scanForPII, parseResponse } from '@nimbus/engine';
 import type { ChatTransport, ChatTransportStatus, StreamDeltaCallback } from './types';
 import { logOutboundRequest, consumePiiTypes, buildPiiBlockSummary } from '../privacyAuditLog';
 
@@ -37,8 +37,8 @@ export class BYOKTransport implements ChatTransport {
       conversationHistory,
       context,
       provider: this.provider,
-      apiKey: this.apiKey,
       model: this.model,
+      ...(this.apiKey ? { apiKey: this.apiKey } : {}),
     };
   }
 
@@ -129,6 +129,7 @@ export class BYOKTransport implements ChatTransport {
       const decoder = new TextDecoder();
       let buffer = '';
       let finalResponse: ChatResponse | null = null;
+      let accumulatedText = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -137,7 +138,6 @@ export class BYOKTransport implements ChatTransport {
         buffer += decoder.decode(value, { stream: true });
 
         const lines = buffer.split('\n');
-        // Keep the last (possibly incomplete) line in the buffer
         buffer = lines.pop() ?? '';
 
         for (const line of lines) {
@@ -149,6 +149,7 @@ export class BYOKTransport implements ChatTransport {
             const event = JSON.parse(payload);
             if (event.type === 'text_delta' && typeof event.delta === 'string') {
               onDelta(event.delta);
+              accumulatedText += event.delta;
             } else if (event.type === 'response_complete' && event.data) {
               finalResponse = event.data as ChatResponse;
             } else if (event.type === 'error') {
@@ -158,6 +159,10 @@ export class BYOKTransport implements ChatTransport {
             if (parseErr.message?.includes('Stream error')) throw parseErr;
           }
         }
+      }
+
+      if (!finalResponse && accumulatedText.length > 0) {
+        finalResponse = parseResponse(accumulatedText);
       }
 
       if (!finalResponse) {
@@ -173,25 +178,38 @@ export class BYOKTransport implements ChatTransport {
   }
 
   async checkStatus(): Promise<ChatTransportStatus> {
-    if (!this.apiKey) {
+    if (this.apiKey) {
+      if (!this.apiKey.startsWith('sk-ant-')) {
+        return {
+          ready: false,
+          model: null,
+          error: 'Invalid Anthropic API key format. Keys start with "sk-ant-".',
+        };
+      }
       return {
-        ready: false,
-        model: null,
-        error: 'No API key configured. Enter your Anthropic key in AI Settings.',
+        ready: true,
+        model: this.model,
       };
     }
 
-    if (!this.apiKey.startsWith('sk-ant-')) {
+    try {
+      const res = await fetch(`${API_BASE}/api/chat/status`);
+      const json = res.ok ? await res.json().catch(() => null) : null;
+      if (json?.data?.hasServerKey) {
+        return { ready: true, model: this.model };
+      }
       return {
         ready: false,
         model: null,
-        error: 'Invalid Anthropic API key format. Keys start with "sk-ant-".',
+        error:
+          'No API key configured. Add your Anthropic key in AI Settings, or run the app with a server API key.',
+      };
+    } catch {
+      return {
+        ready: false,
+        model: null,
+        error: 'Could not reach the AI server to verify API key setup.',
       };
     }
-
-    return {
-      ready: true,
-      model: this.model,
-    };
   }
 }

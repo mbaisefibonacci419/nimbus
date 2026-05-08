@@ -26,5 +26,8 @@ client/SECURITY-AUDIT*.md
 client/UX-REVIEW*.md
 *.rtf
 
+# Python venv for Docling PDF extraction
+.docling-venv/
+
 # Archive (private files, research, strategy, test data)
 Archive/

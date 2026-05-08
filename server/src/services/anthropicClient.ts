@@ -36,8 +36,7 @@ export async function anthropicCompletionWithKey(
   // See https://docs.anthropic.com/en/docs/data-usage-policy
   const client = new Anthropic({
     apiKey,
-    timeout: 120_000, // 2 minute timeout
-    defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
+    timeout: 120_000,
   });
 
   const referenceData = buildIrsReferenceData({
@@ -55,16 +54,14 @@ export async function anthropicCompletionWithKey(
     role: m.role,
     content: m.content,
   }));
-  // Claude 3.x: assistant prefill forces JSON output
   if (usePrefill) {
     mappedMessages.push({ role: 'assistant', content: '{' });
   }
 
   const response = await client.messages.create({
     model,
-    max_tokens: 8192,
+    max_tokens: 2048,
     temperature: 0.3,
-    // Split system prompt into cacheable (static) + dynamic (context) blocks
     system: [
       {
         type: 'text' as const,
@@ -79,13 +76,11 @@ export async function anthropicCompletionWithKey(
     messages: mappedMessages,
   });
 
-  // Anthropic returns content as an array of blocks — extract text
   const raw = response.content
     .filter((block): block is Anthropic.TextBlock => block.type === 'text')
     .map((block) => block.text)
     .join('');
 
-  // With prefill the "{" is NOT echoed in the response — prepend it
   return parseResponse(usePrefill ? '{' + raw : raw);
 }
 
@@ -107,7 +102,6 @@ export async function anthropicStreamWithKey(
   const client = new Anthropic({
     apiKey,
     timeout: 120_000,
-    defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
   });
 
   const referenceData = buildIrsReferenceData({
@@ -132,7 +126,7 @@ export async function anthropicStreamWithKey(
   const stream = client.messages.stream(
     {
       model,
-      max_tokens: 8192,
+      max_tokens: 2048,
       temperature: 0.3,
       system: [
         {
@@ -157,7 +151,14 @@ export async function anthropicStreamWithKey(
     accumulated += delta;
   });
 
-  await stream.done();
+  try {
+    await stream.done();
+  } catch (streamErr: any) {
+    if (signal?.aborted) throw streamErr;
+    // Stream ended abnormally but we may have partial content
+    console.warn('[anthropic-stream] stream.done() error, accumulated', accumulated.length, 'chars:', streamErr.message);
+    if (accumulated.length === 0) throw streamErr;
+  }
 
   const raw = usePrefill ? '{' + accumulated : accumulated;
   return parseResponse(raw);
@@ -175,8 +176,7 @@ export async function rawAnthropicCompletionWithKey(
 ): Promise<string> {
   const client = new Anthropic({
     apiKey,
-    timeout: 120_000, // 2 minute timeout
-    defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
+    timeout: 120_000,
   });
 
   const usePrefill = supportsAssistantPrefill(model);
@@ -203,4 +203,105 @@ export async function rawAnthropicCompletionWithKey(
     .join('');
 
   return usePrefill ? '{' + raw : raw;
+}
+
+/**
+ * Send a vision extraction request using BYOK. Sends an image to Claude's vision
+ * capabilities for direct document reading — much more accurate than OCR text.
+ */
+export async function visionExtractionWithKey(
+  apiKey: string,
+  model: string,
+  imageBase64: string,
+  mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
+  systemPrompt: string,
+  userPrompt: string,
+): Promise<string> {
+  const client = new Anthropic({
+    apiKey,
+    timeout: 120_000,
+  });
+
+  const response = await client.messages.create({
+    model,
+    max_tokens: 8192,
+    temperature: 0.0,
+    system: systemPrompt,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: mediaType,
+              data: imageBase64,
+            },
+          },
+          {
+            type: 'text',
+            text: userPrompt,
+          },
+        ],
+      },
+    ],
+  });
+
+  const raw = response.content
+    .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+    .map((block) => block.text)
+    .join('');
+
+  return raw;
+}
+
+/**
+ * Send a PDF document to Claude for direct extraction using the document content block.
+ * Claude can natively read PDF pages without converting to images first.
+ */
+export async function pdfExtractionWithKey(
+  apiKey: string,
+  model: string,
+  pdfBase64: string,
+  systemPrompt: string,
+  userPrompt: string,
+): Promise<string> {
+  const client = new Anthropic({
+    apiKey,
+    timeout: 180_000,
+  });
+
+  const response = await client.messages.create({
+    model,
+    max_tokens: 8192,
+    temperature: 0.0,
+    system: systemPrompt,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: pdfBase64,
+            },
+          } as any,
+          {
+            type: 'text',
+            text: userPrompt,
+          },
+        ],
+      },
+    ],
+  });
+
+  const raw = response.content
+    .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+    .map((block) => block.text)
+    .join('');
+
+  return raw;
 }

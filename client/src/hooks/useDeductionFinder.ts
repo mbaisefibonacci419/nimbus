@@ -291,9 +291,12 @@ export function useDeductionFinder(): UseDeductionFinderResult {
       return;
     }
 
-    // Key check for BYOK
-    if (aiSettings.mode === 'byok' && !aiSettings._decryptedApiKey) {
-      setAiError('Please configure your API key in AI Settings first.');
+    // Key check for BYOK (client key or server-managed)
+    const hasKey =
+      aiSettings._decryptedApiKey ||
+      (aiSettings.useServerKey && aiSettings.serverKeyAvailable);
+    if (aiSettings.mode === 'byok' && !hasKey) {
+      setAiError('Please configure your API key in AI Settings first (or ensure the server has an API key).');
       return;
     }
 
@@ -317,8 +320,8 @@ export function useDeductionFinder(): UseDeductionFinderResult {
       const context = buildReturnContext(taxReturn, calculation);
       const options = {
         provider: aiSettings.byokProvider,
-        apiKey: aiSettings._decryptedApiKey,
         model: aiSettings.byokModel,
+        ...(aiSettings._decryptedApiKey ? { apiKey: aiSettings._decryptedApiKey } : {}),
       };
 
       const classifications = await classifyMerchantsWithAI(
@@ -378,8 +381,11 @@ export function useDeductionFinder(): UseDeductionFinderResult {
       setAiError('AI transaction categorization requires BYOK mode.');
       return;
     }
-    if (aiSettings.mode === 'byok' && !aiSettings._decryptedApiKey) {
-      setAiError('Please configure your API key in AI Settings first.');
+    const hasKey =
+      aiSettings._decryptedApiKey ||
+      (aiSettings.useServerKey && aiSettings.serverKeyAvailable);
+    if (aiSettings.mode === 'byok' && !hasKey) {
+      setAiError('Please configure your API key in AI Settings first (or ensure the server has an API key).');
       return;
     }
 
@@ -403,8 +409,8 @@ export function useDeductionFinder(): UseDeductionFinderResult {
       // 3. Send to AI
       const options = {
         provider: aiSettings.byokProvider,
-        apiKey: aiSettings._decryptedApiKey,
         model: aiSettings.byokModel,
+        ...(aiSettings._decryptedApiKey ? { apiKey: aiSettings._decryptedApiKey } : {}),
       };
 
       // Get enabled categories and context hints from store

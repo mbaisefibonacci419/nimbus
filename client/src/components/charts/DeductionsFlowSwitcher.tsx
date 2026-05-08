@@ -1,11 +1,10 @@
 import { useState, lazy, Suspense } from 'react';
-import { BarChart2, BarChart3, GitBranch } from 'lucide-react';
+import { BarChart2, GitBranch } from 'lucide-react';
 import DeductionsBreakdownChart from './DeductionsBreakdownChart';
-import DeductionsFlowWaterfall from './DeductionsFlowWaterfall';
 
 const DeductionsFlowSankey = lazy(() => import('./DeductionsFlowSankey'));
 
-type ViewMode = 'bar' | 'waterfall' | 'sankey';
+type ViewMode = 'bar' | 'sankey';
 
 interface DeductionsFlowSwitcherProps {
   totalIncome: number;
@@ -23,7 +22,6 @@ interface DeductionsFlowSwitcherProps {
 
 const VIEW_MODES: { id: ViewMode; label: string; icon: typeof BarChart2 }[] = [
   { id: 'bar',       label: 'Summary',   icon: BarChart2 },
-  { id: 'waterfall', label: 'Waterfall', icon: BarChart3 },
   { id: 'sankey',    label: 'Flow',      icon: GitBranch },
 ];
 
@@ -72,19 +70,6 @@ export default function DeductionsFlowSwitcher(props: DeductionsFlowSwitcherProp
         />
       )}
 
-      {view === 'waterfall' && (
-        <DeductionsFlowWaterfall
-          totalIncome={props.totalIncome}
-          totalAdjustments={props.totalAdjustments}
-          agi={props.agi}
-          deductionAmount={props.deductionAmount}
-          deductionLabel={props.deductionLabel}
-          qbiDeduction={props.qbiDeduction}
-          taxableIncome={props.taxableIncome}
-          onBarClick={props.onBarClick}
-        />
-      )}
-
       {view === 'sankey' && (
         <Suspense
           fallback={
@@ -112,9 +97,9 @@ export default function DeductionsFlowSwitcher(props: DeductionsFlowSwitcherProp
         </Suspense>
       )}
 
-      {view !== 'bar' && (
+      {view === 'sankey' && (
         <p className="text-[11px] text-slate-500 text-center mt-1">
-          Click any {view === 'sankey' ? 'node' : 'bar'} to jump to that section
+          Click any node to jump to that section
         </p>
       )}
     </div>

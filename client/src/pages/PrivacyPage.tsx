@@ -346,8 +346,6 @@ export default function PrivacyPage() {
         <div className="text-xs text-slate-600 mt-12 text-center leading-relaxed">
           <p>This tool is for informational purposes only and does not constitute tax advice.</p>
           <div className="flex items-center justify-center gap-3 mt-2">
-            <button onClick={() => navigate('/pledge')} className="text-slate-400 hover:text-slate-300 transition-colors">About</button>
-            <span className="text-slate-700">&middot;</span>
             <button onClick={() => navigate('/terms')} className="text-slate-400 hover:text-slate-300 transition-colors">Terms</button>
           </div>
           <button

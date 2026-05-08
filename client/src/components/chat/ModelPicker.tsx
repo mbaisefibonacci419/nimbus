@@ -33,7 +33,12 @@ export default function ModelPicker() {
   const mode = useAISettingsStore((s) => s.mode);
   const byokModel = useAISettingsStore((s) => s.byokModel);
   const byokApiKey = useAISettingsStore((s) => s._decryptedApiKey);
+  const useServerKey = useAISettingsStore((s) => s.useServerKey);
+  const serverKeyAvailable = useAISettingsStore((s) => s.serverKeyAvailable);
   const setBYOKModel = useAISettingsStore((s) => s.setBYOKModel);
+
+  const byokCloudReady =
+    Boolean(byokApiKey) || (useServerKey && serverKeyAvailable);
 
   // Close on click outside
   useEffect(() => {
@@ -72,7 +77,7 @@ export default function ModelPicker() {
 
   // ── BYOK mode: model picker ──
 
-  if (!byokApiKey) {
+  if (!byokCloudReady) {
     return (
       <span className="text-[11px] text-slate-500 px-1.5 py-1">No API key configured</span>
     );

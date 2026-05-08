@@ -12,7 +12,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTaxReturnStore } from '../store/taxReturnStore';
 import { useAISettingsStore } from '../store/aiSettingsStore';
-import { addIncomeItem } from '../api/client';
+import { addIncomeItem, getReturn } from '../api/client';
 import {
   extractFromPDF,
   extractFromPDFWithOCR,
@@ -23,9 +23,15 @@ import {
 } from '../services/pdfImporter';
 import {
   extractFieldsWithAI,
+  extractFieldsWithVision,
+  extractPDFServerSide,
+  fileToBase64Data,
+  resolveVisionMediaType,
   crossValidate,
+  type AIExtractionResult,
   type CrossValidatedField,
 } from '../services/aiExtractionService';
+import { renderPdfFirstPageJpegBase64 } from '../services/pdfToImages';
 import type { OCRStage } from '../services/ocrService';
 import { checkForDuplicates, type DuplicateCheckResult } from '../services/duplicateDetection';
 import { toast } from 'sonner';
@@ -150,15 +156,19 @@ export function useDocumentImport(
   const [aiEnhanced, setAiEnhanced] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
-  // AI eligibility — BYOK with an API key implies consent (user explicitly chose cloud AI)
+  // AI eligibility — BYOK with a client key or server-managed key
   const aiSettings = useAISettingsStore();
-  const aiEligible = useMemo(() => !!(
-    result?.ocrUsed &&
-    result?.rawOCRText &&
+  const byokReady = !!(
     aiSettings.mode === 'byok' &&
-    aiSettings._decryptedApiKey &&
-    !aiEnhanced
-  ), [result, aiSettings.mode, aiSettings._decryptedApiKey, aiEnhanced]);
+    (aiSettings._decryptedApiKey ||
+      (aiSettings.useServerKey && aiSettings.serverKeyAvailable))
+  );
+  const aiEligible = useMemo(() => !!(
+    result &&
+    byokReady &&
+    !aiEnhanced &&
+    (result.rawOCRText || pendingFile)
+  ), [result, byokReady, aiEnhanced, pendingFile]);
 
   // Cleanup OCR worker on unmount
   useEffect(() => {
@@ -168,25 +178,66 @@ export function useDocumentImport(
   }, []);
 
   const handleFile = useCallback(async (file: File) => {
-    // Image files always go through OCR
+    setPendingFile(file);
+
+    // Image files go through OCR → Vision
     if (isImageFile(file)) {
-      setPendingFile(file);
       setState('ocr-confirm');
       return;
     }
 
-    // PDF files — try digital extraction first
+    // PDF files — send to server for extraction (Docling + Vision fallback)
     setState('extracting');
     try {
+      // Step 1: Quick local extraction for form type detection + fallback data
       const extracted = await extractFromPDF(file);
 
-      // If the PDF is scanned/image-based, offer OCR
+      // If the PDF is scanned/image-based, offer OCR first
       if (extracted.ocrAvailable) {
-        setPendingFile(file);
         setState('ocr-confirm');
         return;
       }
 
+      // Step 2: Server-side extraction (Docling local, then Claude Vision fallback)
+      const settings = useAISettingsStore.getState();
+      const apiKeyForRequest = settings._decryptedApiKey || undefined;
+
+      try {
+        const serverResult = await extractPDFServerSide(
+          file,
+          extracted.formType || null,
+          settings.byokModel || 'claude-sonnet-4-6',
+          apiKeyForRequest,
+        );
+
+        if (serverResult && Object.keys(serverResult.fields).length > 0) {
+          const serverData: Record<string, unknown> = {};
+          for (const [key, field] of Object.entries(serverResult.fields)) {
+            serverData[key] = field.value;
+          }
+
+          const result: PDFExtractResult = {
+            ...extracted,
+            formType: (serverResult.formType as SupportedFormType) || extracted.formType,
+            extractedData: serverData,
+            confidence: serverResult.formTypeConfidence === 'high' ? 'high' : 'medium',
+            aiEnhanced: serverResult.method === 'vision',
+          };
+          setResult(result);
+          setEditData(serverData);
+          if (result.aiEnhanced) setAiEnhanced(true);
+
+          if (taxReturn && result.incomeType) {
+            setDuplicateCheck(checkForDuplicates(taxReturn, result.incomeType, serverData));
+          }
+          setState('review');
+          return;
+        }
+      } catch (serverErr) {
+        console.warn('Server-side extraction failed, using local extraction', serverErr);
+      }
+
+      // Fallback: use local pdfjs-dist extraction
       setResult(extracted);
 
       if (extracted.errors.length > 0) {
@@ -199,7 +250,6 @@ export function useDocumentImport(
 
       setEditData({ ...extracted.extractedData });
 
-      // Notify about additional forms detected in consolidated PDFs
       const extras = extracted.additionalResults || [];
       const extrasWithValues = extras.filter(r =>
         Object.values(r.extractedData).some(v => typeof v === 'number' && v > 0),
@@ -209,7 +259,6 @@ export function useDocumentImport(
         toast.success(`Also found ${extrasWithValues.length} additional form${extrasWithValues.length > 1 ? 's' : ''} (${formList}) — they will be imported automatically when you confirm.`);
       }
 
-      // Check for duplicates
       if (taxReturn && extracted.incomeType) {
         setDuplicateCheck(checkForDuplicates(taxReturn, extracted.incomeType, extracted.extractedData));
       } else {
@@ -270,28 +319,79 @@ export function useDocumentImport(
   }, [pendingFile, taxReturn]);
 
   const handleEnhanceWithAI = useCallback(async () => {
-    if (!result?.rawOCRText || !result.formType) return;
+    if (!result?.formType) return;
 
-    // Guard: must be BYOK with API key (providing a key implies consent)
     const settings = useAISettingsStore.getState();
-    if (settings.mode !== 'byok' || !settings._decryptedApiKey) {
-      setAiError('AI enhancement requires BYOK mode with an API key configured.');
+
+    const byokOk =
+      settings.mode === 'byok' &&
+      (settings._decryptedApiKey ||
+        (settings.useServerKey && settings.serverKeyAvailable));
+    if (!byokOk) {
+      setAiError('AI enhancement requires BYOK mode with a configured API key (or a server API key).');
       return;
     }
 
+    const apiKeyForRequest = settings._decryptedApiKey || undefined;
     setState('ai-enhancing');
     setAiError(null);
 
     try {
-      const aiResult = await extractFieldsWithAI(
-        result.rawOCRText,
-        result.formType,
-        {
-          provider: settings.byokProvider,
-          apiKey: settings._decryptedApiKey,
-          model: settings.byokModel,
-        },
-      );
+      let aiResult: AIExtractionResult | undefined;
+
+      // Prefer Claude Vision for images and ALL PDFs (digital or scanned)
+      if (settings.byokProvider === 'anthropic' && pendingFile) {
+        try {
+          if (isImageFile(pendingFile)) {
+            const mediaType = resolveVisionMediaType(pendingFile);
+            if (mediaType) {
+              const imageBase64 = await fileToBase64Data(pendingFile);
+              aiResult = await extractFieldsWithVision(
+                imageBase64,
+                mediaType,
+                result.formType,
+                settings.byokProvider,
+                apiKeyForRequest,
+                settings.byokModel,
+              );
+            }
+          } else if (
+            pendingFile.type === 'application/pdf' ||
+            pendingFile.name.toLowerCase().endsWith('.pdf')
+          ) {
+            const jpeg = await renderPdfFirstPageJpegBase64(pendingFile);
+            if (jpeg) {
+              aiResult = await extractFieldsWithVision(
+                jpeg.imageBase64,
+                jpeg.mediaType,
+                result.formType,
+                settings.byokProvider,
+                apiKeyForRequest,
+                settings.byokModel,
+              );
+            }
+          }
+        } catch (visionErr) {
+          console.warn('Vision extraction failed, falling back to OCR text', visionErr);
+        }
+      }
+
+      if (!aiResult) {
+        if (!result.rawOCRText || result.rawOCRText.length < 10) {
+          setAiError('AI extraction needs OCR text or a supported image/PDF for vision.');
+          setState('review');
+          return;
+        }
+        aiResult = await extractFieldsWithAI(
+          result.rawOCRText,
+          result.formType,
+          {
+            provider: settings.byokProvider,
+            model: settings.byokModel,
+            ...(apiKeyForRequest ? { apiKey: apiKeyForRequest } : {}),
+          },
+        );
+      }
 
       // Cross-validate local OCR vs. AI results
       const validated = crossValidate(
@@ -318,7 +418,7 @@ export function useDocumentImport(
       setAiError(msg);
       setState('review'); // Preserve local OCR results
     }
-  }, [result, editData]);
+  }, [result, editData, pendingFile]);
 
   const handleFieldChange = useCallback((key: string, value: unknown) => {
     setEditData(prev => ({ ...prev, [key]: value }));
@@ -331,7 +431,6 @@ export function useDocumentImport(
     try {
       const customHandler = CUSTOM_IMPORT_HANDLERS[result.incomeType];
       if (result.incomeType === '1098t') {
-        // 1098-T maps to education-credits array with field transformation
         const mapped = {
           institution: (editData.institutionName as string) || '',
           tuitionPaid: (editData.tuitionPayments as number) || 0,
@@ -347,13 +446,6 @@ export function useDocumentImport(
         addIncomeItem(returnId, result.incomeType, editData);
       }
 
-      // Auto-set income discovery
-      const discoveryKey = INCOME_DISCOVERY_KEYS[result.incomeType];
-      if (discoveryKey) {
-        const discovery = { ...taxReturn.incomeDiscovery, [discoveryKey]: 'yes' };
-        updateField('incomeDiscovery', discovery);
-      }
-
       // Auto-import additional forms from consolidated multi-form PDFs
       const extras = result.additionalResults || [];
       let extraCount = 0;
@@ -363,14 +455,31 @@ export function useDocumentImport(
         if (!hasValues) continue;
         try {
           addIncomeItem(returnId, extra.incomeType, extra.extractedData);
-          const dk = INCOME_DISCOVERY_KEYS[extra.incomeType];
-          if (dk) {
-            const disc = { ...taxReturn.incomeDiscovery, [dk]: 'yes' };
-            updateField('incomeDiscovery', disc);
-          }
           extraCount++;
         } catch {
           // Non-fatal — primary import already succeeded
+        }
+      }
+
+      // Sync the Zustand store from localStorage BEFORE calling updateField,
+      // so the debounced auto-save doesn't overwrite the income items we just added.
+      const freshReturn = getReturn(returnId);
+      useTaxReturnStore.getState().setReturn(freshReturn);
+
+      // Now set income discovery flags on the already-synced state
+      const discoveryKey = INCOME_DISCOVERY_KEYS[result.incomeType];
+      if (discoveryKey) {
+        const freshDiscovery = { ...freshReturn.incomeDiscovery, [discoveryKey]: 'yes' };
+        updateField('incomeDiscovery', freshDiscovery);
+      }
+      for (const extra of extras) {
+        if (!extra.incomeType) continue;
+        const dk = INCOME_DISCOVERY_KEYS[extra.incomeType];
+        if (dk) {
+          const current = useTaxReturnStore.getState().taxReturn;
+          if (current) {
+            updateField('incomeDiscovery', { ...current.incomeDiscovery, [dk]: 'yes' });
+          }
         }
       }
 

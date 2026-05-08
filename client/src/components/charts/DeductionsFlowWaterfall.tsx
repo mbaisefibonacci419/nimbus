@@ -107,8 +107,8 @@ export default function DeductionsFlowWaterfall({
       chartArea={{ border: { width: 0 } }}
       tooltip={{
         enable: true,
-        fill: '#1E293B',
-        border: { color: '#475569', width: 1 },
+        fill: '#1C1C1F',
+        border: { color: '#3E3E44', width: 1 },
         textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
       }}
       pointRender={pointRender}
@@ -141,7 +141,7 @@ export default function DeductionsFlowWaterfall({
           sumIndexes={sumIndexes}
           columnWidth={0.55}
           cornerRadius={{ topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 }}
-          connector={{ color: '#475569', width: 1, dashArray: '4,3' }}
+          connector={{ color: '#3E3E44', width: 1, dashArray: '4,3' }}
           marker={{
             dataLabel: {
               visible: true,

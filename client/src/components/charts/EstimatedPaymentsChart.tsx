@@ -50,8 +50,8 @@ export default function EstimatedPaymentsChart({ quarters, quarterlyDetail }: Es
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1E293B',
-          border: { color: '#475569', width: 1 },
+          fill: '#1C1C1F',
+          border: { color: '#3E3E44', width: 1 },
           textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
         }}
         textRender={textRender}

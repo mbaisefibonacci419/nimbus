@@ -67,6 +67,7 @@ const CONTEXT_KEY_INFO: Record<string, { label: string; description: string }> =
   enabledCategories: { label: 'Categories', description: 'Which expense categories you selected to scan' },
   ocrText: { label: 'OCR Text', description: 'Scanned document text (PII-stripped before sending)' },
   formTypeHint: { label: 'Form Type', description: 'Which tax form was detected in the document' },
+  'vision-image': { label: 'Document Image', description: 'Tax document image bytes sent for vision extraction (not text-redacted)' },
 };
 
 function formatTime(iso: string): string {
@@ -161,6 +162,13 @@ export default function PrivacyAuditPanel({ onBack }: Props) {
                     <span className="text-xs font-medium text-telos-blue-400">
                       {FEATURE_LABELS[entry.feature] || entry.feature}
                     </span>
+                    {entry.requestKind === 'vision-extraction' && (
+                      <>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/25 shrink-0">
+                          Vision
+                        </span>
+                      </>
+                    )}
                     <span className="text-xs text-slate-500">&middot;</span>
                     <span className="text-xs text-slate-500 truncate flex-1">
                       {entry.model}

@@ -16,6 +16,11 @@ vi.mock('../services/pdfImporter', () => ({
   INCOME_DISCOVERY_KEYS: {},
 }));
 
+vi.mock('../services/pdfToImages', () => ({
+  renderPDFToImages: vi.fn(),
+  renderPdfFirstPageJpegBase64: vi.fn(),
+}));
+
 vi.mock('../services/duplicateDetection', () => ({
   checkForDuplicates: vi.fn(),
 }));

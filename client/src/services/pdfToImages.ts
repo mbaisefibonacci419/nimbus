@@ -61,3 +61,24 @@ export async function renderPDFToImages(
     await pdf.destroy().catch(() => {});
   }
 }
+
+/**
+ * Render the first PDF page to a JPEG for Claude Vision (e.g. scanned W-2 PDFs).
+ * Uses a moderate DPI to balance legibility vs. request size.
+ */
+export async function renderPdfFirstPageJpegBase64(
+  file: File,
+  dpi = 200,
+): Promise<{ imageBase64: string; mediaType: 'image/jpeg' } | null> {
+  try {
+    const canvases = await renderPDFToImages(file, 1, dpi);
+    const canvas = canvases[0];
+    if (!canvas) return null;
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+    const comma = dataUrl.indexOf(',');
+    if (comma === -1) return null;
+    return { imageBase64: dataUrl.slice(comma + 1), mediaType: 'image/jpeg' };
+  } catch {
+    return null;
+  }
+}

@@ -1,8 +1,8 @@
 /**
  * Chat Routes — POST /api/chat/byok, POST /api/chat/byok/stream, GET /api/chat/status
  *
- * BYOK mode only — user provides their own Anthropic API key,
- * proxied through this server as a CORS relay.
+ * BYOK mode — client may provide an Anthropic API key, or omit it when the server
+ * is configured with ANTHROPIC_API_KEY (server-managed key; never exposed to the client).
  *
  * The POST endpoint strips PII as defense-in-depth (client should scan first),
  * then forwards to Anthropic.
@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { stripPII, stripConversationHistory, stripContext } from '../services/piiStripper.js';
 import { anthropicCompletionWithKey, anthropicStreamWithKey } from '../services/anthropicClient.js';
 import { config } from '../config.js';
+import { resolveBYOKAnthropicKey, validateBYOKAnthropicKey } from '../services/byokApiKey.js';
 import { buildSystemPrompt } from '../services/systemPrompt.js';
 import { handleLLMError, handleRouteError, sanitizeLLMErrorMessage, scrubSecrets } from '../services/errorSanitizer.js';
 import { initRateLimitTable, checkRateLimit as sharedCheckRateLimit, getClientIp, sendRateLimitResponse } from '../services/rateLimiter.js';
@@ -40,7 +41,7 @@ const ChatRequestSchema = z.object({
 
 const BYOKRequestSchema = ChatRequestSchema.extend({
   provider: z.literal('anthropic'),
-  apiKey: z.string().min(1).max(200),
+  apiKey: z.string().max(200).optional().default(''),
   model: z.string().min(1).max(100),
 });
 
@@ -74,10 +75,12 @@ function prepareMessages(
  */
 router.get('/status', (_req: Request, res: Response) => {
   res.json({
+    status: 'ok',
     data: {
-      enabled: false, // No server-side AI — BYOK only
+      enabled: false, // No server-side product AI — BYOK / proxy only
       model: null,
       byokEnabled: true,
+      hasServerKey: Boolean(config.anthropicApiKey),
     },
   });
 });
@@ -127,15 +130,16 @@ router.post('/byok', async (req: Request, res: Response) => {
       return;
     }
 
-    const { message, conversationHistory, context, apiKey, model } =
+    const { message, conversationHistory, context, apiKey: clientKeyField, model } =
       parseResult.data;
 
-    // 3. Validate API key format (basic sanity check — never log the key)
-    if (!apiKey.startsWith('sk-ant-')) {
+    const { apiKey, trimmedClientKey } = resolveBYOKAnthropicKey(clientKeyField);
+    const keyValidation = validateBYOKAnthropicKey(trimmedClientKey, apiKey);
+    if (!keyValidation.ok) {
       res.status(400).json({
         error: {
-          message: 'Invalid Anthropic API key format. Keys start with "sk-ant-".',
-          code: 'INVALID_API_KEY',
+          message: keyValidation.message,
+          code: keyValidation.code,
         },
       });
       return;
@@ -216,13 +220,15 @@ router.post('/byok/stream', async (req: Request, res: Response) => {
     return;
   }
 
-  const { message, conversationHistory, context, apiKey, model } = parseResult.data;
+  const { message, conversationHistory, context, apiKey: clientKeyField, model } = parseResult.data;
 
-  if (!apiKey.startsWith('sk-ant-')) {
+  const { apiKey, trimmedClientKey } = resolveBYOKAnthropicKey(clientKeyField);
+  const keyValidation = validateBYOKAnthropicKey(trimmedClientKey, apiKey);
+  if (!keyValidation.ok) {
     res.status(400).json({
       error: {
-        message: 'Invalid Anthropic API key format. Keys start with "sk-ant-".',
-        code: 'INVALID_API_KEY',
+        message: keyValidation.message,
+        code: keyValidation.code,
       },
     });
     return;
@@ -238,15 +244,20 @@ router.post('/byok/stream', async (req: Request, res: Response) => {
   const onClose = () => {
     abortController.abort();
   };
-  req.once('close', onClose);
+  // Listen on `res` (not `req`) — req's 'close' fires after body parsing completes,
+  // but res's 'close' fires when the client actually disconnects the TCP connection.
+  res.once('close', onClose);
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
 
   const writeSse = (payload: Record<string, unknown>) => {
-    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+    if (!res.writableEnded) {
+      res.write(`data: ${JSON.stringify(payload)}\n\n`);
+    }
   };
 
   const systemPrompt = buildSystemPrompt({
@@ -263,20 +274,34 @@ router.post('/byok/stream', async (req: Request, res: Response) => {
       messages,
       sanitizedContext,
       systemPrompt,
-      (delta) => writeSse({ type: 'text_delta', delta }),
+      (delta) => {
+        if (!res.writableEnded) {
+          writeSse({ type: 'text_delta', delta });
+        }
+      },
       abortController.signal,
     );
-    writeSse({ type: 'response_complete', data: response });
-    res.write('data: [DONE]\n\n');
-    res.end();
+    console.log('[byok-chat-stream] Stream complete, sending response_complete');
+    if (!res.writableEnded) {
+      writeSse({ type: 'response_complete', data: response });
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
   } catch (err: unknown) {
     const rawMsg = err instanceof Error ? err.message : String(err);
-    console.error('[byok-chat-stream] Provider error:', scrubSecrets(rawMsg));
-    writeSse({ type: 'error', error: { message: sanitizeLLMErrorMessage(err) } });
-    res.write('data: [DONE]\n\n');
-    res.end();
+    const isAbort = rawMsg.includes('aborted') || rawMsg.includes('AbortError') || abortController.signal.aborted;
+    if (isAbort) {
+      console.log('[byok-chat-stream] Client disconnected (request aborted).');
+    } else {
+      console.error('[byok-chat-stream] Provider error:', scrubSecrets(rawMsg));
+    }
+    if (!res.writableEnded) {
+      writeSse({ type: 'error', error: { message: isAbort ? 'Request cancelled.' : sanitizeLLMErrorMessage(err) } });
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
   } finally {
-    req.off('close', onClose);
+    res.off('close', onClose);
   }
 });
 

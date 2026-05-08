@@ -55,8 +55,8 @@ export default function CreditsStackedBar({ nonRefundable, refundable }: Credits
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1E293B',
-          border: { color: '#475569', width: 1 },
+          fill: '#1C1C1F',
+          border: { color: '#3E3E44', width: 1 },
           textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
         }}
         textRender={textRender}
@@ -88,7 +88,7 @@ export default function CreditsStackedBar({ nonRefundable, refundable }: Credits
               dataLabel: {
                 visible: nonRefundable > 0,
                 position: 'Middle',
-                font: { color: '#1E293B', fontFamily: 'Inter Variable, sans-serif', size: '12px', fontWeight: '700' },
+                font: { color: '#1C1C1F', fontFamily: 'Inter Variable, sans-serif', size: '12px', fontWeight: '700' },
               },
             }}
           />
@@ -105,7 +105,7 @@ export default function CreditsStackedBar({ nonRefundable, refundable }: Credits
               dataLabel: {
                 visible: refundable > 0,
                 position: 'Middle',
-                font: { color: '#1E293B', fontFamily: 'Inter Variable, sans-serif', size: '12px', fontWeight: '700' },
+                font: { color: '#1C1C1F', fontFamily: 'Inter Variable, sans-serif', size: '12px', fontWeight: '700' },
               },
             }}
           />

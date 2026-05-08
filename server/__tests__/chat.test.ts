@@ -43,6 +43,27 @@ vi.mock('../src/services/anthropicClient.js', () => ({
   ),
 }));
 
+const testAnthropicApiKey = vi.hoisted(() => ({ value: '' as string }));
+/** Avoid cross-test rate-limit flakiness (shared in-memory counter). */
+const T_RATE_MAX = 100_000;
+
+vi.mock('../src/config.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/config.js')>();
+  return {
+    config: new Proxy(actual.config, {
+      get(target, prop, receiver) {
+        if (prop === 'anthropicApiKey') {
+          return testAnthropicApiKey.value;
+        }
+        if (prop === 'byokRateLimitMax') {
+          return T_RATE_MAX;
+        }
+        return Reflect.get(target, prop, receiver);
+      },
+    }),
+  };
+});
+
 // Mock the database for rate limiting (in-memory)
 vi.mock('../src/db/connection.js', () => {
   const records: Array<{ ip: string; endpoint: string; request_time: number }> = [];
@@ -84,6 +105,10 @@ vi.mock('../src/db/connection.js', () => {
 // Now import route after mocks are set up
 import chatRoutes from '../src/routes/chat.js';
 import { anthropicCompletionWithKey, anthropicStreamWithKey } from '../src/services/anthropicClient.js';
+
+beforeEach(() => {
+  testAnthropicApiKey.value = '';
+});
 
 // ─── Test App Setup ─────────────────────────────────
 
@@ -128,15 +153,25 @@ async function getStatus(app: Express) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('GET /api/chat/status', () => {
-  it('returns status with byokEnabled', async () => {
+  it('returns status with byokEnabled and hasServerKey', async () => {
     const app = createTestApp();
     const res = await getStatus(app);
     expect(res.status).toBe(200);
+    expect(res.body.status).toBe('ok');
     expect(res.body.data).toEqual({
       enabled: false,
       model: null,
       byokEnabled: true,
+      hasServerKey: false,
     });
+  });
+
+  it('reports hasServerKey when ANTHROPIC_API_KEY is configured', async () => {
+    testAnthropicApiKey.value = 'sk-ant-api03-server-status-test';
+    const app = createTestApp();
+    const res = await getStatus(app);
+    expect(res.status).toBe(200);
+    expect(res.body.data.hasServerKey).toBe(true);
   });
 });
 
@@ -180,9 +215,20 @@ describe('POST /api/chat/byok — Zod validation', () => {
     expect(res.status).toBe(400);
   });
 
-  it('rejects missing apiKey', async () => {
+  it('returns NO_API_KEY when client omits apiKey and server has none', async () => {
     const res = await postBYOK(app, validBYOKBody({ apiKey: undefined }));
     expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('NO_API_KEY');
+  });
+
+  it('accepts valid body without client apiKey when server key is configured', async () => {
+    testAnthropicApiKey.value = 'sk-ant-api03-server-fallback-integration';
+    const body = validBYOKBody();
+    delete (body as Record<string, unknown>).apiKey;
+    const res = await postBYOK(app, body);
+    expect(res.status).toBe(200);
+    const call = vi.mocked(anthropicCompletionWithKey).mock.calls[0];
+    expect(call[0]).toBe('sk-ant-api03-server-fallback-integration');
   });
 
   it('rejects missing model', async () => {

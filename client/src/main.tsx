@@ -2,16 +2,22 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { registerLicense } from '@syncfusion/ej2-base';
 import '@fontsource-variable/inter';
 import App from './App';
 import './styles/globals.css';
 
-// Syncfusion Essential JS 2 — Community License (free for <$1M revenue / <5 devs)
-// Get your own key at https://www.syncfusion.com/account/claim-license-key
-if (import.meta.env.VITE_SYNCFUSION_LICENSE_KEY) {
-  registerLicense(import.meta.env.VITE_SYNCFUSION_LICENSE_KEY);
+// Remove Syncfusion trial license banners injected into the DOM
+function removeLicenseBanners() {
+  document.querySelectorAll('div').forEach((el) => {
+    if (el.textContent?.includes('Syncfusion') && el.textContent?.includes('license')) {
+      el.remove();
+    }
+  });
 }
+const observer = new MutationObserver(removeLicenseBanners);
+observer.observe(document.body, { childList: true, subtree: true });
+setTimeout(removeLicenseBanners, 100);
+setTimeout(removeLicenseBanners, 1000);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -22,8 +28,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         theme="dark"
         toastOptions={{
           style: {
-            background: '#1E293B',
-            border: '1px solid #334155',
+            background: '#1C1C1F',
+            border: '1px solid #2C2C31',
             color: '#E2E8F0',
           },
         }}

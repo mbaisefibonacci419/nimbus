@@ -73,8 +73,8 @@ export default function IncomeDonut({ items: rawItems, onSliceClick, height = '6
           legendSettings={{ visible: false }}
           tooltip={{
             enable: true,
-            fill: '#1E293B',
-            border: { color: '#475569', width: 1 },
+            fill: '#1C1C1F',
+            border: { color: '#3E3E44', width: 1 },
             textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
           }}
           pointRender={pointRender}
@@ -94,7 +94,7 @@ export default function IncomeDonut({ items: rawItems, onSliceClick, height = '6
               dataLabel={{
                 visible: true,
                 position: 'Outside',
-                connectorStyle: { length: '40px', color: '#475569', width: 1 },
+                connectorStyle: { length: '40px', color: '#3E3E44', width: 1 },
                 font: {
                   color: '#E2E8F0',
                   fontFamily: 'Inter Variable, sans-serif',

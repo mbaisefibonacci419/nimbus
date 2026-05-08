@@ -319,24 +319,14 @@ export default function PDFImportPanel({ onBack }: PDFImportPanelProps) {
             </div>
           )}
 
-          {/* Enhance with AI button */}
-          {aiEligible && (
-            <div className="rounded-xl border bg-telos-blue-500/10 border-telos-blue-500/30 p-4">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-telos-blue-400 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-semibold text-telos-blue-300 mb-1">Enhance with AI</h4>
-                  <p className="text-xs text-slate-300 mb-3">
-                    Send the extracted text to your AI provider for improved accuracy.
-                    PII (SSN, addresses, etc.) is automatically stripped before sending.
-                  </p>
-                  <button
-                    onClick={handleEnhanceWithAI}
-                    className="px-4 py-2 text-sm font-medium bg-telos-blue-600 hover:bg-telos-blue-500 text-white rounded-lg transition-colors"
-                  >
-                    Enhance Extraction
-                  </button>
-                </div>
+          {/* AI-enhanced extraction indicator */}
+          {aiEnhanced && (
+            <div className="rounded-xl border bg-telos-blue-500/10 border-telos-blue-500/30 p-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-telos-blue-400 shrink-0" />
+                <p className="text-xs text-telos-blue-300">
+                  Extracted with AI-powered document analysis for higher accuracy.
+                </p>
               </div>
             </div>
           )}

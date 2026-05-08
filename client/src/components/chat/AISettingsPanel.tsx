@@ -156,7 +156,7 @@ export default function AISettingsPanel({ onBack, onOpenPrivacyLog }: Props) {
           title="Bring Your Own Key"
           badge="Free"
           badgeColor="text-telos-blue-400 bg-telos-blue-400/10"
-          description="You provide your own Anthropic API key. Messages pass through our server (we can't read them) and go to Anthropic, billed to your account."
+          description="Use Anthropic for AI chat and document features. You can use your own API key (encrypted in this browser) or, when available, the app server’s key so you don’t have to paste anything."
           features={[
             'Everything in Private Mode, plus:',
             'AI chat for tax questions & data entry',
@@ -169,7 +169,25 @@ export default function AISettingsPanel({ onBack, onOpenPrivacyLog }: Props) {
         >
           {settings.mode === 'byok' && (
             <div className="mt-3 pt-3 border-t border-slate-700 space-y-3">
-              {/* API Key */}
+              {settings.serverKeyAvailable && settings.useServerKey && !settings._decryptedApiKey && (
+                <div className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2.5">
+                  <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                    AI features are using the app server&apos;s Anthropic API key. You don&apos;t need to add your own key.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      settings.setUseServerKey(false);
+                    }}
+                    className="mt-2 text-[10px] font-medium text-telos-blue-400 hover:text-telos-blue-300"
+                  >
+                    Use my own Anthropic key instead
+                  </button>
+                </div>
+              )}
+
+              {(!settings.useServerKey || !settings.serverKeyAvailable || !!settings._decryptedApiKey) && (
               <div>
                 <label className="text-[11px] text-slate-400 font-medium">Anthropic API Key</label>
                 <div className="mt-1 flex gap-1.5">
@@ -204,7 +222,20 @@ export default function AISettingsPanel({ onBack, onOpenPrivacyLog }: Props) {
                 <p className="text-[10px] text-slate-500 mt-1">
                   Stored in your browser only. Never sent to our server for storage.
                 </p>
+                {settings.serverKeyAvailable && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      settings.clearBYOKKey();
+                    }}
+                    className="mt-2 text-[10px] font-medium text-slate-400 hover:text-slate-300"
+                  >
+                    Use app server key instead (no key to paste)
+                  </button>
+                )}
               </div>
+              )}
 
               {/* Model */}
               <div>

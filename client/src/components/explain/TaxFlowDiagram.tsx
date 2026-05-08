@@ -188,8 +188,8 @@ export default function TaxFlowDiagram({ form1040: f }: TaxFlowDiagramProps) {
       chartArea={{ border: { width: 0 } }}
       tooltip={{
         enable: true,
-        fill: '#1E293B',
-        border: { color: '#475569', width: 1 },
+        fill: '#1C1C1F',
+        border: { color: '#3E3E44', width: 1 },
         textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '13px' },
       }}
       pointRender={pointRender}
@@ -227,7 +227,7 @@ export default function TaxFlowDiagram({ form1040: f }: TaxFlowDiagramProps) {
           sumIndexes={sumIndexes}
           columnWidth={0.6}
           cornerRadius={{ topLeft: 4, topRight: 4, bottomLeft: 4, bottomRight: 4 }}
-          connector={{ color: '#475569', width: 1.5, dashArray: '4,3' }}
+          connector={{ color: '#3E3E44', width: 1.5, dashArray: '4,3' }}
           marker={{
             dataLabel: {
               visible: true,
