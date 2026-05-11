@@ -53,7 +53,7 @@ function MetricCard({ label, entry, format = 'dollar', higherIsBetter = false }:
   return (
     <div className="rounded-lg bg-surface-800 border border-slate-700/50 p-3 text-center">
       <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
-      <p className="text-sm font-semibold text-white mt-1">
+      <p className="text-sm font-semibold text-slate-100 mt-1">
         {format === 'percent'
           ? `${(entry.scenario * 100).toFixed(1)}%`
           : formatCurrency(entry.scenario)}
@@ -216,7 +216,7 @@ function BreakdownRow({ label, entry, invertColor }: BreakdownRowProps) {
       <span className="text-slate-400">{label}</span>
       <div className="flex items-center gap-3">
         <span className="text-slate-500 tabular-nums">{formatCurrency(entry.base)}</span>
-        <span className="text-white tabular-nums font-medium">{formatCurrency(entry.scenario)}</span>
+        <span className="text-slate-100 tabular-nums font-medium">{formatCurrency(entry.scenario)}</span>
         {hasDiff && (
           <span className={`tabular-nums ${
             direction === 'better' ? 'text-emerald-400' : direction === 'worse' ? 'text-amber-400' : 'text-slate-500'

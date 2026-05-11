@@ -173,7 +173,7 @@ export default function ExplainTaxesStep() {
                     <div className="flex justify-between"><span className="text-slate-400">State income tax</span><span>${sr.stateIncomeTax.toLocaleString()}</span></div>
                     {sr.stateCredits > 0 && <div className="flex justify-between"><span className="text-telos-orange-400">− Credits</span><span className="text-telos-orange-400">-${sr.stateCredits.toLocaleString()}</span></div>}
                     {sr.localTax > 0 && <div className="flex justify-between"><span className="text-slate-400">+ Local tax</span><span>${sr.localTax.toLocaleString()}</span></div>}
-                    <div className="flex justify-between font-medium border-t border-slate-700 pt-2"><span className="text-white">Total state tax</span><span>${sr.totalStateTax.toLocaleString()}</span></div>
+                    <div className="flex justify-between font-medium border-t border-slate-700 pt-2"><span className="text-slate-100">Total state tax</span><span>${sr.totalStateTax.toLocaleString()}</span></div>
 
                     {/* Bracket breakdown */}
                     {sr.bracketDetails && sr.bracketDetails.length > 0 && (

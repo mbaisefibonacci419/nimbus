@@ -41,7 +41,7 @@ export default function ExplainTaxesPanel({ open, onClose }: ExplainTaxesPanelPr
                 <button
                   ref={closeBtnRef}
                   onClick={onClose}
-                  className="p-1 text-slate-400 hover:text-white transition-colors"
+                  className="p-1 text-slate-400 hover:text-slate-100 transition-colors"
                   aria-label="Close tax breakdown"
                 >
                   <X className="w-4 h-4" />

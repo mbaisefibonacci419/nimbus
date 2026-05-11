@@ -40,9 +40,8 @@ test.describe('Cross-Browser — App Rendering', () => {
   });
 
   test('static pages render correctly', async ({ page }) => {
-    // Pledge page
-    await page.goto('/pledge');
-    await expect(page.getByText(/pledge|promise|commitment/i).first()).toBeVisible();
+    await page.goto('/terms');
+    await expect(page.getByText(/terms/i).first()).toBeVisible();
   });
 });
 
@@ -108,11 +107,11 @@ test.describe('Cross-Browser — CSS Layout', () => {
 test.describe('Cross-Browser — Navigation', () => {
   test('browser back/forward buttons work', async ({ page }) => {
     await page.goto('/');
-    await page.goto('/pledge');
+    await page.goto('/terms');
     await page.goBack();
     await expect(page).toHaveURL(/\/$/);
     await page.goForward();
-    await expect(page).toHaveURL(/\/pledge/);
+    await expect(page).toHaveURL(/\/terms/);
   });
 
   test('direct URL navigation works', async ({ page }) => {

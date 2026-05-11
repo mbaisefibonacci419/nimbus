@@ -9,7 +9,7 @@ export default function TermsPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8"
+          className="flex items-center gap-2 text-slate-400 hover:text-slate-100 transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm">Back</span>
@@ -19,14 +19,14 @@ export default function TermsPage() {
           <div className="p-2 bg-telos-blue-500/10 rounded-lg">
             <FileText className="w-6 h-6 text-telos-blue-400" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Terms of Service</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">Terms of Service</h1>
         </div>
 
         <div className="prose prose-invert max-w-none space-y-6 text-slate-300 text-sm leading-relaxed">
           <p className="text-slate-400 text-xs">Last updated: March 22, 2026</p>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">1. What Nimbus Is</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">1. What Nimbus Is</h2>
             <p>
               Nimbus is a free, open-source tax preparation tool that helps you estimate your federal
               and state income tax liability for all 50 states and the District of Columbia. It runs
@@ -36,9 +36,9 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">2. What Nimbus Is Not</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">2. What Nimbus Is Not</h2>
             <p>
-              Nimbus is <strong className="text-white">not</strong> a tax preparer, tax advisor, CPA,
+              Nimbus is <strong className="text-slate-100">not</strong> a tax preparer, tax advisor, CPA,
               enrolled agent, or attorney. It does not provide tax advice, legal advice, or financial
               advice of any kind. It is a tool that performs mathematical calculations based on
               information you provide and IRS-published tax rules.
@@ -52,7 +52,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">3. Your Responsibility</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">3. Your Responsibility</h2>
             <p>You are solely responsible for:</p>
             <ul className="list-disc list-inside space-y-1 text-slate-400">
               <li>The accuracy of the information you enter</li>
@@ -72,9 +72,9 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">4. No Warranty</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">4. No Warranty</h2>
             <p>
-              Nimbus is provided <strong className="text-white">"as is"</strong> and <strong className="text-white">"as available"</strong> without
+              Nimbus is provided <strong className="text-slate-100">"as is"</strong> and <strong className="text-slate-100">"as available"</strong> without
               warranty of any kind, either express or implied, including but not limited to the implied
               warranties of merchantability, fitness for a particular purpose, and non-infringement.
             </p>
@@ -86,7 +86,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">5. Limitation of Liability</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">5. Limitation of Liability</h2>
             <p>
               To the maximum extent permitted by applicable law, Nimbus and its contributors shall
               not be liable for any indirect, incidental, special, consequential, or punitive damages,
@@ -97,7 +97,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">6. Open Source</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">6. Open Source</h2>
             <p>
               The Nimbus calculation engine is released under the MIT License. You may inspect, modify,
               and redistribute the source code in accordance with that license. The open-source nature
@@ -106,7 +106,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">7. Local Data Storage</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">7. Local Data Storage</h2>
             <p>
               All tax data you enter is stored exclusively in your browser's local storage on your
               device, encrypted with your passphrase when one is set. Documents you import (PDFs, CSVs,
@@ -118,7 +118,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">7a. AI Features (BYOK Mode)</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">7a. AI Features (BYOK Mode)</h2>
             <p>
               Nimbus includes optional AI-powered features that require you to provide your own
               Anthropic API key ("BYOK Mode"). These features are disabled by default.
@@ -155,7 +155,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">8. Eligibility</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">8. Eligibility</h2>
             <p>
               You must be at least 18 years old (or the age of majority in your jurisdiction) to use
               Nimbus. By using this software, you represent that you meet this requirement.
@@ -163,7 +163,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">9. Indemnification</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">9. Indemnification</h2>
             <p>
               To the maximum extent permitted by applicable law, you agree to indemnify and hold
               harmless Nimbus, its author, and its contributors from any claims, losses, damages,
@@ -174,7 +174,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">10. Governing Law &amp; Dispute Resolution</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">10. Governing Law &amp; Dispute Resolution</h2>
             <p>
               These terms are governed by the laws of the District of Columbia, without regard to
               conflict of law principles. Any dispute arising under these terms shall be resolved
@@ -189,7 +189,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">11. Changes to These Terms</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">11. Changes to These Terms</h2>
             <p>
               We may update these terms from time to time. Changes will be reflected on this page
               with an updated &ldquo;Last updated&rdquo; date. Your continued use of Nimbus after changes
@@ -198,7 +198,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">12. Severability</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">12. Severability</h2>
             <p>
               If any provision of these terms is found to be unenforceable or invalid, that provision
               shall be limited or eliminated to the minimum extent necessary, and the remaining
@@ -207,7 +207,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">13. Contact</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">13. Contact</h2>
             <p>
               If you have questions about these terms, find a calculation error, or want to contribute
               to the project, email us at <a href="mailto:ryan@telos.news" className="text-telos-blue-400 hover:text-telos-blue-300 underline">ryan@telos.news</a> or

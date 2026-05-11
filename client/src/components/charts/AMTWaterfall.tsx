@@ -4,6 +4,7 @@ import {
   Inject, WaterfallSeries, Category, Tooltip, DataLabel,
   type IPointRenderEventArgs, type ITooltipRenderEventArgs, type ITextRenderEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import { useChartTheme, tooltipStyle, axisLabelStyle, dataLabelFont, chartPalette } from '../../hooks/useChartTheme';
 
 interface AMTWaterfallProps {
   taxableIncome: number;
@@ -20,7 +21,7 @@ const fmtDollars = (v: number): string => `$${Math.abs(v).toLocaleString()}`;
 export default function AMTWaterfall({
   taxableIncome, adjustmentsTotal, exemption, tentativeMinTax, regularTax, amtAmount, applies,
 }: AMTWaterfallProps) {
-  if (taxableIncome === 0) return null;
+  const t = useChartTheme();
 
   // ── Section 1: AMTI buildup (linear, sums correctly) ──
   const amtiSection = useMemo(() => {
@@ -66,23 +67,23 @@ export default function AMTWaterfall({
   }, [tentativeMinTax, regularTax, amtAmount]);
 
   const AMTI_COLORS: Record<string, string> = {
-    income: '#3B82F6',
-    adjustments: '#F59E0B',
-    exemption: '#10B981',
-    amtBase: '#8B5CF6',
+    income: chartPalette.blue,
+    adjustments: chartPalette.amber,
+    exemption: chartPalette.emerald,
+    amtBase: chartPalette.violet,
   };
 
   const TAX_COLORS: Record<string, string> = {
-    tmt: '#F59E0B',
-    regularTax: '#3B82F6',
-    amt: applies ? '#EF4444' : '#10B981',
+    tmt: chartPalette.amber,
+    regularTax: chartPalette.blue,
+    amt: applies ? chartPalette.red : chartPalette.emerald,
   };
 
   // ── Chart 1: AMTI ──
   const amtiPointRender = useCallback((args: IPointRenderEventArgs): void => {
     const key = amtiSection.colors[args.point.index];
-    if (key) args.fill = AMTI_COLORS[key] || '#64748B';
-  }, [amtiSection.colors]);
+    if (key) args.fill = AMTI_COLORS[key] || t.axisLabel;
+  }, [amtiSection.colors, t.axisLabel]);
 
   const amtiTextRender = useCallback((args: ITextRenderEventArgs): void => {
     const step = amtiSection.steps[(args.point as any)?.index];
@@ -100,8 +101,8 @@ export default function AMTWaterfall({
   // ── Chart 2: Tax comparison ──
   const taxPointRender = useCallback((args: IPointRenderEventArgs): void => {
     const key = taxSection.colors[args.point.index];
-    if (key) args.fill = TAX_COLORS[key] || '#64748B';
-  }, [taxSection.colors, applies]);
+    if (key) args.fill = TAX_COLORS[key] || t.axisLabel;
+  }, [taxSection.colors, applies, t.axisLabel]);
 
   const taxTextRender = useCallback((args: ITextRenderEventArgs): void => {
     const step = taxSection.steps[(args.point as any)?.index];
@@ -118,15 +119,13 @@ export default function AMTWaterfall({
 
   const tooltipSettings = {
     enable: true,
-    fill: '#1C1C1F',
-    border: { color: '#3E3E44', width: 1 },
-    textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+    ...tooltipStyle(t),
   };
 
   const xAxisSettings = {
     valueType: 'Category' as const,
     isInversed: true,
-    labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+    labelStyle: axisLabelStyle(t),
     majorGridLines: { width: 0 },
     majorTickLines: { width: 0 },
     lineStyle: { width: 0 },
@@ -137,18 +136,20 @@ export default function AMTWaterfall({
   const seriesSettings = {
     columnWidth: 0.55,
     cornerRadius: { topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 },
-    connector: { color: '#3E3E44', width: 1, dashArray: '4,3' },
+    connector: { color: t.connector, width: 1, dashArray: '4,3' },
     marker: {
       dataLabel: {
         visible: true,
         position: 'Outer' as const,
-        font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+        font: dataLabelFont(t),
       },
     },
   };
 
   const amtiHeight = `${Math.max(140, amtiSection.steps.length * 48 + 20)}px`;
   const taxHeight = `${Math.max(140, taxSection.steps.length * 48 + 20)}px`;
+
+  if (taxableIncome === 0) return null;
 
   return (
     <div className="rounded-lg bg-slate-800/30 p-3 mb-3 space-y-4">

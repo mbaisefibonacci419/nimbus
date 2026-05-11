@@ -4,6 +4,7 @@ import {
   Inject, BarSeries, Category, Tooltip, DataLabel,
   type ITooltipRenderEventArgs, type ITextRenderEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import { useChartTheme, tooltipStyle, axisLabelStyle, dataLabelFont, chartPalette } from '../../hooks/useChartTheme';
 
 interface CreditsBarChartProps {
   credits: Array<{ label: string; value: number }>;
@@ -12,7 +13,7 @@ interface CreditsBarChartProps {
 const fmtDollars = (v: number): string => `$${v.toLocaleString()}`;
 
 export default function CreditsBarChart({ credits }: CreditsBarChartProps) {
-  if (credits.length === 0) return null;
+  const t = useChartTheme();
 
   const textRender = useCallback((args: ITextRenderEventArgs): void => {
     const item = credits[(args.point as any)?.index];
@@ -28,6 +29,8 @@ export default function CreditsBarChart({ credits }: CreditsBarChartProps) {
 
   const chartHeight = `${Math.max(120, credits.length * 40 + 20)}px`;
 
+  if (credits.length === 0) return null;
+
   return (
     <div className="rounded-lg bg-slate-800/30 p-3 mb-3">
       <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
@@ -40,16 +43,14 @@ export default function CreditsBarChart({ credits }: CreditsBarChartProps) {
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1C1C1F',
-          border: { color: '#3E3E44', width: 1 },
-          textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+          ...tooltipStyle(t),
         }}
         textRender={textRender}
         tooltipRender={tooltipRender}
         primaryXAxis={{
           valueType: 'Category',
           isInversed: true,
-          labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+          labelStyle: axisLabelStyle(t),
           majorGridLines: { width: 0 },
           majorTickLines: { width: 0 },
           lineStyle: { width: 0 },
@@ -67,14 +68,14 @@ export default function CreditsBarChart({ credits }: CreditsBarChartProps) {
             xName="label"
             yName="value"
             type="Bar"
-            fill="#8B5CF6"
+            fill={chartPalette.violet}
             columnWidth={0.5}
             cornerRadius={{ topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 }}
             marker={{
               dataLabel: {
                 visible: true,
                 position: 'Outer',
-                font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+                font: dataLabelFont(t),
               },
             }}
           />

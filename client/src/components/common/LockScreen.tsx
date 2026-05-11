@@ -167,7 +167,7 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
         </div>
       </div>
 
-      <h2 className="text-lg font-semibold text-white text-center mb-2">
+      <h2 className="text-lg font-semibold text-slate-100 text-center mb-2">
         {mode === 'setup' ? 'Create Your Passphrase' : 'Welcome Back'}
       </h2>
 
@@ -195,7 +195,7 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
               type={showPassword ? 'text' : 'password'}
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
-              className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-white text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
+              className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-slate-100 text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
               placeholder={mode === 'setup' ? 'At least 8 characters' : 'Enter passphrase'}
               autoComplete={mode === 'setup' ? 'new-password' : 'current-password'}
               disabled={loading}
@@ -238,7 +238,7 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
               type={showPassword ? 'text' : 'password'}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-white text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none"
+              className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-slate-100 text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none"
               placeholder="Re-enter passphrase"
               autoComplete="new-password"
               disabled={loading}
@@ -288,7 +288,7 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
             <span className="text-telos-orange-400">Ni</span>
             <span className="text-telos-blue-400">mbus</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Free, private, open-source tax prep.</p>
+          <p className="text-slate-400 text-sm mt-1">Playground for new TT tax prep UX.</p>
         </div>
         {formContent}
       </div>

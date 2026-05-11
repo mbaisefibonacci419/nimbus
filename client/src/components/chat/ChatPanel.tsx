@@ -11,10 +11,9 @@
  * - Sticky input at bottom
  */
 
-import { X, Sparkles, Trash2, Settings, ArrowDown, Shield, CheckCircle2, Key } from 'lucide-react';
+import { X, Sparkles, Trash2, ArrowDown } from 'lucide-react';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useChatStore } from '../../store/chatStore';
-import { useAISettingsStore } from '../../store/aiSettingsStore';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
 import { getStarterPrompts, type NudgePrompt } from '../../data/starterPrompts';
 import { useNudges } from '../../hooks/useNudges';
@@ -22,16 +21,9 @@ import PrivacyDisclaimer from './PrivacyDisclaimer';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import PIIWarning from './PIIWarning';
-import AISettingsPanel from './AISettingsPanel';
-import PrivacyAuditPanel from './PrivacyAuditPanel';
 import ThinkingIndicator from './ThinkingIndicator';
 import ResizeHandle from '../common/ResizeHandle';
 
-/** Short labels for the mode indicator in the header. */
-const MODE_LABELS: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  private: { label: 'Private', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
-  byok: { label: 'BYOK', color: 'text-telos-blue-400', bg: 'bg-telos-blue-500/10', border: 'border-telos-blue-500/30' },
-};
 
 interface ChatPanelProps {
   panelWidth?: number;
@@ -66,9 +58,6 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
     abortMessage,
   } = useChatStore();
 
-  const mode = useAISettingsStore((s) => s.mode);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showPrivacyLog, setShowPrivacyLog] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -110,25 +99,17 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
     }
   }, [isOpen]);
 
-  // Escape key: abort in-flight request → close settings (panel closed via X or sparkle button only)
+  // Escape key: abort in-flight request (panel closed via X or sparkle button only)
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        if (isLoading) {
-          abortMessage();
-        } else if (showSettings) {
-          setShowSettings(false);
-        }
+      if (e.key === 'Escape' && isOpen && isLoading) {
+        abortMessage();
       }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, isLoading, showSettings, abortMessage]);
+  }, [isOpen, isLoading, abortMessage]);
 
-  // Reset settings view when panel closes
-  useEffect(() => {
-    if (!isOpen) { setShowSettings(false); setShowPrivacyLog(false); }
-  }, [isOpen]);
 
   // Contextual starter prompts based on current step or tool view + active nudges
   const activeToolId = useTaxReturnStore((s) => s.activeToolId);
@@ -144,8 +125,6 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
 
   // Identify the last assistant message (for regenerate button)
   const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
-
-  const modeInfo = MODE_LABELS[mode] || MODE_LABELS.private;
 
   return (
     <>
@@ -181,16 +160,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
             />
           </div>
         )}
-        {/* Show settings panel, privacy log, or chat */}
-        {showPrivacyLog ? (
-          <PrivacyAuditPanel onBack={() => setShowPrivacyLog(false)} />
-        ) : showSettings ? (
-          <AISettingsPanel
-            onBack={() => setShowSettings(false)}
-            onOpenPrivacyLog={() => { setShowSettings(false); setShowPrivacyLog(true); }}
-          />
-        ) : (
-          <>
+        <>
             {/* ─── Header ─────────────────────────────── */}
             <div
               className="flex items-center justify-between px-4 border-b border-slate-700 bg-surface-800"
@@ -201,25 +171,8 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
                 <h2 className="text-sm font-semibold">
                   <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span> <span className="text-slate-300">Assistant</span>
                 </h2>
-                {/* Mode indicator — clickable tag to open settings */}
-                <button
-                  onClick={() => setShowSettings(true)}
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${modeInfo.color} ${modeInfo.bg} ${modeInfo.border} hover:brightness-125 transition-all cursor-pointer`}
-                  title="Change AI mode"
-                >
-                  {modeInfo.label} ▾
-                </button>
               </div>
               <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setShowSettings(true)}
-                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-300 hover:bg-surface-700
-                             transition-colors"
-                  aria-label="AI Settings"
-                  title="AI Settings"
-                >
-                  <Settings className="w-4 h-4" />
-                </button>
                 {messages.length > 0 && hasAcceptedDisclaimer && (
                   <button
                     onClick={clearHistory}
@@ -245,8 +198,6 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
             {/* ─── Content ────────────────────────────── */}
             {!hasAcceptedDisclaimer ? (
               <PrivacyDisclaimer onAccept={acceptDisclaimer} />
-            ) : mode === 'private' ? (
-              <PrivateModePanel onOpenSettings={() => setShowSettings(true)} />
             ) : (
               <>
                 {/* Messages area */}
@@ -267,7 +218,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
                             onClick={() => sendMessage(prompt)}
                             className="w-full text-left text-xs px-3 py-2.5 rounded-lg
                                        bg-surface-700 border border-slate-600/50
-                                       text-slate-400 hover:text-white hover:border-telos-blue-500/50
+                                       text-slate-400 hover:text-slate-100 hover:border-telos-blue-500/50
                                        transition-all duration-150"
                           >
                             &ldquo;{prompt}&rdquo;
@@ -332,7 +283,7 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
                       onClick={scrollToBottom}
                       className="flex items-center justify-center w-8 h-8 rounded-full
                                  bg-surface-700 border border-slate-600/50 text-slate-400
-                                 hover:text-white hover:bg-surface-600 hover:border-slate-500
+                                 hover:text-slate-100 hover:bg-surface-600 hover:border-slate-500
                                  transition-all shadow-lg"
                       aria-label="Scroll to latest message"
                       title="Scroll to bottom"
@@ -355,75 +306,8 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
                 />
               </>
             )}
-          </>
-        )}
+        </>
       </div>
     </>
-  );
-}
-
-// ─── Private Mode Panel ────────────────────────────
-
-function PrivateModePanel({ onOpenSettings }: { onOpenSettings: () => void }) {
-  return (
-    <div className="flex-1 overflow-y-auto px-5 py-6">
-      <div className="flex flex-col items-center text-center">
-        {/* Hero */}
-        <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
-          <Shield className="w-7 h-7 text-emerald-400" />
-        </div>
-        <h3 className="text-base font-semibold text-slate-200 mb-2">Private Mode</h3>
-        <p className="text-sm text-slate-400 mb-6 max-w-xs">
-          Your data never leaves this device. All core features work without any AI provider.
-        </p>
-
-        {/* What works */}
-        <div className="w-full text-left mb-6">
-          <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            What works in Private Mode
-          </h4>
-          <div className="space-y-2">
-            {[
-              'Full tax engine (all forms & schedules)',
-              'Smart suggestions & proactive nudges',
-              'Audit risk assessment',
-              'Document import (PDF & photo OCR)',
-              'Scenario Lab & what-if analysis',
-              'Explain My Taxes (charts & traces)',
-              'Keyboard shortcuts & command palette',
-            ].map((feature) => (
-              <div key={feature} className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
-                <span className="text-xs text-slate-300">{feature}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Upgrade CTA */}
-        <div className="w-full rounded-lg border border-telos-blue-500/30 bg-telos-blue-500/5 p-4">
-          <div className="flex items-start gap-2.5">
-            <Key className="w-4 h-4 text-telos-blue-400 mt-0.5 shrink-0" />
-            <div className="text-left">
-              <p className="text-sm font-medium text-telos-blue-300 mb-1">
-                Unlock AI chat
-              </p>
-              <p className="text-xs text-slate-400 mb-3">
-                Add your own API key to get conversational AI assistance,
-                voice data entry, AI-powered expense scanning, and more.
-              </p>
-              <button
-                onClick={onOpenSettings}
-                className="text-xs font-medium text-telos-blue-400 hover:text-telos-blue-300
-                           bg-telos-blue-500/10 hover:bg-telos-blue-500/20
-                           border border-telos-blue-500/30 px-3 py-1.5 rounded transition-colors"
-              >
-                Set up BYOK
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

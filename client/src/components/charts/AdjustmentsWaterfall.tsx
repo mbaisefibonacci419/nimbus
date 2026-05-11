@@ -5,6 +5,7 @@ import {
   type IPointRenderEventArgs, type ITooltipRenderEventArgs, type ITextRenderEventArgs,
   type IMouseEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import { useChartTheme, tooltipStyle, axisLabelStyle, dataLabelFont, chartPalette } from '../../hooks/useChartTheme';
 
 interface AdjustmentStep {
   x: string;
@@ -23,7 +24,7 @@ interface AdjustmentsWaterfallProps {
 const fmtDollars = (v: number): string => `$${Math.abs(v).toLocaleString()}`;
 
 export default function AdjustmentsWaterfall({ totalIncome, adjustments, agi, onBarClick }: AdjustmentsWaterfallProps) {
-  if (totalIncome <= 0 || adjustments.length === 0) return null;
+  const t = useChartTheme();
 
   const { steps, sumIndexes } = useMemo(() => {
     const raw: AdjustmentStep[] = [
@@ -45,11 +46,11 @@ export default function AdjustmentsWaterfall({ totalIncome, adjustments, agi, on
     const step = steps[args.point.index];
     if (!step) return;
     if (step.isSum) {
-      args.fill = '#10B981';
+      args.fill = chartPalette.emerald;
     } else if (args.point.index === 0) {
-      args.fill = '#3B82F6';
+      args.fill = chartPalette.blue;
     } else {
-      args.fill = '#F59E0B';
+      args.fill = chartPalette.amber;
     }
   }, [steps]);
 
@@ -83,6 +84,8 @@ export default function AdjustmentsWaterfall({ totalIncome, adjustments, agi, on
 
   const chartHeight = `${Math.max(160, steps.length * 48 + 20)}px`;
 
+  if (totalIncome <= 0 || adjustments.length === 0) return null;
+
   return (
     <div className="rounded-lg bg-slate-800/30 p-3 mt-4 mb-3" style={{ cursor: onBarClick ? 'pointer' : 'default' }}>
       <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
@@ -95,9 +98,7 @@ export default function AdjustmentsWaterfall({ totalIncome, adjustments, agi, on
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1C1C1F',
-          border: { color: '#3E3E44', width: 1 },
-          textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+          ...tooltipStyle(t),
         }}
         pointRender={pointRender}
         textRender={textRender}
@@ -106,7 +107,7 @@ export default function AdjustmentsWaterfall({ totalIncome, adjustments, agi, on
         primaryXAxis={{
           valueType: 'Category',
           isInversed: true,
-          labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+          labelStyle: axisLabelStyle(t),
           majorGridLines: { width: 0 },
           majorTickLines: { width: 0 },
           lineStyle: { width: 0 },
@@ -127,12 +128,12 @@ export default function AdjustmentsWaterfall({ totalIncome, adjustments, agi, on
             sumIndexes={sumIndexes}
             columnWidth={0.55}
             cornerRadius={{ topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 }}
-            connector={{ color: '#3E3E44', width: 1, dashArray: '4,3' }}
+            connector={{ color: t.connector, width: 1, dashArray: '4,3' }}
             marker={{
               dataLabel: {
                 visible: true,
                 position: 'Outer',
-                font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+                font: dataLabelFont(t),
               },
             }}
           />

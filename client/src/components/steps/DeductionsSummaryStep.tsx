@@ -204,7 +204,7 @@ export default function DeductionsSummaryStep() {
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-slate-400">Medical & Dental</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-white tabular-nums">
+                    <span className="text-sm font-medium text-slate-100 tabular-nums">
                       ${scheduleA.medicalDeduction.toLocaleString()}
                     </span>
                     <button
@@ -220,7 +220,7 @@ export default function DeductionsSummaryStep() {
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-slate-400">State & Local Taxes (SALT)</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-white tabular-nums">
+                    <span className="text-sm font-medium text-slate-100 tabular-nums">
                       ${scheduleA.saltDeduction.toLocaleString()}
                     </span>
                     <button
@@ -236,7 +236,7 @@ export default function DeductionsSummaryStep() {
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-slate-400">Mortgage Interest</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-white tabular-nums">
+                    <span className="text-sm font-medium text-slate-100 tabular-nums">
                       ${scheduleA.interestDeduction.toLocaleString()}
                     </span>
                     <button
@@ -252,7 +252,7 @@ export default function DeductionsSummaryStep() {
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-slate-400">Charitable Donations</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-white tabular-nums">
+                    <span className="text-sm font-medium text-slate-100 tabular-nums">
                       ${scheduleA.charitableDeduction.toLocaleString()}
                     </span>
                     <button
@@ -310,7 +310,7 @@ export default function DeductionsSummaryStep() {
               <div key={adj.label} className="flex items-center justify-between py-2">
                 <span className="text-sm text-slate-400">{adj.label}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-white tabular-nums">
+                  <span className="text-sm font-medium text-slate-100 tabular-nums">
                     -${adj.amount.toLocaleString()}
                   </span>
                   <button

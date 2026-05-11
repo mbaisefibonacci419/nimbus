@@ -85,7 +85,7 @@ export default function ProgressBar() {
           {sections.map((section) => {
             const labelColor =
               section.state === 'active'
-                ? 'text-white font-semibold'
+                ? 'text-slate-100 font-semibold'
                 : section.state === 'completed'
                   ? 'text-telos-orange-400'
                   : 'text-slate-400';

@@ -40,7 +40,7 @@ export default function LearnMoreModal({
       <div className="bg-surface-800 border border-slate-700 rounded-xl shadow-2xl max-w-md w-full mx-4 animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex items-start justify-between p-5 border-b border-slate-700">
-          <h3 className="text-lg font-semibold text-white pr-4">{title}</h3>
+          <h3 className="text-lg font-semibold text-slate-100 pr-4">{title}</h3>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-200 transition-colors p-1 -m-1"

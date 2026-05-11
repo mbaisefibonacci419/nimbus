@@ -15,6 +15,7 @@ import {
 } from '@syncfusion/ej2-react-charts';
 import { calculateProgressiveTax } from '@nimbus/engine';
 import type { FilingStatus } from '@nimbus/engine';
+import { chartPalette, useChartTheme } from '../../hooks/useChartTheme';
 
 interface BracketChartProps {
   taxableIncome: number;
@@ -23,16 +24,18 @@ interface BracketChartProps {
 }
 
 const BRACKET_COLORS = [
-  '#10B981', // emerald-500  — 10%
-  '#8B5CF6', // violet-500 — 12%
-  '#3B82F6', // blue-500    — 22%
-  '#6366F1', // indigo-500  — 24%
-  '#8B5CF6', // violet-500  — 32%
-  '#A855F7', // purple-500  — 35%
-  '#EF4444', // red-500     — 37%
+  chartPalette.emerald,
+  chartPalette.violet,
+  chartPalette.blue,
+  chartPalette.indigo,
+  chartPalette.violet,
+  chartPalette.purple,
+  chartPalette.red,
 ];
 
 export default function BracketChart({ taxableIncome, filingStatus, incomeTax }: BracketChartProps) {
+  const t = useChartTheme();
+
   if (taxableIncome <= 0) {
     return (
       <div className="text-center py-4">
@@ -98,7 +101,7 @@ export default function BracketChart({ taxableIncome, filingStatus, incomeTax }:
               xName="x"
               yName="y"
               type="StackingBar"
-              fill={BRACKET_COLORS[i] || '#64748B'}
+              fill={BRACKET_COLORS[i] || t.axisLabel}
               columnWidth={0.8}
               cornerRadius={{ topRight: i === activeBrackets.length - 1 ? 6 : 0, bottomRight: i === activeBrackets.length - 1 ? 6 : 0, topLeft: i === 0 ? 6 : 0, bottomLeft: i === 0 ? 6 : 0 }}
               name={`${(b.rate * 100).toFixed(0)}%`}
@@ -121,8 +124,8 @@ export default function BracketChart({ taxableIncome, filingStatus, incomeTax }:
             <div key={detail.rate} className="grid grid-cols-[60px_1fr_80px_80px] gap-2 items-center text-xs">
               {/* Rate badge */}
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BRACKET_COLORS[i] || '#64748B' }} />
-                <span className="font-semibold" style={{ color: BRACKET_COLORS[i] || '#94A3B8' }}>
+                <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: BRACKET_COLORS[i] || t.axisLabel }} />
+                <span className="font-semibold" style={{ color: BRACKET_COLORS[i] || t.svgTextSecondary }}>
                   {(detail.rate * 100).toFixed(0)}%
                 </span>
               </div>
@@ -132,7 +135,7 @@ export default function BracketChart({ taxableIncome, filingStatus, incomeTax }:
                 <div className="flex-1 h-2 bg-surface-900 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full opacity-60"
-                    style={{ width: `${Math.max(pctOfIncome, 2)}%`, backgroundColor: BRACKET_COLORS[i] || '#64748B' }}
+                    style={{ width: `${Math.max(pctOfIncome, 2)}%`, backgroundColor: BRACKET_COLORS[i] || t.axisLabel }}
                   />
                 </div>
                 <span className="text-slate-400 text-[10px] w-8 text-right">

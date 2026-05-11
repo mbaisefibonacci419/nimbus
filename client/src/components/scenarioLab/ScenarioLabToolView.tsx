@@ -52,10 +52,10 @@ function ViewModeSwitcher({ current, onChange, canCompare }: ViewModeSwitcherPro
             title={isDisabled && m.id === 'compare' ? 'Create a scenario to compare' : m.label}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
               current === m.id
-                ? 'bg-surface-700 text-white'
+                ? 'bg-surface-700 text-slate-100'
                 : isDisabled
                   ? 'text-slate-600 cursor-not-allowed'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-slate-400 hover:text-slate-100'
             }`}
           >
             <Icon className="w-3.5 h-3.5" />
@@ -77,7 +77,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-telos-orange-500/10 text-telos-orange-400 mb-4">
         <FlaskConical className="w-8 h-8" />
       </div>
-      <h1 className="text-3xl font-bold text-white mb-3">Tax Scenario Lab</h1>
+      <h1 className="text-3xl font-bold text-slate-100 mb-3">Tax Scenario Lab</h1>
       <p className="text-lg text-slate-400 mb-6">
         See how changes to your income, deductions, or filing status would affect your refund — without touching your actual return.
       </p>
@@ -90,7 +90,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         ].map(s => (
           <div key={s.step} className="rounded-lg bg-surface-800 border border-slate-700/50 p-4">
             <div className="text-telos-orange-400 text-sm font-bold mb-1.5">Step {s.step}</div>
-            <p className="text-base font-medium text-white">{s.title}</p>
+            <p className="text-base font-medium text-slate-100">{s.title}</p>
             <p className="text-sm text-slate-500 mt-0.5">{s.desc}</p>
           </div>
         ))}
@@ -137,7 +137,7 @@ function BaselineInfo({ baseResult }: { baseResult: import('@nimbus/engine').Cal
         ].map(m => (
           <div key={m.label} className="rounded-lg bg-surface-800 border border-slate-700/50 p-3 text-center">
             <p className="text-[10px] text-slate-400 uppercase tracking-wide">{m.label}</p>
-            <p className="text-sm font-semibold text-white mt-1">{m.value}</p>
+            <p className="text-sm font-semibold text-slate-100 mt-1">{m.value}</p>
           </div>
         ))}
       </div>

@@ -207,7 +207,7 @@ export default function IncomeSummaryStep() {
           {/* Grand total hero card */}
           <div className="card mt-6 text-center">
             <p className="text-slate-400 text-sm mb-1">Total Income</p>
-            <p className="text-3xl font-bold text-white">
+            <p className="text-3xl font-bold text-slate-100">
               ${grandTotal.toLocaleString()}
             </p>
             {totalWithholding > 0 && (
@@ -242,7 +242,7 @@ export default function IncomeSummaryStep() {
                           {count} {count === 1 ? 'form' : 'forms'}
                         </span>
                       </div>
-                      <div className="text-sm font-medium text-white tabular-nums">
+                      <div className="text-sm font-medium text-slate-100 tabular-nums">
                         ${total.toLocaleString()}
                       </div>
                       <button
@@ -286,7 +286,7 @@ export default function IncomeSummaryStep() {
           <div className="card mt-4 bg-surface-800">
             <div className="flex items-center justify-between">
               <span className="font-medium text-slate-200">Grand Total</span>
-              <span className="text-lg font-bold text-white tabular-nums">
+              <span className="text-lg font-bold text-slate-100 tabular-nums">
                 ${grandTotal.toLocaleString()}
               </span>
             </div>

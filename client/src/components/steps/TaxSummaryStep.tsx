@@ -83,24 +83,24 @@ export default function TaxSummaryStep() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
         <div className="card text-center">
           <p className="text-slate-400 text-xs uppercase">Total Income</p>
-          <p className="text-xl font-semibold text-white">${f.totalIncome.toLocaleString()}</p>
+          <p className="text-xl font-semibold text-slate-100">${f.totalIncome.toLocaleString()}</p>
         </div>
         <div className="card text-center">
           <p className="text-slate-400 text-xs uppercase">Taxable Income</p>
-          <p className="text-xl font-semibold text-white">${f.taxableIncome.toLocaleString()}</p>
+          <p className="text-xl font-semibold text-slate-100">${f.taxableIncome.toLocaleString()}</p>
         </div>
         <div className="card text-center">
           <p className="text-slate-400 text-xs uppercase">Effective Rate</p>
-          <p className="text-xl font-semibold text-white">{(f.effectiveTaxRate * 100).toFixed(1)}%</p>
+          <p className="text-xl font-semibold text-slate-100">{(f.effectiveTaxRate * 100).toFixed(1)}%</p>
         </div>
         <div className="card text-center">
           <p className="text-slate-400 text-xs uppercase">Marginal Rate</p>
-          <p className="text-xl font-semibold text-white">{(f.marginalTaxRate * 100).toFixed(0)}%</p>
+          <p className="text-xl font-semibold text-slate-100">{(f.marginalTaxRate * 100).toFixed(0)}%</p>
         </div>
         {taxableStates.length > 0 && (
           <div className="card text-center">
             <p className="text-slate-400 text-xs uppercase">State Tax</p>
-            <p className="text-xl font-semibold text-white">${totalStateTax.toLocaleString()}</p>
+            <p className="text-xl font-semibold text-slate-100">${totalStateTax.toLocaleString()}</p>
           </div>
         )}
       </div>
@@ -111,12 +111,12 @@ export default function TaxSummaryStep() {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-slate-400">Federal Income Tax</span><span>${f.incomeTax.toLocaleString()}</span></div>
           {f.seTax > 0 && <div className="flex justify-between"><span className="text-slate-400">Self-Employment Tax</span><span>${f.seTax.toLocaleString()}</span></div>}
-          {f.amtAmount > 0 && <div className="flex justify-between"><span className="text-slate-400">Alternative Minimum Tax</span><span className="text-white">${f.amtAmount.toLocaleString()}</span></div>}
+          {f.amtAmount > 0 && <div className="flex justify-between"><span className="text-slate-400">Alternative Minimum Tax</span><span className="text-slate-100">${f.amtAmount.toLocaleString()}</span></div>}
           {f.niitTax > 0 && <div className="flex justify-between"><span className="text-slate-400">Net Investment Income Tax</span><span>${f.niitTax.toLocaleString()}</span></div>}
           {f.additionalMedicareTaxW2 > 0 && <div className="flex justify-between"><span className="text-slate-400">Additional Medicare Tax</span><span>${f.additionalMedicareTaxW2.toLocaleString()}</span></div>}
           {f.earlyDistributionPenalty > 0 && <div className="flex justify-between"><span className="text-slate-400">Early Distribution Penalty</span><span>${f.earlyDistributionPenalty.toLocaleString()}</span></div>}
-          {f.totalCredits > 0 && <div className="flex justify-between"><span className="text-slate-400">Tax Credits</span><span className="text-white">-${f.totalCredits.toLocaleString()}</span></div>}
-          <div className="flex justify-between border-t border-slate-700 pt-2"><span className="text-white font-medium">Tax After Credits</span><span className="font-semibold">${f.taxAfterCredits.toLocaleString()}</span></div>
+          {f.totalCredits > 0 && <div className="flex justify-between"><span className="text-slate-400">Tax Credits</span><span className="text-slate-100">-${f.totalCredits.toLocaleString()}</span></div>}
+          <div className="flex justify-between border-t border-slate-700 pt-2"><span className="text-slate-100 font-medium">Tax After Credits</span><span className="font-semibold">${f.taxAfterCredits.toLocaleString()}</span></div>
           {f.totalWithholding > 0 && <div className="flex justify-between"><span className="text-slate-400">Total Withholding</span><span>-${f.totalWithholding.toLocaleString()}</span></div>}
         </div>
       </div>
@@ -141,9 +141,9 @@ export default function TaxSummaryStep() {
                   </div>
                   <div className="flex justify-between"><span className="text-slate-400">State Taxable Income</span><span>${sr.stateTaxableIncome.toLocaleString()}</span></div>
                   <div className="flex justify-between"><span className="text-slate-400">State Income Tax</span><span>${sr.stateIncomeTax.toLocaleString()}</span></div>
-                  {sr.stateCredits > 0 && <div className="flex justify-between"><span className="text-slate-400">State Credits</span><span className="text-white">-${sr.stateCredits.toLocaleString()}</span></div>}
+                  {sr.stateCredits > 0 && <div className="flex justify-between"><span className="text-slate-400">State Credits</span><span className="text-slate-100">-${sr.stateCredits.toLocaleString()}</span></div>}
                   {sr.localTax > 0 && <div className="flex justify-between"><span className="text-slate-400">Local Tax</span><span>${sr.localTax.toLocaleString()}</span></div>}
-                  <div className="flex justify-between border-t border-slate-700 pt-2"><span className="text-white font-medium">Total State Tax</span><span className="font-semibold text-amber-400">${sr.totalStateTax.toLocaleString()}</span></div>
+                  <div className="flex justify-between border-t border-slate-700 pt-2"><span className="text-slate-100 font-medium">Total State Tax</span><span className="font-semibold text-amber-400">${sr.totalStateTax.toLocaleString()}</span></div>
                   {sr.stateWithholding > 0 && <div className="flex justify-between"><span className="text-slate-400">State Withholding</span><span>-${sr.stateWithholding.toLocaleString()}</span></div>}
                   <div className="flex justify-between">
                     <span className={`font-medium ${stateRefund ? 'text-emerald-400' : 'text-amber-400'}`}>{stateRefund ? 'Refund' : 'Owed'}</span>
@@ -163,10 +163,10 @@ export default function TaxSummaryStep() {
         <div className="rounded-xl border p-6 mt-4 bg-telos-orange-500/5 border-telos-orange-500/20">
           <h3 className="font-medium text-telos-orange-300 mb-3">Tax Savings</h3>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-slate-400">{f.deductionUsed === 'standard' ? 'Standard' : 'Itemized'} Deduction</span><span className="text-white">-${f.deductionAmount.toLocaleString()}</span></div>
-            {f.qbiDeduction > 0 && <div className="flex justify-between"><span className="text-slate-400">QBI Deduction (20% of business income)</span><span className="text-white">-${f.qbiDeduction.toLocaleString()}</span></div>}
-            {f.seDeduction > 0 && <div className="flex justify-between"><span className="text-slate-400">SE Tax Deduction (employer half)</span><span className="text-white">-${f.seDeduction.toLocaleString()}</span></div>}
-            {f.capitalLossDeduction > 0 && <div className="flex justify-between"><span className="text-slate-400">Capital Loss Deduction</span><span className="text-white">-${f.capitalLossDeduction.toLocaleString()}</span></div>}
+            <div className="flex justify-between"><span className="text-slate-400">{f.deductionUsed === 'standard' ? 'Standard' : 'Itemized'} Deduction</span><span className="text-slate-100">-${f.deductionAmount.toLocaleString()}</span></div>
+            {f.qbiDeduction > 0 && <div className="flex justify-between"><span className="text-slate-400">QBI Deduction (20% of business income)</span><span className="text-slate-100">-${f.qbiDeduction.toLocaleString()}</span></div>}
+            {f.seDeduction > 0 && <div className="flex justify-between"><span className="text-slate-400">SE Tax Deduction (employer half)</span><span className="text-slate-100">-${f.seDeduction.toLocaleString()}</span></div>}
+            {f.capitalLossDeduction > 0 && <div className="flex justify-between"><span className="text-slate-400">Capital Loss Deduction</span><span className="text-slate-100">-${f.capitalLossDeduction.toLocaleString()}</span></div>}
           </div>
         </div>
       )}

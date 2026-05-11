@@ -88,7 +88,7 @@ function TraceNode({ trace, depth, onNavigateToForm }: { trace: CalculationTrace
         <span className="text-xs text-slate-300 flex-1 truncate">{trace.label}</span>
 
         {/* Value */}
-        <span className="text-xs font-mono font-semibold text-white shrink-0">
+        <span className="text-xs font-mono font-semibold text-slate-100 shrink-0">
           ${trace.value.toLocaleString()}
         </span>
       </button>

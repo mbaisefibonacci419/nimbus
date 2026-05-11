@@ -5,6 +5,13 @@ import {
   type IPointRenderEventArgs, type ITooltipRenderEventArgs, type ITextRenderEventArgs,
   type IMouseEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import {
+  useChartTheme,
+  chartPalette,
+  tooltipStyle,
+  axisLabelStyle,
+  dataLabelFont,
+} from '../../hooks/useChartTheme';
 
 interface WaterfallStep {
   x: string;
@@ -38,6 +45,7 @@ export default function SEWaterfall({
   netProfit, seHealthInsurance, seRetirement, seTaxDeductibleHalf,
   onBarClick,
 }: SEWaterfallProps) {
+  const t = useChartTheme();
   if (grossReceipts === 0) return null;
 
   const { steps, intermediateSumIndexes, sumIndexes } = useMemo(() => {
@@ -83,11 +91,11 @@ export default function SEWaterfall({
     if (isSumBar) {
       // Sum bars use the Syncfusion-computed running total (available as point.y)
       const pointY = (args.point as any)?.y ?? 0;
-      args.fill = pointY >= 0 ? '#10B981' : '#EF4444';
+      args.fill = pointY >= 0 ? chartPalette.emerald : chartPalette.red;
     } else if (args.point.index === 0) {
-      args.fill = '#3B82F6';
+      args.fill = chartPalette.blue;
     } else {
-      args.fill = '#F59E0B';
+      args.fill = chartPalette.amber;
     }
   }, [steps]);
 
@@ -127,9 +135,7 @@ export default function SEWaterfall({
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1C1C1F',
-          border: { color: '#3E3E44', width: 1 },
-          textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+          ...tooltipStyle(t),
         }}
         pointRender={pointRender}
         textRender={textRender}
@@ -138,7 +144,7 @@ export default function SEWaterfall({
         primaryXAxis={{
           valueType: 'Category',
           isInversed: true,
-          labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+          labelStyle: axisLabelStyle(t),
           majorGridLines: { width: 0 },
           majorTickLines: { width: 0 },
           lineStyle: { width: 0 },
@@ -161,12 +167,12 @@ export default function SEWaterfall({
             sumIndexes={sumIndexes}
             columnWidth={0.55}
             cornerRadius={{ topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 }}
-            connector={{ color: '#3E3E44', width: 1, dashArray: '4,3' }}
+            connector={{ color: t.connector, width: 1, dashArray: '4,3' }}
             marker={{
               dataLabel: {
                 visible: true,
                 position: 'Outer',
-                font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+                font: dataLabelFont(t),
               },
             }}
           />

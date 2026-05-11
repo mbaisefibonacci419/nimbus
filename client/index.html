@@ -3,17 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0F172A" />
+    <meta name="theme-color" content="#111113" />
     <meta name="description" content="Free, private tax preparation that runs entirely in your browser." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Nimbus — Free Tax Preparation</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
-    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <title>Nimbus - A TurboTax Lab Playground</title>
+    <link id="syncfusion-theme" rel="stylesheet" href="/syncfusion-tailwind-dark.css" />
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' blob: https://taxserver-production.up.railway.app; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' blob:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
   </head>
-  <body class="bg-surface-900 text-white antialiased">
+  <body class="antialiased">
+    <script>
+      (function(){
+        var t = localStorage.getItem('nimbus-theme');
+        if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.classList.add(t);
+        var link = document.getElementById('syncfusion-theme');
+        if (link) link.href = t === 'dark' ? '/syncfusion-tailwind-dark.css' : '/syncfusion-tailwind.css';
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

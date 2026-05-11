@@ -98,7 +98,7 @@ export default function KeyboardShortcutsModal({ open, onClose }: Props) {
           <h2 className="text-base font-semibold text-slate-200">Keyboard Shortcuts</h2>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-surface-700 transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-100 rounded-md hover:bg-surface-700 transition-colors"
           >
             <X size={16} />
           </button>

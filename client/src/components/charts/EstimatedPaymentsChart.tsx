@@ -4,6 +4,7 @@ import {
   Inject, BarSeries, Category, Tooltip, DataLabel,
   type ITooltipRenderEventArgs, type ITextRenderEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import { useChartTheme, chartPalette, tooltipStyle, axisLabelStyle, dataLabelFont } from '../../hooks/useChartTheme';
 
 interface EstimatedPaymentsChartProps {
   quarters: [number, number, number, number];
@@ -15,6 +16,7 @@ const QUARTER_LABELS = ['Q1 (Apr 15)', 'Q2 (Jun 16)', 'Q3 (Sep 15)', 'Q4 (Jan 15
 const fmtDollars = (v: number): string => `$${v.toLocaleString()}`;
 
 export default function EstimatedPaymentsChart({ quarters, quarterlyDetail }: EstimatedPaymentsChartProps) {
+  const t = useChartTheme();
   const allZero = quarters.every(q => q === 0) && !quarterlyDetail;
   if (allZero) return null;
 
@@ -50,16 +52,14 @@ export default function EstimatedPaymentsChart({ quarters, quarterlyDetail }: Es
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1C1C1F',
-          border: { color: '#3E3E44', width: 1 },
-          textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+          ...tooltipStyle(t),
         }}
         textRender={textRender}
         tooltipRender={tooltipRender}
         primaryXAxis={{
           valueType: 'Category',
           isInversed: true,
-          labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+          labelStyle: axisLabelStyle(t),
           majorGridLines: { width: 0 },
           majorTickLines: { width: 0 },
           lineStyle: { width: 0 },
@@ -80,7 +80,7 @@ export default function EstimatedPaymentsChart({ quarters, quarterlyDetail }: Es
               name="Required"
               type="Bar"
               fill="rgba(239, 68, 68, 0.3)"
-              border={{ color: '#EF4444', width: 1 }}
+              border={{ color: chartPalette.red, width: 1 }}
               columnWidth={0.35}
               columnSpacing={0.05}
               cornerRadius={{ topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 }}
@@ -92,7 +92,7 @@ export default function EstimatedPaymentsChart({ quarters, quarterlyDetail }: Es
             yName="y"
             name="Paid"
             type="Bar"
-            fill="#3B82F6"
+            fill={chartPalette.blue}
             columnWidth={0.35}
             columnSpacing={0.05}
             cornerRadius={{ topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 }}
@@ -100,7 +100,7 @@ export default function EstimatedPaymentsChart({ quarters, quarterlyDetail }: Es
               dataLabel: {
                 visible: true,
                 position: 'Outer',
-                font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+                font: dataLabelFont(t),
               },
             }}
           />

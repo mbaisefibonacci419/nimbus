@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listReturns, createReturn, deleteReturn, getReturn, wipeAllData, exportAllData, importReturn } from '../api/client';
-import { Plus, FileText, Trash2, CircleDollarSign, Code2, Lock, ArrowRight, Download, Upload, Eye, EyeOff, Loader2, Hourglass, Shield } from 'lucide-react';
+import { Plus, FileText, Trash2, CircleDollarSign, Code2, Lock, ArrowRight, Download, Upload, Eye, EyeOff, Loader2, Hourglass, Shield, Sun, Moon } from 'lucide-react';
+import { useThemeStore } from '../store/themeStore';
 import { toast } from 'sonner';
 import { importReturnFromFile } from '../services/fileTransfer';
 import { TaxReturn, evaluateCondition } from '@nimbus/engine';
@@ -60,6 +61,20 @@ function getReturnProgress(ret: TaxReturn) {
     : '';
   const pct = totalSteps <= 1 ? 100 : Math.round((currentIndex / (totalSteps - 1)) * 100);
   return { currentIndex, totalSteps, sectionLabel, pct, stepLabel: currentStepDef?.label || '' };
+}
+
+function DashboardThemeToggle() {
+  const { mode, toggle } = useThemeStore();
+  const isDark = mode === 'dark';
+  return (
+    <button
+      onClick={toggle}
+      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-surface-700 transition-colors"
+    >
+      {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+    </button>
+  );
 }
 
 function DeleteConfirmation({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
@@ -356,50 +371,16 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
     <div className="min-h-screen bg-surface-900">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Header */}
-        <div className="mb-2">
-          <h1 className="text-4xl sm:text-5xl font-bold"><span className="text-telos-orange-400">Ni</span><span className="text-telos-blue-400">mbus</span></h1>
-          <p className="text-slate-400 text-sm">2025 Tax Year</p>
+        <div className="mb-2 flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-bold"><span className="text-primary-500">Ni</span><span className="text-slate-100">mbus</span></h1>
+            <p className="text-slate-400 text-sm">TY2025</p>
+          </div>
+          <DashboardThemeToggle />
         </div>
         <p className="text-slate-400 mb-8 mt-2">
-          Free, private, open-source tax prep.
+          Playground for new TT tax prep UX.
         </p>
-
-        {/* Value props */}
-        <div className="grid sm:grid-cols-3 gap-3 mb-8">
-          <div
-            className="card flex flex-col items-center text-center py-5 px-4"
-          >
-            <span className="relative mb-2.5">
-              <CircleDollarSign className="w-6 h-6 text-emerald-400" />
-              <span className="absolute inset-0 flex items-center justify-center">
-                <span className="block w-7 h-0.5 bg-emerald-400 rotate-45 rounded-full" />
-              </span>
-            </span>
-            <h3 className="font-semibold text-slate-200 text-sm mb-1">Free</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">No upsells, no hidden fees, no data collection.</p>
-          </div>
-          <button
-            onClick={() => navigate('/privacy')}
-            className="card flex flex-col items-center text-center py-5 px-4 hover:border-slate-500 transition-colors group cursor-pointer"
-          >
-            <Lock className="w-6 h-6 text-telos-orange-400 mb-2.5" />
-            <h3 className="font-semibold text-slate-200 text-sm mb-1 group-hover:text-white transition-colors">Private</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">Your tax data stays on your device. Nothing is sent to any server.</p>
-            <span className="text-xs text-slate-400 mt-2 group-hover:text-white transition-colors">Learn more &rarr;</span>
-          </button>
-          <a
-            href="https://github.com/telosnews/Nimbus"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open Source — View on GitHub (opens in new tab)"
-            className="card flex flex-col items-center text-center py-5 px-4 hover:border-slate-500 transition-colors group cursor-pointer"
-          >
-            <Code2 className="w-6 h-6 text-telos-blue-400 mb-2.5" />
-            <h3 className="font-semibold text-slate-200 text-sm mb-1 group-hover:text-white transition-colors">Open Source</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">Our tax engine is on GitHub. Read the code, verify the math.</p>
-            <span className="text-xs text-slate-400 mt-2 group-hover:text-white transition-colors">View on GitHub &rarr;</span>
-          </a>
-        </div>
 
         {/* ─── Locked: show passphrase form ─── */}
         {isLocked && onUnlock && (
@@ -433,7 +414,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
                 className="w-full card flex items-center gap-4 mb-4 hover:border-telos-blue-500/50 transition-colors group cursor-pointer"
               >
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-semibold text-white group-hover:text-telos-blue-300 transition-colors">
+                  <p className="font-semibold text-slate-100 group-hover:text-telos-blue-300 transition-colors">
                     Continue where you left off
                   </p>
                   <p className="text-sm text-slate-400 mt-0.5">
@@ -497,7 +478,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
         {returns.length === 0 ? (
           <div className="card text-center py-12">
             <FileText className="w-12 h-12 text-telos-orange-400 mx-auto mb-4" />
-            <p className="text-white text-xl font-semibold mb-2">Ready to file your 2025 taxes?</p>
+            <p className="text-slate-100 text-xl font-semibold mb-2">Ready to file your 2025 taxes?</p>
             <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">
               It's free, private, and lets you file at your own pace.
             </p>
@@ -590,18 +571,10 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
         {/* Disclaimer & Legal Links */}
         <div className="mt-12 text-center">
           <p className="text-sm text-slate-400 leading-relaxed">
-            Your tax data is stored locally on your device and never sent to any server.
-            This tool is for informational purposes only and does not constitute tax advice.
+            Your tax data in this playground is stored locally on your device and never sent to any server.
+            This tool is for prototyping purposes only and does not constitute tax advice.
           </p>
-          <div className="flex items-center justify-center gap-3 mt-3 text-xs">
-            <button onClick={() => navigate('/terms')} className="text-slate-400 hover:text-slate-300 transition-colors">
-              Terms of Service
-            </button>
-            <span className="text-slate-700">&middot;</span>
-            <button onClick={() => navigate('/privacy')} className="text-slate-400 hover:text-slate-300 transition-colors">
-              Privacy Policy
-            </button>
-          </div>
+          
           {/* Data management */}
           <div className="mt-6 pt-4 border-t border-slate-800 flex flex-col items-center gap-3">
             {returns.length > 0 && (
@@ -705,7 +678,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
           <div ref={exportModalRef} role="dialog" aria-modal="true" aria-label="Export data with password" className="w-full max-w-sm rounded-xl bg-surface-800 border border-slate-700 p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2 mb-3">
               <Lock className="w-4 h-4 text-telos-orange-400" />
-              <h3 className="text-sm font-semibold text-white">Encrypt Export</h3>
+              <h3 className="text-sm font-semibold text-slate-100">Encrypt Export</h3>
             </div>
             <p className="text-xs text-slate-400 mb-4">
               Choose a password to encrypt your exported data. You'll need this password to import the file later.
@@ -717,7 +690,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
                   type={showExportPassword ? 'text' : 'password'}
                   value={exportPassword}
                   onChange={(e) => { setExportPassword(e.target.value); setExportError(''); }}
-                  className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-white text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
+                  className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-slate-100 text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
                   placeholder="At least 8 characters"
                   autoComplete="new-password"
                 />
@@ -735,7 +708,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
                 type={showExportPassword ? 'text' : 'password'}
                 value={exportConfirm}
                 onChange={(e) => { setExportConfirm(e.target.value); setExportError(''); }}
-                className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-white text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none mb-2"
+                className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-slate-100 text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none mb-2"
                 placeholder="Confirm password"
                 autoComplete="new-password"
               />
@@ -771,7 +744,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
           <div ref={importModalRef} role="dialog" aria-modal="true" aria-label="Import .nimbus file" className="w-full max-w-sm rounded-xl bg-surface-800 border border-slate-700 p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2 mb-3">
               <Lock className="w-4 h-4 text-telos-orange-400" />
-              <h3 className="text-sm font-semibold text-white">Import .nimbus File</h3>
+              <h3 className="text-sm font-semibold text-slate-100">Import .nimbus File</h3>
             </div>
             <p className="text-xs text-slate-400 mb-1">
               <span className="font-medium text-slate-300">{importFile?.name}</span>
@@ -786,7 +759,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
                   type={showImportPassword ? 'text' : 'password'}
                   value={importPassword}
                   onChange={(e) => { setImportPassword(e.target.value); setImportError(''); }}
-                  className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-white text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
+                  className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-slate-100 text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
                   placeholder="Enter password"
                   autoComplete="off"
                 />

@@ -36,7 +36,7 @@ export default function TransferGuidePanel({ taxReturn, result, onBack }: Transf
     return (
       <div>
         <BackButton onClick={onBack} label="Back to E-Filing Options" />
-        <h2 className="text-xl font-bold text-white mb-2">Transfer Guide</h2>
+        <h2 className="text-xl font-bold text-slate-100 mb-2">Transfer Guide</h2>
         <p className="text-sm text-slate-400">
           No form values to transfer — your return appears empty. Enter your income data first.
         </p>
@@ -48,7 +48,7 @@ export default function TransferGuidePanel({ taxReturn, result, onBack }: Transf
     <div>
       <BackButton onClick={onBack} label="Back to E-Filing Options" />
 
-      <h2 className="text-xl font-bold text-white mb-1">Transfer Guide</h2>
+      <h2 className="text-xl font-bold text-slate-100 mb-1">Transfer Guide</h2>
       <p className="text-sm text-slate-400 mb-4">
         Copy your calculated values line-by-line into IRS Free Fillable Forms.
       </p>
@@ -112,7 +112,7 @@ function FormSection({ form, defaultExpanded }: { form: TransferGuideForm; defau
             ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
             : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
           }
-          <span className="text-sm font-semibold text-white truncate">{form.formName}</span>
+          <span className="text-sm font-semibold text-slate-100 truncate">{form.formName}</span>
         </div>
         <span className="text-xs text-slate-400 shrink-0">{form.lines.length} lines</span>
       </button>
@@ -191,7 +191,7 @@ function TransferLine({
       </span>
 
       {/* Value */}
-      <span className="text-sm font-semibold text-white tabular-nums shrink-0">
+      <span className="text-sm font-semibold text-slate-100 tabular-nums shrink-0">
         {formattedValue}
       </span>
 

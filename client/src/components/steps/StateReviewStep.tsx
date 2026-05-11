@@ -210,7 +210,7 @@ function Row({
     <div>
       <div className="flex items-center justify-between py-0.5">
         <span className={bold ? 'text-slate-200 font-medium' : 'text-slate-400'}>{label}</span>
-        <span className={`font-mono text-xs ${green ? 'text-emerald-400' : bold ? 'text-white font-medium' : 'text-slate-300'}`}>
+        <span className={`font-mono text-xs ${green ? 'text-emerald-400' : bold ? 'text-slate-100 font-medium' : 'text-slate-300'}`}>
           {formatted}
         </span>
       </div>

@@ -506,7 +506,7 @@ function TransactionRow({
       </span>
 
       {/* Amount */}
-      <span className="text-white shrink-0 w-20 text-right font-mono">
+      <span className="text-slate-100 shrink-0 w-20 text-right font-mono">
         ${Math.abs(ct.transaction.amount).toFixed(0)}
       </span>
 

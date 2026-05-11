@@ -325,7 +325,7 @@ export default function FormSidebar() {
                             ? 'bg-telos-blue-600/20 text-telos-blue-400 font-medium'
                             : isChecked
                               ? 'bg-telos-blue-600/10 text-slate-300'
-                              : 'text-slate-300 hover:bg-surface-700 hover:text-white'
+                              : 'text-slate-300 hover:bg-surface-700 hover:text-slate-100'
                         }`}
                       >
                         <button
@@ -367,7 +367,7 @@ export default function FormSidebar() {
                             ? 'bg-telos-blue-600/20 text-telos-blue-400 font-medium'
                             : isChecked
                               ? 'bg-telos-blue-600/10 text-slate-300'
-                              : 'text-slate-300 hover:bg-surface-700 hover:text-white'
+                              : 'text-slate-300 hover:bg-surface-700 hover:text-slate-100'
                         }`}
                       >
                         <button

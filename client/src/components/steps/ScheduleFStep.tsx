@@ -184,11 +184,11 @@ export default function ScheduleFStep() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-xs text-slate-400">Gross Income</p>
-              <p className="text-lg font-semibold text-white">${grossIncome.toLocaleString()}</p>
+              <p className="text-lg font-semibold text-slate-100">${grossIncome.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-xs text-slate-400">Total Expenses</p>
-              <p className="text-lg font-semibold text-white">${totalExpenses.toLocaleString()}</p>
+              <p className="text-lg font-semibold text-slate-100">${totalExpenses.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-xs text-slate-400">Net Farm {netProfit >= 0 ? 'Profit' : 'Loss'}</p>

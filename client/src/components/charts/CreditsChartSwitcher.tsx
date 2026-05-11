@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PieChart, BarChart2 } from 'lucide-react';
+import { chartPalette } from '../../hooks/useChartTheme';
 import CreditsDonut from './CreditsDonut';
 import CategoryBarChart from './CategoryBarChart';
 
@@ -42,8 +43,8 @@ export default function CreditsChartSwitcher({ items, onSliceClick }: CreditsCha
                 onClick={() => setView(m.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   view === m.id
-                    ? 'bg-surface-700 text-white'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-surface-700 text-slate-100'
+                    : 'text-slate-400 hover:text-slate-100'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -76,7 +77,7 @@ export default function CreditsChartSwitcher({ items, onSliceClick }: CreditsCha
           onBarClick={onSliceClick}
           colors={items
             .sort((a, b) => b.value - a.value)
-            .map(i => i.refundable ? '#34D399' : '#FB923C')}
+            .map(i => i.refundable ? chartPalette.greenLight : chartPalette.orangeLight)}
         />
       )}
 

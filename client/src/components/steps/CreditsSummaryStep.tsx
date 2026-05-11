@@ -91,7 +91,7 @@ export default function CreditsSummaryStep() {
                 <div className="flex-1 min-w-0">
                   <span className="text-sm text-slate-200">{cl.label}</span>
                 </div>
-                <span className="text-sm font-medium text-white tabular-nums">${cl.amount.toLocaleString()}</span>
+                <span className="text-sm font-medium text-slate-100 tabular-nums">${cl.amount.toLocaleString()}</span>
                 <button
                   onClick={() => goToStep(cl.stepId)}
                   className="text-xs text-telos-blue-400 hover:text-telos-blue-300 px-2 py-1 rounded border border-telos-blue-500/30 hover:border-telos-blue-500/50 transition-colors shrink-0"
@@ -120,7 +120,7 @@ export default function CreditsSummaryStep() {
                 <div className="flex-1 min-w-0">
                   <span className="text-sm text-slate-200">{cl.label}</span>
                 </div>
-                <span className="text-sm font-medium text-white tabular-nums">${cl.amount.toLocaleString()}</span>
+                <span className="text-sm font-medium text-slate-100 tabular-nums">${cl.amount.toLocaleString()}</span>
                 <button
                   onClick={() => goToStep(cl.stepId)}
                   className="text-xs text-telos-blue-400 hover:text-telos-blue-300 px-2 py-1 rounded border border-telos-blue-500/30 hover:border-telos-blue-500/50 transition-colors shrink-0"

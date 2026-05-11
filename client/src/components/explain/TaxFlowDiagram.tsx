@@ -18,29 +18,11 @@ import {
 } from '@syncfusion/ej2-react-charts';
 import type { Form1040Result } from '@nimbus/engine';
 import { useTaxReturnStore } from '../../store/taxReturnStore';
+import { useChartTheme, chartPalette, tooltipStyle13, dataLabelFont } from '../../hooks/useChartTheme';
 
 interface TaxFlowDiagramProps {
   form1040: Form1040Result;
 }
-
-const COLORS: Record<string, string> = {
-  totalIncome:    '#3B82F6', // blue-500
-  adjustments:    '#F59E0B', // amber-500
-  agi:            '#94A3B8', // slate-400
-  deduction:      '#14B8A6', // teal-500
-  qbi:            '#06B6D4', // cyan-500
-  taxableIncome:  '#94A3B8', // slate-400
-  incomeTax:      '#EF4444', // red-500
-  seTax:          '#F97316', // orange-500
-  niit:           '#FB923C', // orange-400
-  amt:            '#DC2626', // red-600
-  totalTax:       '#94A3B8', // slate-400
-  credits:        '#8B5CF6', // violet-500
-  withholding:    '#A78BFA', // violet-400
-  estPayments:    '#C084FC', // purple-400
-  refund:         '#10B981', // emerald-500
-  owed:           '#F59E0B', // amber-500
-};
 
 // Map each bar's colorKey to the most relevant wizard step
 const STEP_MAP: Record<string, string> = {
@@ -75,8 +57,28 @@ function fmtDollars(n: number): string {
 }
 
 export default function TaxFlowDiagram({ form1040: f }: TaxFlowDiagramProps) {
+  const t = useChartTheme();
   const goToStep = useTaxReturnStore((s) => s.goToStep);
   const isRefund = f.refundAmount > 0;
+
+  const COLORS: Record<string, string> = {
+    totalIncome: chartPalette.blue,
+    adjustments: chartPalette.amber,
+    agi: t.axisLabel,
+    deduction: chartPalette.teal,
+    qbi: chartPalette.cyan,
+    taxableIncome: t.axisLabel,
+    incomeTax: chartPalette.red,
+    seTax: chartPalette.orange,
+    niit: chartPalette.orangeLight,
+    amt: chartPalette.red600,
+    totalTax: t.axisLabel,
+    credits: chartPalette.violet,
+    withholding: chartPalette.lightViolet,
+    estPayments: chartPalette.purpleLight,
+    refund: chartPalette.emerald,
+    owed: chartPalette.amber,
+  };
 
   // Build steps in display order (Total Income → Refund/Owed).
   // isInversed on X axis flips the visual so Total Income is at the top.
@@ -142,7 +144,7 @@ export default function TaxFlowDiagram({ form1040: f }: TaxFlowDiagramProps) {
       args.fill = 'transparent';
       args.border = { width: 0, color: 'transparent' };
     } else {
-      args.fill = COLORS[step.colorKey] || '#64748B';
+      args.fill = COLORS[step.colorKey] || t.axisLabel;
     }
   };
 
@@ -186,12 +188,7 @@ export default function TaxFlowDiagram({ form1040: f }: TaxFlowDiagramProps) {
       background="transparent"
       isTransposed={true}
       chartArea={{ border: { width: 0 } }}
-      tooltip={{
-        enable: true,
-        fill: '#1C1C1F',
-        border: { color: '#3E3E44', width: 1 },
-        textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '13px' },
-      }}
+      tooltip={{ enable: true, ...tooltipStyle13(t) }}
       pointRender={pointRender}
       pointClick={pointClick}
       textRender={textRender}
@@ -200,8 +197,8 @@ export default function TaxFlowDiagram({ form1040: f }: TaxFlowDiagramProps) {
         valueType: 'Category',
         isInversed: true,
         labelStyle: {
-          color: '#CBD5E1',
-          fontFamily: 'Inter Variable, sans-serif',
+          color: t.svgTextMuted,
+          fontFamily: chartPalette.font,
           size: '13px',
           fontWeight: '500',
         },
@@ -227,17 +224,12 @@ export default function TaxFlowDiagram({ form1040: f }: TaxFlowDiagramProps) {
           sumIndexes={sumIndexes}
           columnWidth={0.6}
           cornerRadius={{ topLeft: 4, topRight: 4, bottomLeft: 4, bottomRight: 4 }}
-          connector={{ color: '#3E3E44', width: 1.5, dashArray: '4,3' }}
+          connector={{ color: t.connector, width: 1.5, dashArray: '4,3' }}
           marker={{
             dataLabel: {
               visible: true,
               position: 'Outer',
-              font: {
-                color: '#E2E8F0',
-                fontFamily: 'Inter Variable, sans-serif',
-                size: '13px',
-                fontWeight: '600',
-              },
+              font: { ...dataLabelFont(t), size: '13px' },
             },
           }}
         />

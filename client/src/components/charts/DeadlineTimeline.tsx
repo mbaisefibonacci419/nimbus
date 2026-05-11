@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { chartPalette, axisLabelStyle, dataLabelFont, tooltipStyle, useChartTheme } from '../../hooks/useChartTheme';
 import {
   ChartComponent, SeriesCollectionDirective, SeriesDirective,
   Inject, BarSeries, Category, Tooltip, DataLabel,
@@ -15,10 +16,10 @@ interface DeadlineTimelineProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  overdue: '#EF4444',
-  due_soon: '#F59E0B',
-  upcoming: '#3B82F6',
-  completed: '#10B981',
+  overdue: chartPalette.red,
+  due_soon: chartPalette.amber,
+  upcoming: chartPalette.blue,
+  completed: chartPalette.emerald,
 };
 
 const fmtDate = (iso: string): string => {
@@ -29,6 +30,7 @@ const fmtDate = (iso: string): string => {
 const fmtDollars = (v: number): string => `$${v.toLocaleString()}`;
 
 export default function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
+  const t = useChartTheme();
   if (deadlines.length === 0) return null;
 
   const sorted = useMemo(() =>
@@ -50,8 +52,8 @@ export default function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
 
   const pointRender = useCallback((args: IPointRenderEventArgs): void => {
     const item = data[args.point.index];
-    if (item) args.fill = STATUS_COLORS[item.status] || '#64748B';
-  }, [data]);
+    if (item) args.fill = STATUS_COLORS[item.status] || t.svgTextSecondary;
+  }, [data, t.svgTextSecondary]);
 
   const textRender = useCallback((args: ITextRenderEventArgs): void => {
     const item = data[(args.point as any)?.index];
@@ -81,9 +83,7 @@ export default function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1C1C1F',
-          border: { color: '#3E3E44', width: 1 },
-          textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+          ...tooltipStyle(t),
         }}
         pointRender={pointRender}
         textRender={textRender}
@@ -91,7 +91,7 @@ export default function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
         primaryXAxis={{
           valueType: 'Category',
           isInversed: true,
-          labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+          labelStyle: axisLabelStyle(t),
           majorGridLines: { width: 0 },
           majorTickLines: { width: 0 },
           lineStyle: { width: 0 },
@@ -115,7 +115,7 @@ export default function DeadlineTimeline({ deadlines }: DeadlineTimelineProps) {
               dataLabel: {
                 visible: true,
                 position: 'Outer',
-                font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+                font: dataLabelFont(t),
               },
             }}
           />

@@ -70,7 +70,7 @@ export default function NimbusAIButton() {
             <button
               onClick={handleGuide}
               className="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold
-                         text-slate-300 hover:bg-surface-600 hover:text-white transition-colors"
+                         text-slate-300 hover:bg-surface-600 hover:text-slate-100 transition-colors"
               title="Ask AI about this step"
             >
               <span>Guide me with <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span></span>

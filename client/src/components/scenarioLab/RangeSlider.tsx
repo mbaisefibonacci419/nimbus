@@ -138,7 +138,7 @@ export default function RangeSlider({ value, min, max, step, format = 'currency'
         min={min}
         max={max}
         step={step}
-        className="w-28 bg-surface-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white tabular-nums text-right focus:outline-none focus:border-telos-orange-500 focus:ring-1 focus:ring-telos-orange-500/30"
+        className="w-28 bg-surface-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-slate-100 tabular-nums text-right focus:outline-none focus:border-telos-orange-500 focus:ring-1 focus:ring-telos-orange-500/30"
         aria-label={label ? `${label} input` : undefined}
       />
     </div>

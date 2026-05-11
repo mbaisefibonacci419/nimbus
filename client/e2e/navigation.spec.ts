@@ -3,7 +3,6 @@
  *
  * Tests that all routes work correctly:
  * - Dashboard (/)
- * - Pledge (/pledge)
  * - Terms (/terms)
  * - Privacy (/privacy)
  * - Invalid routes redirect to dashboard
@@ -15,14 +14,6 @@ test.describe('App Routing', () => {
   test('dashboard loads at /', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('h1')).toContainText('Nimbus');
-  });
-
-  test('pledge page loads at /pledge', async ({ page }) => {
-    await page.goto('/pledge');
-    await expect(page).toHaveURL('/pledge');
-    // Page should render without error
-    const body = await page.textContent('body');
-    expect(body!.length).toBeGreaterThan(0);
   });
 
 test('terms page loads at /terms', async ({ page }) => {
@@ -57,17 +48,6 @@ test('terms page loads at /terms', async ({ page }) => {
 });
 
 test.describe('Cross-Page Navigation', () => {
-  test('can navigate from dashboard to pledge and back', async ({ page }) => {
-    await page.goto('/');
-
-    // Look for a link to pledge page
-    const pledgeLink = page.getByRole('link', { name: /pledge/i });
-    if (await pledgeLink.isVisible()) {
-      await pledgeLink.click();
-      await expect(page).toHaveURL(/pledge/);
-    }
-  });
-
   test('can navigate from wizard back to dashboard', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());

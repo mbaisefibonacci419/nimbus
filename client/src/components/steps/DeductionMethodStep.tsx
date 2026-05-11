@@ -103,7 +103,7 @@ export default function DeductionMethodStep() {
           <div className="text-sm text-telos-blue-300">
             <p>
               Choose the method that gives you the larger deduction. Your standard deduction is{' '}
-              <strong className="text-white">${stdAmount.toLocaleString()}</strong> ({FILING_STATUS_LABELS[filingStatus]}).
+              <strong className="text-slate-100">${stdAmount.toLocaleString()}</strong> ({FILING_STATUS_LABELS[filingStatus]}).
               Itemize if your mortgage interest, state/local taxes, charitable donations, and medical expenses exceed that amount.
             </p>
             {showMore && (

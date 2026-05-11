@@ -98,8 +98,90 @@ export function parseTransactionLines(
     }
   }
 
+  // If no transactions found via single-line parsing, try split-page matching:
+  // some PDFs (e.g. Amex) have dates+descriptions on one page and amounts on another.
+  if (transactions.length === 0) {
+    const splitResult = parseSplitPageTransactions(lines, warnings);
+    if (splitResult.length > 0) {
+      return splitResult;
+    }
+  }
+
   if (skippedCount > 0) {
     warnings.push(`${skippedCount} line(s) looked like transactions but couldn't be fully parsed`);
+  }
+
+  return transactions;
+}
+
+/**
+ * Handle PDFs where dates/descriptions and amounts are on separate pages.
+ * Collects date+description lines and amount-only lines, then zips them.
+ */
+function parseSplitPageTransactions(
+  lines: TextLine[],
+  warnings: string[],
+): NormalizedTransaction[] {
+  const dateLines: { date: string; description: string; page: number }[] = [];
+  const amountLines: number[] = [];
+
+  for (const line of lines) {
+    const text = line.text;
+
+    // Check for date-only lines (date + description, no amount)
+    const dateMatch = text.match(DATE_REGEX);
+    if (dateMatch) {
+      const date = parseDateString(dateMatch[1]);
+      if (date) {
+        const afterDate = text.slice(dateMatch.index! + dateMatch[0].length).trim();
+        // Extract description: strip noise from raw PDF text
+        let desc = afterDate
+          .replace(/\d{1,2}:\d{2}:\d{2}/g, '')        // strip time components (e.g. "0:00:00")
+          .replace(/\d{10,}/g, '')                     // strip long reference numbers
+          .replace(/XXXX[-X\d]+/gi, '')                // strip masked account numbers
+          .replace(/\b[A-Z]{2,}\s+[A-Z]{2,}\b\s*$/g, '') // strip trailing card member name pattern (e.g. "JOHN DOE")
+          .trim()
+          .replace(/\s{2,}/g, ' ');
+        // Remove trailing name-like pattern (First Last at end of line)
+        desc = desc.replace(/\s+[A-Z][a-z]+\s+[A-Z][a-z]+\s*$/, '').replace(/\s+[A-Z]{2,}\s+[A-Z]{2,}\s*$/, '').trim();
+        if (desc.length >= 2) {
+          dateLines.push({ date, description: desc, page: line.page });
+        }
+      }
+    }
+
+    // Check for amount-only lines (dollar amount, no date)
+    if (!dateMatch) {
+      const amountMatch = text.match(AMOUNT_REGEX);
+      if (amountMatch) {
+        const amount = parseCurrencyString(amountMatch[0]);
+        if (amount !== 0) {
+          amountLines.push(Math.abs(amount));
+        }
+      }
+    }
+  }
+
+  if (dateLines.length === 0 || amountLines.length === 0) return [];
+
+  // Zip: match date lines with amount lines in order
+  const count = Math.min(dateLines.length, amountLines.length);
+  if (dateLines.length !== amountLines.length) {
+    warnings.push(`Split-page matching: ${dateLines.length} descriptions and ${amountLines.length} amounts (used ${count})`);
+  }
+
+  const transactions: NormalizedTransaction[] = [];
+  for (let i = 0; i < count; i++) {
+    const { date, description, page } = dateLines[i];
+    const mccCode = extractMCCFromDescription(description);
+    const txn: NormalizedTransaction = {
+      date,
+      description,
+      amount: amountLines[i],
+      originalRow: page * 1000 + i,
+    };
+    if (mccCode) txn.mccCode = mccCode;
+    transactions.push(txn);
   }
 
   return transactions;

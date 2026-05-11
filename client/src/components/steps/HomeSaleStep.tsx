@@ -116,7 +116,7 @@ export default function HomeSaleStep() {
         <div className={`rounded-xl border p-6 mt-4 ${meetsExclusion ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
           <div className="text-center">
             <p className="text-sm text-slate-400">Gain on Sale</p>
-            <p className={`text-2xl font-bold ${gain >= 0 ? 'text-white' : 'text-emerald-400'}`}>
+            <p className={`text-2xl font-bold ${gain >= 0 ? 'text-slate-100' : 'text-emerald-400'}`}>
               ${gain.toLocaleString()}
             </p>
           </div>

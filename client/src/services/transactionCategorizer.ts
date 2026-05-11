@@ -318,12 +318,14 @@ export function fanOutCategories(
     const aiCat = aiCategories.get(merchant);
 
     if (aiCat) {
+      const validCategory = CATEGORY_META[aiCat.category] ? aiCat.category : 'unclear' as TransactionCategory;
+      const validConfidence = (['high', 'medium', 'low'] as const).includes(aiCat.confidence) ? aiCat.confidence : 'low' as ConfidenceLevel;
       return {
         transactionIndex: index,
         transaction: t,
-        category: aiCat.category,
-        subCategory: aiCat.subCategory,
-        confidence: aiCat.confidence,
+        category: validCategory,
+        subCategory: aiCat.subCategory || 'general' as TransactionSubCategory,
+        confidence: validConfidence,
         source: 'ai' as const,
         formLine: aiCat.formLine,
         reasoning: aiCat.reasoning,
@@ -358,7 +360,8 @@ export function buildCategorySummaries(transactions: CategorizedTransaction[]): 
   for (const ct of transactions) {
     // Include all categories including personal (for review UI)
 
-    const existing = map.get(ct.category);
+    const category = CATEGORY_META[ct.category] ? ct.category : ('unclear' as TransactionCategory);
+    const existing = map.get(category);
     const amount = Math.abs(ct.transaction.amount) * (ct.businessUsePercent / 100);
 
     if (existing) {
@@ -366,9 +369,9 @@ export function buildCategorySummaries(transactions: CategorizedTransaction[]): 
       existing.transactionCount++;
       existing.confidenceCounts[ct.confidence]++;
     } else {
-      const meta = CATEGORY_META[ct.category];
-      map.set(ct.category, {
-        category: ct.category,
+      const meta = CATEGORY_META[category];
+      map.set(category, {
+        category,
         label: meta.label,
         totalAmount: amount,
         transactionCount: 1,

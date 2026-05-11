@@ -373,34 +373,42 @@ export function useDeductionFinder(): UseDeductionFinderResult {
 
   // ── Full AI categorization pipeline ──
   const categorizeTransactions = useCallback(async () => {
-    if (!taxReturn || allTransactions.length === 0) return;
+    // Read transactions from store directly to avoid stale closures
+    const store = useDeductionFinderStore.getState();
+    const transactions = store.allTransactions;
+
+    if (!taxReturn || transactions.length === 0) {
+      console.warn('[categorizer] Early exit — no taxReturn or empty transactions', { hasTaxReturn: !!taxReturn, txnCount: transactions.length });
+      return;
+    }
 
     const aiSettings = useAISettingsStore.getState();
 
     if (aiSettings.mode === 'private') {
-      setAiError('AI transaction categorization requires BYOK mode.');
-      return;
+      const msg = 'AI transaction categorization requires BYOK mode.';
+      setAiError(msg);
+      throw new Error(msg);
     }
     const hasKey =
       aiSettings._decryptedApiKey ||
       (aiSettings.useServerKey && aiSettings.serverKeyAvailable);
     if (aiSettings.mode === 'byok' && !hasKey) {
-      setAiError('Please configure your API key in AI Settings first (or ensure the server has an API key).');
-      return;
+      const msg = 'Please configure your API key in AI Settings first (or ensure the server has an API key).';
+      setAiError(msg);
+      throw new Error(msg);
     }
 
     // Set up abort controller
     const abortController = new AbortController();
     categorizationAbortRef.current = abortController;
 
-    const store = useDeductionFinderStore.getState();
     store.setIsCategorizing(true);
     store.setCategorizationProgress(null);
     setAiError(null);
 
     try {
       // 1. Deduplicate by merchant
-      const merchants = deduplicateByMerchant(allTransactions);
+      const merchants = deduplicateByMerchant(transactions);
       store.setCategorizationProgress(`0 / ${merchants.length} merchants`);
 
       // 2. Build context
@@ -417,6 +425,7 @@ export function useDeductionFinder(): UseDeductionFinderResult {
       const enabledCats = store.enabledCategories as import('../services/transactionCategorizerTypes').TransactionCategory[];
       const hints = taxReturn?.expenseScanner?.contextHints || {};
 
+      console.log('[categorizer] Calling categorizeWithAI', { merchantCount: merchants.length, enabledCats: enabledCats.length, provider: options.provider, model: options.model });
       const aiCategories = await categorizeWithAI(
         merchants,
         context,
@@ -425,12 +434,13 @@ export function useDeductionFinder(): UseDeductionFinderResult {
         enabledCats.length > 0 ? enabledCats : undefined,
         Object.keys(hints).length > 0 ? hints : undefined,
       );
+      console.log('[categorizer] categorizeWithAI returned', aiCategories.size, 'categories');
 
       // 4. Fan out to individual transactions
-      const categorized = fanOutCategories(allTransactions, merchants, aiCategories);
+      const categorized = fanOutCategories(transactions, merchants, aiCategories);
 
       // 5. Cross-validate with pattern engine (pass context hints so gates respect user answers)
-      crossValidate(categorized, allTransactions, context, hints);
+      crossValidate(categorized, transactions, context, hints);
 
       // 6. Build result
       const result = buildCategorizationResult(categorized);
@@ -439,11 +449,12 @@ export function useDeductionFinder(): UseDeductionFinderResult {
       console.log(`[categorizer] Done: ${result.summaries.length} categories, $${result.estimatedDeductibleTotal.toLocaleString()} estimated deductible`);
     } catch (err) {
       setAiError(err instanceof Error ? err.message : 'AI categorization failed');
+      throw err;
     } finally {
       store.setIsCategorizing(false);
       store.setCategorizationProgress(null);
     }
-  }, [taxReturn, calculation, allTransactions, setAiError]);
+  }, [taxReturn, calculation, setAiError]);
 
   return {
     allTransactions,

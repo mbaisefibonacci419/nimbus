@@ -71,7 +71,7 @@ export default function Form8582DataStep() {
             className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
           />
           <div>
-            <span className="text-sm text-slate-200 group-hover:text-white">
+            <span className="text-sm text-slate-200 group-hover:text-slate-100">
               I qualify as a real estate professional under IRC §469(c)(7)
             </span>
             <p className="text-xs text-slate-500 mt-1">

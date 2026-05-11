@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { chartPalette, dataLabelFontDark, tooltipStyle, useChartTheme } from '../../hooks/useChartTheme';
 import {
   ChartComponent, SeriesCollectionDirective, SeriesDirective,
   Inject, StackingBarSeries, Category, Tooltip, DataLabel,
@@ -13,6 +14,7 @@ interface CreditsStackedBarProps {
 const fmtDollars = (v: number): string => `$${v.toLocaleString()}`;
 
 export default function CreditsStackedBar({ nonRefundable, refundable }: CreditsStackedBarProps) {
+  const t = useChartTheme();
   const total = nonRefundable + refundable;
   if (total <= 0) return null;
 
@@ -55,9 +57,7 @@ export default function CreditsStackedBar({ nonRefundable, refundable }: Credits
         chartArea={{ border: { width: 0 } }}
         tooltip={{
           enable: true,
-          fill: '#1C1C1F',
-          border: { color: '#3E3E44', width: 1 },
-          textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+          ...tooltipStyle(t),
         }}
         textRender={textRender}
         tooltipRender={tooltipRender}
@@ -81,14 +81,14 @@ export default function CreditsStackedBar({ nonRefundable, refundable }: Credits
             yName="nonRefundable"
             name="Nonrefundable"
             type="StackingBar"
-            fill="#FB923C"
+            fill={chartPalette.orangeLight}
             columnWidth={0.7}
             cornerRadius={{ topLeft: 4, bottomLeft: 4 }}
             marker={{
               dataLabel: {
                 visible: nonRefundable > 0,
                 position: 'Middle',
-                font: { color: '#1C1C1F', fontFamily: 'Inter Variable, sans-serif', size: '12px', fontWeight: '700' },
+                font: dataLabelFontDark(t),
               },
             }}
           />
@@ -98,14 +98,14 @@ export default function CreditsStackedBar({ nonRefundable, refundable }: Credits
             yName="refundable"
             name="Refundable"
             type="StackingBar"
-            fill="#34D399"
+            fill={chartPalette.greenLight}
             columnWidth={0.7}
             cornerRadius={{ topRight: 4, bottomRight: 4 }}
             marker={{
               dataLabel: {
                 visible: refundable > 0,
                 position: 'Middle',
-                font: { color: '#1C1C1F', fontFamily: 'Inter Variable, sans-serif', size: '12px', fontWeight: '700' },
+                font: dataLabelFontDark(t),
               },
             }}
           />

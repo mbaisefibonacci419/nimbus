@@ -54,7 +54,7 @@ function MetricRow({ label, prior, current, format = 'dollar' }: {
       <div className="flex items-center gap-2 text-right">
         <span className="text-slate-400 w-24 text-right">{fmt(prior)}</span>
         <ArrowRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-        <span className="text-white w-24 text-right font-medium">{fmt(current)}</span>
+        <span className="text-slate-100 w-24 text-right font-medium">{fmt(current)}</span>
         {!isZero && (
           <span className={`flex items-center gap-0.5 w-28 justify-end text-xs ${isUp ? 'text-amber-400' : 'text-emerald-400'}`}>
             <DeltaIcon className="w-3 h-3" />

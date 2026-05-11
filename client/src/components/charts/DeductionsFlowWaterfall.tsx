@@ -5,6 +5,7 @@ import {
   type IPointRenderEventArgs, type ITooltipRenderEventArgs, type ITextRenderEventArgs,
   type IMouseEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import { useChartTheme, chartPalette, tooltipStyle, axisLabelStyle, dataLabelFont } from '../../hooks/useChartTheme';
 
 interface WaterfallStep {
   x: string;
@@ -26,21 +27,21 @@ interface DeductionsFlowWaterfallProps {
   onBarClick?: (stepId: string) => void;
 }
 
-const COLORS: Record<string, string> = {
-  income: '#3B82F6',
-  adjustment: '#F59E0B',
-  agi: '#94A3B8',
-  deduction: '#14B8A6',
-  qbi: '#06B6D4',
-  taxableIncome: '#94A3B8',
-};
-
 const fmtDollars = (v: number): string => `$${Math.abs(v).toLocaleString()}`;
 
 export default function DeductionsFlowWaterfall({
   totalIncome, totalAdjustments, agi, deductionAmount, deductionLabel,
   qbiDeduction, taxableIncome, onBarClick,
 }: DeductionsFlowWaterfallProps) {
+  const t = useChartTheme();
+  const COLORS: Record<string, string> = {
+    income: chartPalette.blue,
+    adjustment: chartPalette.amber,
+    agi: t.axisLabel,
+    deduction: chartPalette.teal,
+    qbi: chartPalette.cyan,
+    taxableIncome: t.axisLabel,
+  };
   if (totalIncome <= 0) return null;
 
   const { steps, intermediateSumIndexes, sumIndexes } = useMemo(() => {
@@ -68,8 +69,8 @@ export default function DeductionsFlowWaterfall({
 
   const pointRender = useCallback((args: IPointRenderEventArgs): void => {
     const step = steps[args.point.index];
-    if (step) args.fill = COLORS[step.colorKey] || '#64748B';
-  }, [steps]);
+    if (step) args.fill = COLORS[step.colorKey] || t.axisLabel;
+  }, [steps, t]);
 
   const textRender = useCallback((args: ITextRenderEventArgs): void => {
     const step = steps[(args.point as any)?.index];
@@ -107,9 +108,7 @@ export default function DeductionsFlowWaterfall({
       chartArea={{ border: { width: 0 } }}
       tooltip={{
         enable: true,
-        fill: '#1C1C1F',
-        border: { color: '#3E3E44', width: 1 },
-        textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+        ...tooltipStyle(t),
       }}
       pointRender={pointRender}
       textRender={textRender}
@@ -118,7 +117,7 @@ export default function DeductionsFlowWaterfall({
       primaryXAxis={{
         valueType: 'Category',
         isInversed: true,
-        labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+        labelStyle: axisLabelStyle(t),
         majorGridLines: { width: 0 },
         majorTickLines: { width: 0 },
         lineStyle: { width: 0 },
@@ -141,12 +140,12 @@ export default function DeductionsFlowWaterfall({
           sumIndexes={sumIndexes}
           columnWidth={0.55}
           cornerRadius={{ topLeft: 3, topRight: 3, bottomLeft: 3, bottomRight: 3 }}
-          connector={{ color: '#3E3E44', width: 1, dashArray: '4,3' }}
+          connector={{ color: t.connector, width: 1, dashArray: '4,3' }}
           marker={{
             dataLabel: {
               visible: true,
               position: 'Outer',
-              font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+              font: dataLabelFont(t),
             },
           }}
         />

@@ -1,10 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   ChartComponent, SeriesCollectionDirective, SeriesDirective,
   Inject, BarSeries, Category, Tooltip, DataLabel,
   type IPointRenderEventArgs, type ITooltipRenderEventArgs, type ITextRenderEventArgs,
   type IMouseEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import { useChartTheme, tooltipStyle, axisLabelStyle, dataLabelFont, chartPalette } from '../../hooks/useChartTheme';
 
 interface CategoryBarChartProps {
   items: Array<{ label: string; value: number; stepId: string }>;
@@ -12,22 +13,28 @@ interface CategoryBarChartProps {
   colors?: string[];
 }
 
-const COLORS = [
-  '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#14B8A6',
-  '#EF4444', '#F97316', '#EC4899', '#06B6D4', '#84CC16',
+const PALETTE = [
+  chartPalette.blue, chartPalette.emerald, chartPalette.amber, chartPalette.violet, chartPalette.teal,
+  chartPalette.red, chartPalette.orange, chartPalette.pink, chartPalette.cyan, chartPalette.lime,
 ];
 
 const fmtDollars = (v: number): string => `$${v.toLocaleString()}`;
 
 export default function CategoryBarChart({ items: rawItems, onBarClick, colors }: CategoryBarChartProps) {
-  if (rawItems.length === 0) return null;
+  const t = useChartTheme();
 
-  const items = [...rawItems].sort((a, b) => b.value - a.value);
-  const data = items.map((item) => ({ x: item.label, y: item.value, stepId: item.stepId }));
-  const total = items.reduce((s, i) => s + i.value, 0);
+  const items = useMemo(
+    () => [...rawItems].sort((a, b) => b.value - a.value),
+    [rawItems],
+  );
+  const data = useMemo(
+    () => items.map((item) => ({ x: item.label, y: item.value, stepId: item.stepId })),
+    [items],
+  );
+  const total = useMemo(() => items.reduce((s, i) => s + i.value, 0), [items]);
 
   const pointRender = useCallback((args: IPointRenderEventArgs): void => {
-    args.fill = colors?.[args.point.index] || COLORS[args.point.index % COLORS.length];
+    args.fill = colors?.[args.point.index] || PALETTE[args.point.index % PALETTE.length];
   }, [colors]);
 
   const textRender = useCallback((args: ITextRenderEventArgs): void => {
@@ -53,6 +60,8 @@ export default function CategoryBarChart({ items: rawItems, onBarClick, colors }
 
   const chartHeight = `${Math.max(120, data.length * 40 + 20)}px`;
 
+  if (rawItems.length === 0) return null;
+
   return (
     <ChartComponent
       height={chartHeight}
@@ -60,9 +69,7 @@ export default function CategoryBarChart({ items: rawItems, onBarClick, colors }
       chartArea={{ border: { width: 0 } }}
       tooltip={{
         enable: true,
-        fill: '#1C1C1F',
-        border: { color: '#3E3E44', width: 1 },
-        textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+        ...tooltipStyle(t),
       }}
       pointRender={pointRender}
       textRender={textRender}
@@ -71,7 +78,7 @@ export default function CategoryBarChart({ items: rawItems, onBarClick, colors }
       primaryXAxis={{
         valueType: 'Category',
         isInversed: true,
-        labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+        labelStyle: axisLabelStyle(t),
         majorGridLines: { width: 0 },
         majorTickLines: { width: 0 },
         lineStyle: { width: 0 },
@@ -96,7 +103,7 @@ export default function CategoryBarChart({ items: rawItems, onBarClick, colors }
             dataLabel: {
               visible: true,
               position: 'Outer',
-              font: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '11px', fontWeight: '600' },
+              font: dataLabelFont(t),
             },
           }}
         />

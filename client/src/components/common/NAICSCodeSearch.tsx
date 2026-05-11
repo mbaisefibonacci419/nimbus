@@ -118,7 +118,7 @@ export default function NAICSCodeSearch({ value, onChange, id }: NAICSCodeSearch
         <div className="input-field flex items-center justify-between gap-2 cursor-pointer" onClick={() => { clearSelection(); setTimeout(() => inputRef.current?.focus(), 50); }}>
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-telos-blue-400 font-mono text-sm shrink-0">{selectedEntry.code}</span>
-            <span className="text-white truncate">{selectedEntry.description}</span>
+            <span className="text-slate-100 truncate">{selectedEntry.description}</span>
             {selectedEntry.isSSTB && (
               <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded">
                 <AlertTriangle className="w-2.5 h-2.5" />
@@ -181,7 +181,7 @@ export default function NAICSCodeSearch({ value, onChange, id }: NAICSCodeSearch
               aria-selected={idx === highlightIndex}
               className={`px-3 py-2 cursor-pointer flex items-center gap-2 text-sm border-b border-slate-700/50 last:border-b-0 transition-colors ${
                 idx === highlightIndex
-                  ? 'bg-telos-blue-500/20 text-white'
+                  ? 'bg-telos-blue-500/20 text-slate-100'
                   : 'text-slate-300 hover:bg-slate-700/50'
               }`}
               onClick={() => selectEntry(entry)}

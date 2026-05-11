@@ -150,13 +150,13 @@ export default function SelfEmploymentSummaryStep() {
         <div className="space-y-0 divide-y divide-slate-700/50">
           <div className="flex items-center justify-between py-2.5">
             <span className="text-sm text-slate-300">Gross Receipts</span>
-            <span className="text-sm font-medium text-white tabular-nums">${grossReceipts.toLocaleString()}</span>
+            <span className="text-sm font-medium text-slate-100 tabular-nums">${grossReceipts.toLocaleString()}</span>
           </div>
           {(schedC?.costOfGoodsSold || 0) > 0 && (
             <div className="flex items-center justify-between py-2.5">
               <span className="text-sm text-slate-300">Cost of Goods Sold</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-white tabular-nums">-${schedC!.costOfGoodsSold.toLocaleString()}</span>
+                <span className="text-sm font-medium text-slate-100 tabular-nums">-${schedC!.costOfGoodsSold.toLocaleString()}</span>
                 {editBtn('cost_of_goods_sold')}
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function SelfEmploymentSummaryStep() {
           <div className="flex items-center justify-between py-2.5">
             <span className="text-sm text-slate-300">Business Expenses</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white tabular-nums">-${(schedC?.totalExpenses || 0).toLocaleString()}</span>
+              <span className="text-sm font-medium text-slate-100 tabular-nums">-${(schedC?.totalExpenses || 0).toLocaleString()}</span>
               {editBtn('expense_categories')}
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function SelfEmploymentSummaryStep() {
             <div className="flex items-center justify-between py-2.5">
               <span className="text-sm text-slate-300 flex items-center gap-1.5"><Home className="w-3.5 h-3.5 text-slate-400" />Home Office</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-white tabular-nums">-${(schedC?.homeOfficeDeduction || 0).toLocaleString()}</span>
+                <span className="text-sm font-medium text-slate-100 tabular-nums">-${(schedC?.homeOfficeDeduction || 0).toLocaleString()}</span>
                 {editBtn('home_office')}
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function SelfEmploymentSummaryStep() {
             <div className="flex items-center justify-between py-2.5">
               <span className="text-sm text-slate-300 flex items-center gap-1.5"><Car className="w-3.5 h-3.5 text-slate-400" />Vehicle</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-white tabular-nums">-${(schedC?.vehicleDeduction || 0).toLocaleString()}</span>
+                <span className="text-sm font-medium text-slate-100 tabular-nums">-${(schedC?.vehicleDeduction || 0).toLocaleString()}</span>
                 {editBtn('vehicle_expenses')}
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function SelfEmploymentSummaryStep() {
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-slate-300 flex items-center gap-1.5"><HeartPulse className="w-3.5 h-3.5 text-slate-400" />Health Insurance</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-white tabular-nums">-${seHealthInsurance.toLocaleString()}</span>
+                  <span className="text-sm font-medium text-slate-100 tabular-nums">-${seHealthInsurance.toLocaleString()}</span>
                   {editBtn('se_health_insurance')}
                 </div>
               </div>
@@ -220,7 +220,7 @@ export default function SelfEmploymentSummaryStep() {
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-slate-300 flex items-center gap-1.5"><PiggyBank className="w-3.5 h-3.5 text-slate-400" />Retirement (SEP/Solo 401k)</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-white tabular-nums">-${seRetirement.toLocaleString()}</span>
+                  <span className="text-sm font-medium text-slate-100 tabular-nums">-${seRetirement.toLocaleString()}</span>
                   {editBtn('se_retirement')}
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function SelfEmploymentSummaryStep() {
             {seTaxDeductible > 0 && (
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-slate-300">SE Tax Deduction (50%)</span>
-                <span className="text-sm font-medium text-white tabular-nums">-${seTaxDeductible.toLocaleString()}</span>
+                <span className="text-sm font-medium text-slate-100 tabular-nums">-${seTaxDeductible.toLocaleString()}</span>
               </div>
             )}
           </div>
@@ -251,7 +251,7 @@ export default function SelfEmploymentSummaryStep() {
           </div>
           <div className="flex justify-between text-xs mt-1">
             <span className="text-slate-400">Deductible half (reduces AGI)</span>
-            <span className="text-white">-${seTaxDeductible.toLocaleString()}</span>
+            <span className="text-slate-100">-${seTaxDeductible.toLocaleString()}</span>
           </div>
         </div>
       )}

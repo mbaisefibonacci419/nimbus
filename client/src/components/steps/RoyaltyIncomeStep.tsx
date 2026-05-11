@@ -274,7 +274,7 @@ export default function RoyaltyIncomeStep() {
       {items.length > 0 && (
         <div className="card mt-4 text-center py-4">
           <div className="text-slate-400 text-sm mb-1">Net Royalty Income</div>
-          <div className={`text-2xl font-bold ${netRoyaltyIncome >= 0 ? 'text-white' : 'text-red-400'}`}>
+          <div className={`text-2xl font-bold ${netRoyaltyIncome >= 0 ? 'text-slate-100' : 'text-red-400'}`}>
             ${netRoyaltyIncome.toLocaleString()}
           </div>
         </div>

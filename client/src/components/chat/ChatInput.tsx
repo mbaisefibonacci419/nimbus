@@ -292,7 +292,7 @@ export default function ChatInput({ onSend, onAttachFile, disabled, isLoading, o
           placeholder={isListening ? 'Listening...' : 'Ask about your taxes or enter data...'}
           disabled={disabled}
           rows={1}
-          className="w-full bg-transparent px-4 pt-3 pb-1 text-sm text-white
+          className="w-full bg-transparent px-4 pt-3 pb-1 text-sm text-slate-100
                      placeholder-slate-500 resize-none focus:outline-none
                      disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ minHeight: '36px', maxHeight: '120px' }}
@@ -306,7 +306,7 @@ export default function ChatInput({ onSend, onAttachFile, disabled, isLoading, o
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled}
               className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full
-                         border border-slate-600/50 text-slate-400 hover:text-white hover:bg-surface-700
+                         border border-slate-600/50 text-slate-400 hover:text-slate-100 hover:bg-surface-700
                          hover:border-slate-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               aria-label="Attach a tax document"
               title="Attach a tax document (PDF or photo)"
@@ -340,7 +340,7 @@ export default function ChatInput({ onSend, onAttachFile, disabled, isLoading, o
                          transition-colors disabled:opacity-30 disabled:cursor-not-allowed
                          ${isListening
                            ? 'bg-red-600 hover:bg-red-500 text-white voice-pulse'
-                           : 'text-slate-400 hover:text-white hover:bg-surface-700'
+                           : 'text-slate-400 hover:text-slate-100 hover:bg-surface-700'
                          }`}
               aria-label={isListening ? 'Stop listening' : 'Start voice input'}
               title={isListening ? 'Stop listening' : 'Voice input'}

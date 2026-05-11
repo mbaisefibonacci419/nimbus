@@ -26,8 +26,8 @@ export default function ReviewForm1040Step() {
   const Row = ({ label, amount, bold, indent, trace }: { label: string; amount: number; bold?: boolean; indent?: boolean; trace?: CalculationTrace }) => (
     <div className={indent ? 'pl-4' : ''}>
       <div className="flex justify-between py-1.5">
-        <span className={bold ? 'text-white font-medium' : 'text-slate-300'}>{label}</span>
-        <span className={bold ? 'text-white font-semibold' : 'text-slate-200'}>${amount.toLocaleString()}</span>
+        <span className={bold ? 'text-slate-100 font-medium' : 'text-slate-300'}>{label}</span>
+        <span className={bold ? 'text-slate-100 font-semibold' : 'text-slate-200'}>${amount.toLocaleString()}</span>
       </div>
       {trace && <TraceDisclosure trace={trace} />}
     </div>
@@ -95,7 +95,7 @@ export default function ReviewForm1040Step() {
           {f.capitalLossDeduction > 0 && (
             <div className="flex justify-between py-1.5">
               <span className="text-slate-300">Capital Loss Deduction</span>
-              <span className="text-white">-${f.capitalLossDeduction.toLocaleString()}</span>
+              <span className="text-slate-100">-${f.capitalLossDeduction.toLocaleString()}</span>
             </div>
           )}
           {f.totalRetirementIncome > 0 && <Row label="Retirement Distributions (Line 4b)" amount={f.totalRetirementIncome} />}
@@ -108,7 +108,7 @@ export default function ReviewForm1040Step() {
           {f.scheduleEIncome !== 0 && (
             <div className="flex justify-between py-1.5">
               <span className="text-slate-300">Schedule E Rental Income</span>
-              <span className="text-white">
+              <span className="text-slate-100">
                 {f.scheduleEIncome < 0 ? '-' : ''}${Math.abs(f.scheduleEIncome).toLocaleString()}
               </span>
             </div>
@@ -132,7 +132,7 @@ export default function ReviewForm1040Step() {
             <div className="border-t border-slate-700 mt-1 pt-1">
               <div>
               <div className="flex justify-between py-1.5">
-                <span className="text-white font-medium">Total Adjustments (Line 10)</span>
+                <span className="text-slate-100 font-medium">Total Adjustments (Line 10)</span>
                 <span className="text-telos-orange-400 font-semibold">${f.totalAdjustments.toLocaleString()}</span>
               </div>
               {findTrace('form1040.line10') && <TraceDisclosure trace={findTrace('form1040.line10')!} />}
@@ -166,7 +166,7 @@ export default function ReviewForm1040Step() {
           <div className="border-t border-slate-700 mt-1 pt-1">
             <div>
               <div className="flex justify-between py-1.5">
-                <span className="text-white font-medium">Total Tax</span>
+                <span className="text-slate-100 font-medium">Total Tax</span>
                 <span className="text-amber-400 font-semibold">${f.totalTax.toLocaleString()}</span>
               </div>
               {findTrace('form1040.line24') && <TraceDisclosure trace={findTrace('form1040.line24')!} />}
@@ -190,7 +190,7 @@ export default function ReviewForm1040Step() {
             <div className="border-t border-slate-700 mt-1 pt-1">
               <div>
                 <div className="flex justify-between py-1.5">
-                  <span className="text-white font-medium">Total Credits</span>
+                  <span className="text-slate-100 font-medium">Total Credits</span>
                   <span className="text-emerald-400 font-semibold">${f.totalCredits.toLocaleString()}</span>
                 </div>
                 {findTrace('form1040.line21') && <TraceDisclosure trace={findTrace('form1040.line21')!} />}

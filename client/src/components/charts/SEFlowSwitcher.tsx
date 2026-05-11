@@ -54,8 +54,8 @@ export default function SEFlowSwitcher(props: SEFlowSwitcherProps) {
                 onClick={() => setView(m.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   view === m.id
-                    ? 'bg-surface-700 text-white'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-surface-700 text-slate-100'
+                    : 'text-slate-400 hover:text-slate-100'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />

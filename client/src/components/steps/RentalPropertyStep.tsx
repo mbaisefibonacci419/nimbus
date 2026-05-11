@@ -210,7 +210,7 @@ export default function RentalPropertyStep() {
             className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
           />
           <div>
-            <span className="text-sm text-slate-200 group-hover:text-white">
+            <span className="text-sm text-slate-200 group-hover:text-slate-100">
               Active participation
             </span>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -235,7 +235,7 @@ export default function RentalPropertyStep() {
             className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
           />
           <div>
-            <span className="text-sm text-slate-200 group-hover:text-white">
+            <span className="text-sm text-slate-200 group-hover:text-slate-100">
               Disposed of this property during the year
             </span>
             <p className="text-xs text-slate-500 mt-0.5">

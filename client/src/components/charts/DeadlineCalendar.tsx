@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { chartPalette } from '../../hooks/useChartTheme';
+
+const STATUS_COLORS: Record<string, string> = {
+  overdue: chartPalette.red,
+  due_soon: chartPalette.amber,
+  upcoming: chartPalette.blue,
+  completed: chartPalette.emerald,
+};
 
 interface DeadlineEvent {
   label: string;
@@ -11,13 +19,6 @@ interface DeadlineEvent {
 interface DeadlineCalendarProps {
   deadlines: DeadlineEvent[];
 }
-
-const STATUS_COLORS: Record<string, string> = {
-  overdue:   '#EF4444',
-  due_soon:  '#F59E0B',
-  upcoming:  '#3B82F6',
-  completed: '#10B981',
-};
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -198,7 +199,7 @@ export default function DeadlineCalendar({ deadlines }: DeadlineCalendarProps) {
                 <span className="text-xs font-medium text-slate-200 truncate">{ev.label}</span>
               </div>
               {ev.amount != null && ev.amount > 0 && (
-                <span className="text-xs font-semibold text-white ml-3.5">{fmtDollars(ev.amount)}</span>
+                <span className="text-xs font-semibold text-slate-100 ml-3.5">{fmtDollars(ev.amount)}</span>
               )}
             </div>
           ))}

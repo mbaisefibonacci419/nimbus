@@ -183,7 +183,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isOpen: false,
   isLoading: false,
   streamingContent: null,
-  hasAcceptedDisclaimer: false,
+  hasAcceptedDisclaimer: true,
   isAvailable: false,
   modelName: null,
   error: null,

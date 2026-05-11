@@ -39,7 +39,7 @@ export default function ApplyToReturnModal({ transactions, onConfirm, onCancel }
           <h2 className="text-base font-semibold text-slate-200">Apply to your return</h2>
           <button
             onClick={onCancel}
-            className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-surface-700 transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-100 rounded-md hover:bg-surface-700 transition-colors"
           >
             <X size={16} />
           </button>

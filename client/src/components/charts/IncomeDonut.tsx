@@ -12,6 +12,7 @@ import {
   type IAccTextRenderEventArgs,
   type IMouseEventArgs,
 } from '@syncfusion/ej2-react-charts';
+import { useChartTheme, chartPalette, tooltipStyle, dataLabelFont } from '../../hooks/useChartTheme';
 
 interface IncomeDonutProps {
   items: Array<{ label: string; value: number; stepId: string }>;
@@ -19,9 +20,17 @@ interface IncomeDonutProps {
   height?: string;
 }
 
-const COLORS = [
-  '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#14B8A6',
-  '#EF4444', '#F97316', '#EC4899', '#06B6D4', '#84CC16',
+const DONUT_PALETTE = [
+  chartPalette.blue,
+  chartPalette.emerald,
+  chartPalette.amber,
+  chartPalette.violet,
+  chartPalette.teal,
+  chartPalette.red,
+  chartPalette.orange,
+  chartPalette.pink,
+  chartPalette.cyan,
+  chartPalette.lime,
 ];
 
 const fmtCompact = (v: number): string => {
@@ -33,6 +42,8 @@ const fmtCompact = (v: number): string => {
 const fmtDollars = (v: number): string => `$${v.toLocaleString()}`;
 
 export default function IncomeDonut({ items: rawItems, onSliceClick, height = '640px' }: IncomeDonutProps) {
+  const t = useChartTheme();
+
   if (rawItems.length === 0) return null;
 
   // Sort descending so large slices spread around the ring,
@@ -41,7 +52,7 @@ export default function IncomeDonut({ items: rawItems, onSliceClick, height = '6
   const total = items.reduce((s, i) => s + i.value, 0);
 
   const pointRender = useCallback((args: IAccPointRenderEventArgs): void => {
-    args.fill = COLORS[args.point.index % COLORS.length];
+    args.fill = DONUT_PALETTE[args.point.index % DONUT_PALETTE.length];
   }, []);
 
   const tooltipRender = useCallback((args: IAccTooltipRenderEventArgs): void => {
@@ -71,12 +82,7 @@ export default function IncomeDonut({ items: rawItems, onSliceClick, height = '6
         height={height}
           background="transparent"
           legendSettings={{ visible: false }}
-          tooltip={{
-            enable: true,
-            fill: '#1C1C1F',
-            border: { color: '#3E3E44', width: 1 },
-            textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
-          }}
+          tooltip={{ enable: true, ...tooltipStyle(t) }}
           pointRender={pointRender}
           tooltipRender={tooltipRender}
           textRender={textRender}
@@ -94,13 +100,8 @@ export default function IncomeDonut({ items: rawItems, onSliceClick, height = '6
               dataLabel={{
                 visible: true,
                 position: 'Outside',
-                connectorStyle: { length: '40px', color: '#3E3E44', width: 1 },
-                font: {
-                  color: '#E2E8F0',
-                  fontFamily: 'Inter Variable, sans-serif',
-                  size: '11px',
-                  fontWeight: '600',
-                },
+                connectorStyle: { length: '40px', color: t.connector, width: 1 },
+                font: dataLabelFont(t),
               }}
             />
           </AccumulationSeriesCollectionDirective>

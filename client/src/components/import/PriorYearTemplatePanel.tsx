@@ -239,7 +239,7 @@ export default function PriorYearTemplatePanel({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="text-slate-400 hover:text-white transition-colors">
+        <button onClick={onBack} className="text-slate-400 hover:text-slate-100 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
@@ -269,7 +269,7 @@ export default function PriorYearTemplatePanel({
             Select All
           </button>
           <span className="text-slate-600">|</span>
-          <button onClick={selectNone} className="text-xs text-slate-400 hover:text-white transition-colors">
+          <button onClick={selectNone} className="text-xs text-slate-400 hover:text-slate-100 transition-colors">
             None
           </button>
         </div>

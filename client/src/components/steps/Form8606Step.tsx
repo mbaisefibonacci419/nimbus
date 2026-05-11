@@ -76,7 +76,7 @@ export default function Form8606Step() {
         <div className="rounded-xl border p-6 mt-4 bg-telos-blue-600/10 border-telos-blue-600/30">
           <div className="text-center mb-2">
             <p className="text-sm text-slate-400">Taxable Conversion Amount (estimated)</p>
-            <p className="text-2xl font-bold text-white">${taxableConversion.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-slate-100">${taxableConversion.toLocaleString()}</p>
           </div>
           <div className="flex items-start gap-2 mt-2">
             <AlertTriangle className="w-4 h-4 text-telos-blue-400 shrink-0 mt-0.5" />

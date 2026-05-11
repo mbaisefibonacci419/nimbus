@@ -1,0 +1,70 @@
+---
+description: CG Tax Playbook — shared foundation for understanding the TurboTax business, funnel, metrics, and data analysis. Essential context for any TurboTax data query, experiment analysis, or business question.
+alwaysApply: true
+---
+
+# TurboTax Tax Playbook Reference
+
+Use this context to inform TurboTax-related analysis, queries, and business questions. Follow the analytical rules below when they're relevant — don't force them into unrelated responses.
+
+**Live source document (Google Doc):** `1dvwR8b5xC1Fo39B1XAzr-J9w0NCzsKmYBttsFDYCfNA`
+
+When deeper detail is needed on any TurboTax concept, metric definition, or business process, read the full playbook using the Google Drive MCP:
+
+```
+CallMcpTool: server=user-google-drive-mcp, toolName=read_document
+arguments: {"document_id": "1dvwR8b5xC1Fo39B1XAzr-J9w0NCzsKmYBttsFDYCfNA", "tab_id": "t.0"}
+```
+
+The document is large (~125K chars). The content line (line 4) contains the full text. Use `python3` to extract portions by character offset if the Read tool truncates.
+
+Owner: CG Data Innovation Team | Slack: #cg-tax-playbook-support
+
+---
+
+## Quick-Reference Summary
+
+Below is a condensed summary for immediate context. Always consult the live Google Doc for authoritative detail.
+
+### Analytical Rules (always follow for TurboTax work)
+- **Never label a user as "abandoned" without caveat.** The funnel is multi-session and non-linear — users take multiple sessions (sometimes months) to complete. Always note that apparent abandoners may return before the April 15 deadline.
+- **Always state whether you're using First or Last data.** Customer attributes update over time as customers return. Default to *last* status unless explicitly told otherwise.
+- **Always control for product depth when comparing groups.** At traffic level we know almost nothing; after auth we know new vs returning; deeper in the funnel we learn income, deductions, SE/Investor status, SKU. Conversion rates increase with depth (FnF: 92% S2C vs overall ~76%). A comparison that ignores depth is misleading.
+- **When an overall metric moves unexpectedly, break it out by New/Returning and Free/Paid before reporting.** Simpson's Paradox is common in TurboTax data — mix shifts can cause overall metrics to move opposite to underlying cohorts. Always check for mix shift before attributing movement to a real change.
+- **When reporting any TurboTax metric, specify the Season Part (see table below) and note implications** (e.g., Early Season = noisy small samples, Off Season = high fraud %, Trough = complex filers skewing averages).
+
+### Season Parts
+| Season Part | Approx. Dates | Notes |
+|---|---|---|
+| Early Season | Dec 1 – ~Jan 15 | <0.01% of completers; noisy data |
+| First Peak | ~Jan 16 – Feb 14 | W2 availability drives volume |
+| Trough | ~Feb 15 – Apr 5 | Complex filers |
+| Second Peak | ~Apr 6 – Apr 20 | Deadline surge |
+| Off Season | ~Apr 21 – Oct 10 | ~6k daily users; high fraud % |
+| Third Peak | ~Oct 11 – Oct 16 | Extension deadline |
+
+### Core Metrics
+- **Top of Funnel**: Traffic, Engaged Traffic, Auth(V), V2L, T2A, T2eT, eT2A
+- **In-Product**: Starts (first SKU assignment), S2C (cumulative), Activity Conversion (daily), WIP Population, Revisit Rate, Abandonment Contribution
+- **Monetization**: Estimated Revenue, ARPC, RPV, Plus/Max/RT/State Bundle Attach Rates
+- **Retention**: C2C (Complete to Complete) by tenure (1st-year, 2nd-3rd year, 4+ year), C2A, C2S
+- **Acquisition**: New Accounts, Prospects, Skip-years, Winbacks
+- **Experimentation**: Bayesian AB Testing (default), IXP for assignment, alphabeta app for monitoring
+- **Attribution**: Last Channel before First Auth; incrementality tests are most trusted
+- **Forecasting**: November Forecast → Macro/Customer/Priority/Product views → Daily Curves → Current Estimates
+
+### Market Context
+- ~160M US individual filings/year; DIY ~75M, Assisted ~85M
+- TurboTax: ~45M returns, ~30% total market, 60%+ DIY, <1% Assisted
+- Assisted ARPC ~$250 (2x+ TT ARPC) — major growth opportunity
+- Key competitors: H&R Block (~20M), FreeTaxUSA (~8M), TaxAct, TaxSlayer
+
+### Key Data Tables
+- `tax_rpt.rpt_central_testing_analytics` — A/B test data
+- `ixp_dwh.ixp_first_assignment` — IXP experiment assignments
+- `tax_src.visitor_session_global` — Session-level data
+- `tax_dm.sub_taxorder_fed_first` — First federal order per user
+- `tax_rpt.agg_marketing_analytics` — Marketing attribution and funnel
+
+### Data Access
+To query CG data: request "Data Analyst" role on DevPortal project CG Business Mastery 7216 (ID: 1664097655646755058). File a CTDI Jira ticket (template: CTDI-15424). Required training: 7216 Tax Data Use and Sharing Training & Limited Use Opt-out Training.

@@ -515,7 +515,7 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
                 <span className="text-xs font-medium text-slate-300">Select a field to ask about</span>
                 <button
                   onClick={() => { setFieldSelectorOpen(false); setFieldSearch(''); }}
-                  className="p-0.5 text-slate-400 hover:text-white transition-colors"
+                  className="p-0.5 text-slate-400 hover:text-slate-100 transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -526,7 +526,7 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
                   placeholder="Search fields..."
                   value={fieldSearch}
                   onChange={e => setFieldSearch(e.target.value)}
-                  className="w-full bg-surface-800 border border-surface-500 rounded-lg px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-telos-blue-400 transition-colors"
+                  className="w-full bg-surface-800 border border-surface-500 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-telos-blue-400 transition-colors"
                   autoFocus
                 />
               </div>
@@ -541,7 +541,7 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
                       className="w-full text-left px-3 py-2 hover:bg-surface-600 transition-colors group"
                     >
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm text-slate-200 group-hover:text-white truncate">{f.label}</span>
+                        <span className="text-sm text-slate-200 group-hover:text-slate-100 truncate">{f.label}</span>
                         {!f.isEditable && (
                           <span className="shrink-0 text-[10px] text-slate-500 bg-surface-800 px-1.5 py-0.5 rounded">auto</span>
                         )}
@@ -575,7 +575,7 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
                   className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition-colors ${
                     fieldSelectorOpen
                       ? 'bg-telos-blue-500/20 text-telos-blue-300'
-                      : 'text-slate-300 hover:bg-surface-600 hover:text-white'
+                      : 'text-slate-300 hover:bg-surface-600 hover:text-slate-100'
                   }`}
                   title="Ask AI about a specific field"
                 >
@@ -587,7 +587,7 @@ export default function PdfFormViewer({ template, instanceIndex }: PdfFormViewer
 
                 <button
                   onClick={handleReviewForm}
-                  className="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-slate-300 hover:bg-surface-600 hover:text-white transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-slate-300 hover:bg-surface-600 hover:text-slate-100 transition-colors"
                   title="AI review of this form"
                 >
                   <ClipboardCheck size={16} />

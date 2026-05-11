@@ -169,7 +169,7 @@ export default function ArcherMSAStep() {
               <h3 className="font-medium text-slate-200">Employer Contributions Detected</h3>
             </div>
             <p className="text-sm text-slate-400">
-              Your W-2(s) show <span className="text-white font-medium">${employerContributions.toLocaleString()}</span> in employer Archer MSA contributions (Box 12 Code R). These are already excluded from your taxable wages.
+              Your W-2(s) show <span className="text-slate-100 font-medium">${employerContributions.toLocaleString()}</span> in employer Archer MSA contributions (Box 12 Code R). These are already excluded from your taxable wages.
             </p>
             {(info.personalContributions || 0) > 0 && (
               <div className="flex items-start gap-2 mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">

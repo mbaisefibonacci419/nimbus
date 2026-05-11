@@ -19,7 +19,7 @@ export default function ReviewScheduleCStep() {
         {line && <span className="text-slate-400 text-xs mr-2">Line {line}</span>}
         {label}
       </span>
-      <span className="text-white font-medium">
+      <span className="text-slate-100 font-medium">
         ${Math.abs(amount).toLocaleString()}
       </span>
     </div>
@@ -126,7 +126,7 @@ export default function ReviewScheduleCStep() {
 
         <div className="border-t-2 border-slate-600 mt-2 pt-2">
           <div className="flex justify-between py-2">
-            <span className="text-white font-semibold">Net Profit (Loss)</span>
+            <span className="text-slate-100 font-semibold">Net Profit (Loss)</span>
             <span className={`text-lg font-bold ${schedC.netProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
               ${schedC.netProfit.toLocaleString()}
             </span>
@@ -145,7 +145,7 @@ export default function ReviewScheduleCStep() {
                 <div className="text-sm text-slate-400">
                   Income: ${biz.grossIncome.toLocaleString()} &middot; Expenses: ${biz.totalExpenses.toLocaleString()}
                 </div>
-                <div className={`font-medium ${biz.netProfit >= 0 ? 'text-white' : 'text-red-400'}`}>
+                <div className={`font-medium ${biz.netProfit >= 0 ? 'text-slate-100' : 'text-red-400'}`}>
                   Net: {biz.netProfit < 0 ? '-' : ''}${Math.abs(biz.netProfit).toLocaleString()}
                 </div>
               </div>

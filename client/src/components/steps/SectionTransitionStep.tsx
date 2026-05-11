@@ -46,7 +46,7 @@ export default function SectionTransitionStep() {
         <ArrowRight className="w-8 h-8" />
       </div>
 
-      <h1 className="text-2xl font-bold text-white mb-3">
+      <h1 className="text-2xl font-bold text-slate-100 mb-3">
         {content.checkpoint}
       </h1>
 

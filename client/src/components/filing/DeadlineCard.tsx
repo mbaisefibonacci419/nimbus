@@ -103,7 +103,7 @@ export default function DeadlineCard({ deadline, extensionFiled }: DeadlineCardP
 function CountdownUnit({ value, label, urgent }: { value: number; label: string; urgent: boolean }) {
   return (
     <span className="text-center">
-      <span className={`text-lg font-bold tabular-nums ${urgent ? 'text-amber-400' : 'text-white'}`}>
+      <span className={`text-lg font-bold tabular-nums ${urgent ? 'text-amber-400' : 'text-slate-100'}`}>
         {String(value).padStart(2, '0')}
       </span>
       <span className="text-[10px] text-slate-400 ml-0.5">{label}</span>

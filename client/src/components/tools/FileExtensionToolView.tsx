@@ -118,7 +118,7 @@ export default function FileExtensionToolView() {
             <div>
               <p className="text-sm font-semibold text-emerald-300">Extension Filed</p>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Your deadline has been extended to <span className="font-semibold text-white">October 15, 2026</span>.
+                Your deadline has been extended to <span className="font-semibold text-slate-100">October 15, 2026</span>.
                 Remember to submit the form to the IRS — by mail or e-file at irs.gov/extensions.
               </p>
               <p className="text-xs text-slate-400 mt-2">
@@ -172,7 +172,7 @@ export default function FileExtensionToolView() {
           <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-surface-700/50 border border-slate-700/50">
             <CheckCircle2 className="w-3.5 h-3.5 text-telos-blue-400 shrink-0" />
             <span className="text-xs text-slate-300">
-              Filing as <span className="font-medium text-white">{FILING_STATUS_LABELS[taxReturn.filingStatus] || 'Unknown'}</span>
+              Filing as <span className="font-medium text-slate-100">{FILING_STATUS_LABELS[taxReturn.filingStatus] || 'Unknown'}</span>
             </span>
           </div>
         )}
@@ -326,7 +326,7 @@ export default function FileExtensionToolView() {
           <div className="flex-1">
             <p className="text-sm font-semibold text-amber-300">Ready to Generate</p>
             <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-              Form 4868 gives you an automatic 6-month extension to <span className="font-semibold text-white">October 15, 2026</span>.
+              Form 4868 gives you an automatic 6-month extension to <span className="font-semibold text-slate-100">October 15, 2026</span>.
               This extends your <em>filing</em> deadline only — any tax owed is still due April 15.
             </p>
 

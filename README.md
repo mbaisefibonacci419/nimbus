@@ -6,45 +6,129 @@ Private, browser-based tax preparation powered by an open-source tax engine.
 
 Nimbus is a free, open-source tax preparation app for the 2025 tax year, built entirely with AI. Your tax data never leaves your browser — all calculations happen client-side using the `@nimbus/engine` library, encrypted at rest with AES-256-GCM.
 
-**Two modes:**
-- **Private Mode** (default) — fully offline, zero data leaves your device
-- **BYOK Mode** (optional) — add your own Anthropic API key for AI chat with SSE streaming, expense scanning, and document extraction. PII is stripped before anything is sent.
+An AI assistant powered by Anthropic Claude provides conversational tax guidance, document extraction, and guided data entry. PII is stripped before anything is sent to the LLM.
 
 **Key features:**
 - 90+ tax features covering ~85-90% of individual filers
 - All 50 states + DC tax coverage
 - Full Form 1040 with Schedules A-H, SE, D, and 30+ supplemental forms
 - 41 IRS PDF templates + 43 state PDF templates with auto-populated field mapping
+- AI-powered document import (W-2, 1099s, K-1s) via Docling OCR + Claude Vision fallback
 - Every computation traced to IRC, Treasury Regulations, or Revenue Procedures
 - 6,340+ tests across 154 test files
+- Light/dark mode with crimson rose accent palette
 - Offline-capable — installable on desktop and mobile
 
 ## Architecture
 
 ```
-tax-project/
-├── shared/   → @nimbus/engine (open-source tax calculation library)
-├── client/   → React 19 + Vite 6 + Tailwind CSS + Zustand 5
-├── server/   → Express + better-sqlite3 + pdf-lib
-└── docs/     → Project documentation
+nimbus/
+├── shared/           → @nimbus/engine (pure tax calculation library)
+├── client/           → React 19 + Vite 6 + Tailwind CSS + Zustand 5
+├── server/           → Express proxy + Docling + Anthropic API
+├── .docling-venv/    → Python 3.12 virtualenv for Docling PDF extraction
+├── scripts/          → Eval harness, code generation, constants
+├── evals/            → AI baseline scorecards
+└── docs/             → Project documentation
 ```
 
-**Tech stack:** TypeScript throughout. React 19 with Vite 6. Zustand 5 for state. Tailwind CSS with Nimbus brand colors. Vitest for testing. pdf-lib for IRS form generation.
+### How the pieces fit together
 
-**Engine design:** Pure functions only — no side effects, no database access, no network calls. Given a `TaxReturn` input, the engine produces a deterministic `CalculationResult`. See [Design Principles](docs/DESIGN_PRINCIPLES.md).
+```
+┌──────────────────────────────────────────────────┐
+│                     Browser                       │
+│                                                   │
+│  React App ←→ Zustand stores ←→ @nimbus/engine   │
+│       │              │                            │
+│       │        localStorage                       │
+│       │       (AES-256-GCM)                       │
+└───────┼───────────────────────────────────────────┘
+        │ HTTPS (SSE streaming)
+        ▼
+┌──────────────────────────────────────────────────┐
+│                  Express Server                   │
+│                                                   │
+│  /api/chat/byok/stream  → PII strip → Anthropic  │
+│  /api/extract/pdf       → Docling CLI → fields    │
+│  /api/extract/vision    → Claude Vision → fields  │
+│                                                   │
+│  Docling: shells out to .docling-venv/bin/docling │
+│  (Python 3.12, runs per-request, no daemon)       │
+└──────────────────────────────────────────────────┘
+```
+
+**Key design decisions:**
+- **Engine is pure:** No side effects, no network calls. Given a `TaxReturn`, it returns a deterministic `CalculationResult`. See [Design Principles](docs/DESIGN_PRINCIPLES.md).
+- **Server is a thin proxy:** It exists solely to keep API keys off the client, strip PII, and run Docling. No user data is stored server-side.
+- **Docling is a CLI tool, not a server:** When a PDF is uploaded, the Express server calls `.docling-venv/bin/docling` synchronously. No separate process to manage. Falls back to Claude Vision if Docling is unavailable.
 
 ## Quick Start
 
+### Prerequisites
+
+- Node.js 20+
+- Python 3.12 (for Docling PDF extraction)
+- An Anthropic API key (for AI chat and Vision fallback)
+
+### Setup
+
 ```bash
-# Install dependencies
+# 1. Install Node dependencies
 npm install
 
-# Run the client dev server
-npm run dev --prefix client
+# 2. Set up Docling (one-time)
+python3.12 -m venv .docling-venv
+.docling-venv/bin/pip install docling
 
-# Run tests
-npx vitest run --prefix shared
+# 3. Configure your API key
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
+
+# 4. Start everything (client + server)
+npm run dev
 ```
+
+This runs both the Vite dev server (port 5173) and the Express API server concurrently. The Docling Python venv is used on-demand when PDFs are uploaded — no separate process to start.
+
+### Verify Docling is working
+
+```bash
+# Check capabilities endpoint
+curl http://localhost:3001/api/extract/capabilities
+# → { "data": { "docling": true, "vision": true, "textExtraction": true } }
+```
+
+### Run tests
+
+```bash
+# All unit tests (6,340+ across shared + client)
+npx vitest run
+
+# Engine tests only
+npm test -w shared
+
+# Specific test file
+npx vitest run shared/__tests__/ai-evals/eval-runner.test.ts
+```
+
+## Document Extraction Pipeline
+
+When a user uploads a tax document (PDF or image), the system tries multiple extraction methods in order:
+
+1. **Docling CLI** (local, no API key needed) — IBM's open-source document converter extracts structured markdown from the PDF. Field-specific parsers then pull W-2 boxes, 1099 amounts, etc.
+2. **Claude Vision** (requires API key) — If Docling fails or returns poor results, the PDF is sent to Claude's vision model for extraction.
+3. **Client-side text extraction** — For digital PDFs with embedded text, `pdfjs-dist` extracts text locally as a last resort.
+
+The extraction result is returned as structured fields that can be added directly to the tax return.
+
+## Theming
+
+Nimbus supports light and dark modes with a CSS custom property system:
+
+- **Dark mode** (default): Charcoal neutral surfaces, crimson rose (#db334d) primary accent
+- **Light mode**: Clean white/gray surfaces, same crimson rose accent
+- Toggle via the sun/moon button in the sidebar or dashboard
+
+The theme system uses CSS variables consumed by Tailwind, so all 200+ component files respond to mode changes automatically without individual `dark:` variants. Chart components use a `useChartTheme()` hook that returns mode-aware hex values. Syncfusion's base CSS is swapped dynamically between `tailwind.css` and `tailwind-dark.css`.
 
 ## Tax Coverage
 
@@ -196,6 +280,8 @@ The engine is designed for rapid onboarding to new tax years without forking the
 | [Scope Matrix](docs/SCOPE_MATRIX.md) | Supported vs. unsupported features |
 | [Design Principles](docs/DESIGN_PRINCIPLES.md) | Architecture philosophy and engine design |
 | [Authorities](docs/AUTHORITIES.md) | Module-by-module legal authority reference |
+| [AI Feature Matrix](docs/AI_FEATURE_MATRIX.md) | AI assistant capabilities and action types |
+| [Tax Constants 2025](docs/TAX_CONSTANTS_2025.md) | All IRS constants for tax year 2025 |
 | [Contributing](docs/CONTRIBUTING.md) | How to contribute ("no authority, no merge") |
 | [Security](docs/SECURITY.md) | Security policy and vulnerability reporting |
 | [Disclaimer](docs/DISCLAIMER.md) | Legal disclaimer — not tax advice |

@@ -61,7 +61,7 @@ export default function CostOfGoodsSoldStep() {
       <div className="card bg-surface-700/50 mb-4">
         <div className="flex justify-between items-center">
           <span className="text-slate-400">Cost of Goods Sold</span>
-          <span className="text-lg font-semibold text-white">${cogsTotal.toLocaleString()}</span>
+          <span className="text-lg font-semibold text-slate-100">${cogsTotal.toLocaleString()}</span>
         </div>
         <p className="text-xs text-slate-400 mt-1">Schedule C, Line 4 — subtracted from gross receipts</p>
       </div>

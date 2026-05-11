@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { chartPalette, dataLabelFont, tooltipStyle, useChartTheme } from '../../hooks/useChartTheme';
 import {
   AccumulationChartComponent,
   AccumulationSeriesCollectionDirective,
@@ -20,8 +21,8 @@ interface CreditsDonutProps {
 }
 
 // Nonrefundable use warm palette, refundable use cool/green palette
-const NR_COLORS = ['#FB923C', '#F59E0B', '#FBBF24', '#D97706', '#F97316'];
-const R_COLORS = ['#34D399', '#10B981', '#06B6D4', '#14B8A6', '#22D3EE'];
+const NR_COLORS = [chartPalette.orangeLight, chartPalette.amber, chartPalette.amberLight, chartPalette.amberDark, chartPalette.orange];
+const R_COLORS = [chartPalette.greenLight, chartPalette.emerald, chartPalette.cyan, chartPalette.teal, '#22D3EE'];
 
 const fmtCompact = (v: number): string => {
   if (Math.abs(v) >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
@@ -32,6 +33,7 @@ const fmtCompact = (v: number): string => {
 const fmtDollars = (v: number): string => `$${v.toLocaleString()}`;
 
 export default function CreditsDonut({ items: rawItems, onSliceClick, height }: CreditsDonutProps) {
+  const t = useChartTheme();
   if (rawItems.length === 0) return null;
 
   // Sort: nonrefundable first (warm colors), then refundable (cool colors)
@@ -50,8 +52,8 @@ export default function CreditsDonut({ items: rawItems, onSliceClick, height }: 
   });
 
   const pointRender = useCallback((args: IAccPointRenderEventArgs): void => {
-    args.fill = colorMap[args.point.index] || '#64748B';
-  }, [colorMap]);
+    args.fill = colorMap[args.point.index] || t.svgTextSecondary;
+  }, [colorMap, t.svgTextSecondary]);
 
   const tooltipRender = useCallback((args: IAccTooltipRenderEventArgs): void => {
     const idx = args.point?.index;
@@ -87,9 +89,7 @@ export default function CreditsDonut({ items: rawItems, onSliceClick, height }: 
         legendSettings={{ visible: false }}
         tooltip={{
           enable: true,
-          fill: '#1C1C1F',
-          border: { color: '#3E3E44', width: 1 },
-          textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
+          ...tooltipStyle(t),
         }}
         pointRender={pointRender}
         tooltipRender={tooltipRender}
@@ -108,13 +108,8 @@ export default function CreditsDonut({ items: rawItems, onSliceClick, height }: 
             dataLabel={{
               visible: true,
               position: 'Outside',
-              connectorStyle: { length: '30px', color: '#3E3E44', width: 1 },
-              font: {
-                color: '#E2E8F0',
-                fontFamily: 'Inter Variable, sans-serif',
-                size: '11px',
-                fontWeight: '600',
-              },
+              connectorStyle: { length: '30px', color: t.connector, width: 1 },
+              font: dataLabelFont(t),
             }}
           />
         </AccumulationSeriesCollectionDirective>

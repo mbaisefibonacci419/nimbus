@@ -240,7 +240,7 @@ export default function ExpenseCategoriesStep() {
               </span>
             )}
           </span>
-          <span className="text-lg font-semibold text-white">${totalExpenses.toLocaleString()}</span>
+          <span className="text-lg font-semibold text-slate-100">${totalExpenses.toLocaleString()}</span>
         </div>
       </div>
 
@@ -265,7 +265,7 @@ export default function ExpenseCategoriesStep() {
                   </div>
                 </div>
                 {rawAmount > 0 && (
-                  <span className="text-white font-medium">
+                  <span className="text-slate-100 font-medium">
                     ${deductible.toLocaleString()}
                     {mealsRate != null && <span className="text-xs text-slate-400 font-normal ml-1">of ${rawAmount.toLocaleString()}</span>}
                   </span>

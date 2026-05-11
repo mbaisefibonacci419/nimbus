@@ -27,7 +27,7 @@ function highlightMatch(text: string, query: string): React.ReactNode {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-telos-blue-600/30 text-white rounded-sm px-0.5">{part}</mark>
+          <mark key={i} className="bg-telos-blue-600/30 text-slate-100 rounded-sm px-0.5">{part}</mark>
         ) : (
           part
         ),
@@ -763,7 +763,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search steps, forms, tools, or help..."
-            className="flex-1 bg-transparent text-white placeholder-slate-400 text-sm outline-none"
+            className="flex-1 bg-transparent text-slate-100 placeholder-slate-400 text-sm outline-none"
             aria-expanded={true}
             aria-autocomplete="list"
             aria-controls="command-palette-list"
@@ -772,7 +772,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-surface-700 transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-100 rounded-md hover:bg-surface-700 transition-colors"
             aria-label="Close"
             tabIndex={-1}
           >
@@ -831,7 +831,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
                         ${item.disabled
                           ? 'text-slate-600 cursor-not-allowed'
                           : isActive
-                            ? 'bg-telos-blue-600/20 text-white cursor-pointer'
+                            ? 'bg-telos-blue-600/20 text-slate-100 cursor-pointer'
                             : 'text-slate-300 hover:bg-surface-700 cursor-pointer'
                         }
                       `}

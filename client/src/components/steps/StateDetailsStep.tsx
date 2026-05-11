@@ -100,7 +100,7 @@ export default function StateDetailsStep() {
               <div className="mt-4 pt-4 border-t border-slate-700">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-400">Estimated state tax</span>
-                  <span className="text-white font-medium">${stateResult.totalStateTax.toLocaleString()}</span>
+                  <span className="text-slate-100 font-medium">${stateResult.totalStateTax.toLocaleString()}</span>
                 </div>
                 {stateResult.stateWithholding > 0 && (
                   <div className="flex items-center justify-between text-sm mt-1">

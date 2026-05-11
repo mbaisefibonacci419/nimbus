@@ -217,10 +217,11 @@ export const useDeductionFinderStore = create<DeductionFinderStoreState>()(
     try {
       const json = await decryptStr(blob, cryptoKey);
       const data = JSON.parse(json);
+      const restoredResult = data.categorizationResult || null;
       set({
-        categorizationResult: data.categorizationResult || null,
+        categorizationResult: restoredResult,
         enabledCategories: data.enabledCategories || [],
-        scannerPhase: data.scannerPhase || 'upload',
+        scannerPhase: restoredResult ? (data.scannerPhase || 'upload') : 'upload',
       });
     } catch {
       console.warn('Failed to decrypt expense scanner state');

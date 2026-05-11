@@ -7,7 +7,7 @@
  *   1. Dashboard page — no critical violations
  *   2. Wizard — Personal Info step
  *   3. Filing Status step — card selector keyboard access
- *   4. Pledge page — static content
+ *   4. Terms page — static content
  *   5. Keyboard navigation — tab order, focus management
  *   6. ARIA attributes — form labels, required indicators
  *   7. Color contrast — via axe-core automated checks
@@ -105,8 +105,8 @@ test.describe('Accessibility — Axe-Core Scans', () => {
     expect(criticalViolations.length).toBe(0);
   });
 
-  test('pledge page is accessible', async ({ page }) => {
-    await page.goto('/pledge');
+  test('terms page is accessible', async ({ page }) => {
+    await page.goto('/terms');
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa'])

@@ -4,6 +4,7 @@ import {
   sankeyLinkHorizontal,
   sankeyLeft,
 } from 'd3-sankey';
+import { useChartTheme, chartPalette } from '../../hooks/useChartTheme';
 
 interface ExpenseItem {
   label: string;
@@ -40,18 +41,6 @@ interface SLink {
   target: string;
   value: number;
 }
-
-const COLORS: Record<string, string> = {
-  income: '#3B82F6',
-  cogs: '#F59E0B',
-  expense: '#F59E0B',
-  homeOffice: '#A78BFA',
-  vehicle: '#818CF8',
-  depreciation: '#6366F1',
-  intermediate: '#94A3B8',
-  seDeduction: '#10B981',
-  result: '#94A3B8',
-};
 
 function fmtDollars(n: number): string {
   return `$${Math.round(Math.abs(n)).toLocaleString()}`;
@@ -169,6 +158,18 @@ function buildData(p: SEFlowSankeyProps): { nodes: SNode[]; links: SLink[] } {
 }
 
 export default function SEFlowSankey(props: SEFlowSankeyProps) {
+  const t = useChartTheme();
+  const COLORS: Record<string, string> = {
+    income: chartPalette.blue,
+    cogs: chartPalette.amber,
+    expense: chartPalette.amber,
+    homeOffice: chartPalette.lightViolet,
+    vehicle: '#818CF8',
+    depreciation: chartPalette.indigo,
+    intermediate: t.axisLabel,
+    seDeduction: chartPalette.emerald,
+    result: t.axisLabel,
+  };
   const { onNodeClick } = props;
   const gradientId = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -276,8 +277,8 @@ export default function SEFlowSankey(props: SEFlowSankeyProps) {
       >
         <defs>
           {links.map((link: any, i: number) => {
-            const sColor = COLORS[link.source.colorKey] || '#64748B';
-            const tColor = COLORS[link.target.colorKey] || '#64748B';
+            const sColor = COLORS[link.source.colorKey] || t.axisLabel;
+            const tColor = COLORS[link.target.colorKey] || t.axisLabel;
             return (
               <linearGradient
                 key={i}
@@ -320,7 +321,7 @@ export default function SEFlowSankey(props: SEFlowSankeyProps) {
           {nodes.map((node: any) => {
             const nw = (node.x1 ?? 0) - (node.x0 ?? 0);
             const nh = (node.y1 ?? 0) - (node.y0 ?? 0);
-            const color = COLORS[node.colorKey] || '#64748B';
+            const color = COLORS[node.colorKey] || t.axisLabel;
             return (
               <g
                 key={node.id}
@@ -344,13 +345,13 @@ export default function SEFlowSankey(props: SEFlowSankeyProps) {
                   y={(node.y0 ?? 0) + nh / 2}
                   dy="0.35em"
                   textAnchor="start"
-                  fill="#CBD5E1"
+                  fill={t.svgTextMuted}
                   fontSize={11}
                   fontFamily="Inter Variable, sans-serif"
                   fontWeight={node.colorKey === 'intermediate' || node.colorKey === 'result' ? 600 : 400}
                 >
                   {node.label}
-                  <tspan dx={5} fill="#94A3B8" fontSize={10}>
+                  <tspan dx={5} fill={t.svgTextSecondary} fontSize={10}>
                     {fmtDollars(node.value)}
                   </tspan>
                 </text>
@@ -368,9 +369,9 @@ export default function SEFlowSankey(props: SEFlowSankeyProps) {
             left: tooltip.x,
             top: tooltip.y,
             transform: 'translate(-50%, -100%)',
-            backgroundColor: '#1C1C1F',
-            border: '1px solid #3E3E44',
-            color: '#E2E8F0',
+            backgroundColor: t.tooltipBg,
+            border: `1px solid ${t.tooltipBorder}`,
+            color: t.tooltipText,
             fontFamily: 'Inter Variable, sans-serif',
             zIndex: 10,
           }}

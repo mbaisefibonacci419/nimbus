@@ -182,7 +182,7 @@ export default function ChatMessage({
             <div className="flex items-center justify-end gap-2 mt-3">
               <button
                 onClick={cancelEditing}
-                className="text-xs font-medium px-3.5 py-1.5 rounded-full text-slate-300 hover:text-white
+                className="text-xs font-medium px-3.5 py-1.5 rounded-full text-slate-300 hover:text-slate-100
                            bg-surface-600 hover:bg-surface-500 transition-colors"
               >
                 Cancel

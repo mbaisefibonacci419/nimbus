@@ -106,13 +106,13 @@ export default function PrivacyAuditPanel({ onBack }: Props) {
       <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700">
         <button
           onClick={onBack}
-          className="p-1 text-slate-400 hover:text-white transition-colors"
+          className="p-1 text-slate-400 hover:text-slate-100 transition-colors"
           aria-label="Back"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
         <Shield className="w-4 h-4 text-emerald-400" />
-        <h3 className="text-sm font-semibold text-white flex-1">Privacy Audit Log</h3>
+        <h3 className="text-sm font-semibold text-slate-100 flex-1">Privacy Audit Log</h3>
         <span className="text-xs text-slate-500">{entries.length} entries</span>
       </div>
 

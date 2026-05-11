@@ -67,7 +67,7 @@ export default function ForeignEarnedIncomeStep() {
       {fei.foreignEarnedIncome > 0 && (
         <div className="rounded-xl border p-6 mt-4 bg-telos-blue-600/10 border-telos-blue-600/30 text-center">
           <p className="text-sm text-slate-400">Maximum Exclusion (2025)</p>
-          <p className="text-2xl font-bold text-white">${Math.min(fei.foreignEarnedIncome, maxExclusion).toLocaleString()}</p>
+          <p className="text-2xl font-bold text-slate-100">${Math.min(fei.foreignEarnedIncome, maxExclusion).toLocaleString()}</p>
           {(fei.qualifyingDays || 0) < 330 && (fei.qualifyingDays || 0) > 0 && (
             <p className="text-xs text-amber-400 mt-1">
               Exclusion is prorated: {fei.qualifyingDays}/365 days = ${Math.round(maxExclusion * (fei.qualifyingDays || 0) / 365).toLocaleString()} max

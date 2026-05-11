@@ -14,7 +14,7 @@ export default function CreditsTransitionStep() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-telos-blue-600/20 text-telos-blue-400 mb-6">
           <ArrowRight className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-3">Making great progress!</h1>
+        <h1 className="text-2xl font-bold text-slate-100 mb-3">Making great progress!</h1>
         <p className="text-slate-400 text-lg mb-2">
           Now let&apos;s look for tax credits &mdash; these reduce your tax bill dollar for dollar.
         </p>
@@ -49,7 +49,7 @@ export default function CreditsTransitionStep() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-600/20 text-emerald-400 mb-4">
           <Check className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Deductions Complete</h1>
+        <h1 className="text-2xl font-bold text-slate-100 mb-2">Deductions Complete</h1>
       </div>
 
       {/* Deduction method */}
@@ -70,7 +70,7 @@ export default function CreditsTransitionStep() {
           <span className="text-sm text-slate-400">
             {isItemized ? 'Itemized Deductions' : 'Standard Deduction'}
           </span>
-          <span className="text-sm font-medium text-white tabular-nums">
+          <span className="text-sm font-medium text-slate-100 tabular-nums">
             {formatCurrency(deductionAmount)}
           </span>
         </div>

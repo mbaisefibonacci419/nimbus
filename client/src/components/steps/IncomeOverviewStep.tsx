@@ -679,7 +679,7 @@ export default function IncomeOverviewStep() {
           {hasAnyIncome ? 'Your income so far' : 'Your income'}
         </div>
         {hasAnyIncome ? (
-          <div className="text-2xl font-bold text-white">${totalIncome.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-slate-100">${totalIncome.toLocaleString()}</div>
         ) : (
           <div className="text-slate-400 text-sm">
             No income entered yet. Select income types below to get started.

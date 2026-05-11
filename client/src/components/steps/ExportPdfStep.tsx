@@ -353,7 +353,7 @@ export default function ExportPdfStep() {
                 <PartyPopper className={`w-8 h-8 ${isRefund ? 'text-emerald-400' : 'text-amber-400'}`} />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-1">
+            <h1 className="text-2xl font-bold text-slate-100 mb-1">
               {firstName ? `You did it, ${firstName}!` : 'You did it!'}
             </h1>
             <p className="text-slate-400 text-sm mb-5">
@@ -372,23 +372,23 @@ export default function ExportPdfStep() {
             {hasStates && (
               <div className="inline-block rounded-lg px-4 py-2 mt-2 bg-surface-700/50 border border-slate-700">
                 <span className="text-xs text-slate-400">Total State Tax: </span>
-                <span className="text-sm font-semibold text-white">${totalStateTax.toLocaleString()}</span>
+                <span className="text-sm font-semibold text-slate-100">${totalStateTax.toLocaleString()}</span>
               </div>
             )}
             <div className="flex justify-center gap-6 mt-5 text-sm">
               <div>
                 <p className="text-slate-400 text-xs">Effective Rate</p>
-                <p className="text-white font-semibold">{(f.effectiveTaxRate * 100).toFixed(1)}%</p>
+                <p className="text-slate-100 font-semibold">{(f.effectiveTaxRate * 100).toFixed(1)}%</p>
               </div>
               <div className="w-px bg-slate-700" />
               <div>
                 <p className="text-slate-400 text-xs">Total Tax</p>
-                <p className="text-white font-semibold">${f.totalTax.toLocaleString()}</p>
+                <p className="text-slate-100 font-semibold">${f.totalTax.toLocaleString()}</p>
               </div>
               <div className="w-px bg-slate-700" />
               <div>
                 <p className="text-slate-400 text-xs">Taxable Income</p>
-                <p className="text-white font-semibold">${f.taxableIncome.toLocaleString()}</p>
+                <p className="text-slate-100 font-semibold">${f.taxableIncome.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -630,7 +630,7 @@ export default function ExportPdfStep() {
                   <PartyPopper className={`w-12 h-12 ${isRefund ? 'text-emerald-400' : 'text-amber-400'}`} />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-3xl font-bold text-slate-100 mb-2">
                 {firstName ? `Congrats, ${firstName}!` : 'Congratulations!'}
               </h1>
               <p className="text-slate-400 mb-6">
@@ -653,17 +653,17 @@ export default function ExportPdfStep() {
               <div className="flex justify-center gap-6 text-sm">
                 <div>
                   <p className="text-slate-500 text-xs">Effective Rate</p>
-                  <p className="text-white font-semibold">{(f.effectiveTaxRate * 100).toFixed(1)}%</p>
+                  <p className="text-slate-100 font-semibold">{(f.effectiveTaxRate * 100).toFixed(1)}%</p>
                 </div>
                 <div className="w-px bg-slate-700" />
                 <div>
                   <p className="text-slate-500 text-xs">Total Tax</p>
-                  <p className="text-white font-semibold">${f.totalTax.toLocaleString()}</p>
+                  <p className="text-slate-100 font-semibold">${f.totalTax.toLocaleString()}</p>
                 </div>
                 <div className="w-px bg-slate-700" />
                 <div>
                   <p className="text-slate-500 text-xs">Taxable Income</p>
-                  <p className="text-white font-semibold">${f.taxableIncome.toLocaleString()}</p>
+                  <p className="text-slate-100 font-semibold">${f.taxableIncome.toLocaleString()}</p>
                 </div>
               </div>
             )}
@@ -697,7 +697,7 @@ export default function ExportPdfStep() {
           <div ref={exportModalRef} role="dialog" aria-modal="true" aria-label="Password-protect export" className="w-full max-w-sm rounded-xl bg-surface-800 border border-slate-700 p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2 mb-3">
               <Lock className="w-4 h-4 text-telos-blue-400" />
-              <h3 className="text-sm font-semibold text-white">Password-Protect Export</h3>
+              <h3 className="text-sm font-semibold text-slate-100">Password-Protect Export</h3>
             </div>
             <p className="text-xs text-slate-400 mb-4">
               {pendingExportRef.current === 'transfer'
@@ -711,7 +711,7 @@ export default function ExportPdfStep() {
                   type={showExportPassword ? 'text' : 'password'}
                   value={exportPassword}
                   onChange={(e) => setExportPassword(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-white text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
+                  className="w-full px-3 py-2.5 bg-surface-900 border border-slate-600 rounded-lg text-slate-100 text-sm focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500 focus:outline-none pr-10"
                   placeholder="Enter password (optional)"
                   autoComplete="off"
                 />

@@ -9,7 +9,7 @@ export default function PrivacyPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8"
+          className="flex items-center gap-2 text-slate-400 hover:text-slate-100 transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm">Back</span>
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
 
         <div className="flex items-center gap-3 mb-8">
           <span className="font-bold text-4xl"><span className="text-telos-orange-400">Ni</span><span className="text-telos-blue-400">mbus</span></span>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Privacy Policy</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">Privacy Policy</h1>
         </div>
 
         <div className="prose prose-invert max-w-none space-y-6 text-slate-300 text-sm leading-relaxed">
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
           </div>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">1. What Tax Data We Collect</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">1. What Tax Data We Collect</h2>
             <p className="font-semibold text-telos-orange-300">None.</p>
             <p>
               Nimbus runs entirely in your web browser. When you enter tax information — names,
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">2. Data Storage</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">2. Data Storage</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
@@ -122,7 +122,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">2a. Passphrase Protection</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">2a. Passphrase Protection</h2>
             <p>
               When you set a passphrase, Nimbus encrypts your saved data with AES-256-GCM — the same
               standard banks and governments use. Your passphrase is never saved to disk; it is held in
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">2b. Document Import</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">2b. Document Import</h2>
             <p>
               Nimbus can read data from PDFs, scanned documents, photos, broker CSV files, TXF files,
               FDX files, and popular tax software exports. Every one of these imports is processed
@@ -156,7 +156,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">3. Cookies & Tracking</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">3. Cookies & Tracking</h2>
             <p>
               Nimbus does not use cookies, analytics scripts, tracking pixels, fingerprinting, or any
               other tracking technology. We do not use Google Analytics, Facebook Pixel, Mixpanel, or
@@ -171,7 +171,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">4. Third Parties</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">4. Third Parties</h2>
             <p>
               In Private Mode (the default), no third party receives any of your data. There are no
               analytics, tracking, or data-sharing integrations.
@@ -191,7 +191,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">5. Data Deletion</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">5. Data Deletion</h2>
             <p>
               You can delete all of your tax data at any time using the "Delete all my data" button,
               available on the export page of any tax return and in the lower-left corner below the
@@ -209,7 +209,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">6. Data Portability</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">6. Data Portability</h2>
             <p>
               Nimbus provides one-click export in four formats: JSON, CSV, PDF, and <code className="text-telos-orange-300 bg-surface-800 px-1.5 py-0.5 rounded">.nimbus</code> (an
               encrypted, password-protected format for safe backup and transfer). You can export your
@@ -219,7 +219,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">7. IRC Section 7216 Compliance</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">7. IRC Section 7216 Compliance</h2>
             <p>
               IRC Section 7216 prohibits tax return preparers from disclosing or using tax return
               information for purposes other than preparing the return. Because Nimbus is a self-preparation
@@ -234,7 +234,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">8. Security</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">8. Security</h2>
             <p>
               Here's what we do on our end to protect your data:
             </p>
@@ -256,7 +256,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">9. Children's Privacy</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">9. Children's Privacy</h2>
             <p>
               Nimbus is designed for adults who need to prepare tax returns. We do not knowingly collect
               information from children under 13. Since we collect no data at all, this is inherently
@@ -265,7 +265,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">10. Open Source Verification</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">10. Open Source Verification</h2>
             <p>
               Every claim in this privacy policy can be independently verified by examining our source
               code. The calculation engine is open source under the MIT License. The application code
@@ -275,7 +275,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">11. Changes to This Policy</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">11. Changes to This Policy</h2>
             <p>
               If we change this policy, we will update this page with the new policy and the date
               of the change. We committed early on that any feature transmitting data would require
@@ -285,14 +285,14 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">12. Contact</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">12. Contact</h2>
             <p>
               Questions about this privacy policy? Email us at <a href="mailto:ryan@telos.news" className="text-telos-blue-400 hover:text-telos-blue-300 underline">ryan@telos.news</a> or visit our <a href="https://github.com/telosnews/Nimbus" target="_blank" rel="noopener noreferrer" className="text-telos-blue-400 hover:text-telos-blue-300 underline">GitHub repository</a>.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white mt-6 mb-3">13. AI Features (BYOK Mode)</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mt-6 mb-3">13. AI Features (BYOK Mode)</h2>
             <p>
               Nimbus includes an optional AI assistant powered by Anthropic's Claude. It is disabled
               by default (Private Mode). To use it, you must explicitly switch to BYOK (Bring Your Own

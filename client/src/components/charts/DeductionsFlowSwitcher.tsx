@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { BarChart2, GitBranch } from 'lucide-react';
 import DeductionsBreakdownChart from './DeductionsBreakdownChart';
+import { useChartTheme, chartPalette } from '../../hooks/useChartTheme';
 
 const DeductionsFlowSankey = lazy(() => import('./DeductionsFlowSankey'));
 
@@ -26,6 +27,7 @@ const VIEW_MODES: { id: ViewMode; label: string; icon: typeof BarChart2 }[] = [
 ];
 
 export default function DeductionsFlowSwitcher(props: DeductionsFlowSwitcherProps) {
+  const t = useChartTheme();
   const [view, setView] = useState<ViewMode>('bar');
 
   if (props.deductionAmount === 0 && props.totalAdjustments === 0) return null;
@@ -34,9 +36,9 @@ export default function DeductionsFlowSwitcher(props: DeductionsFlowSwitcherProp
     <div className="rounded-lg bg-slate-800/30 p-3 mt-4 mb-3">
       <div className="flex items-center justify-between mb-2">
         <h4 className="text-[10px] font-semibold uppercase tracking-wide">
-          <span style={{ color: '#14B8A6' }}>Deductions</span>
+          <span style={{ color: chartPalette.teal }}>Deductions</span>
           <span className="text-slate-400"> & </span>
-          <span style={{ color: '#F59E0B' }}>Adjustments</span>
+          <span style={{ color: chartPalette.amber }}>Adjustments</span>
         </h4>
         <div className="flex items-center bg-surface-800 rounded-lg border border-slate-700/50 p-0.5">
           {VIEW_MODES.map(m => {
@@ -47,8 +49,8 @@ export default function DeductionsFlowSwitcher(props: DeductionsFlowSwitcherProp
                 onClick={() => setView(m.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   view === m.id
-                    ? 'bg-surface-700 text-white'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-surface-700 text-slate-100'
+                    : 'text-slate-400 hover:text-slate-100'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />

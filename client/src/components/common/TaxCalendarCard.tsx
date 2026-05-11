@@ -197,7 +197,7 @@ function DeadlineRow({ deadline }: { deadline: TaxDeadline }) {
           </span>
         </div>
         {deadline.amount != null && deadline.amount > 0 && (
-          <p className="text-sm font-semibold text-white mt-0.5">
+          <p className="text-sm font-semibold text-slate-100 mt-0.5">
             ${deadline.amount.toLocaleString()}
           </p>
         )}

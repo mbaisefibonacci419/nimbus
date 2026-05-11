@@ -43,7 +43,7 @@ export default function ItemizedDeductionsStep() {
       {/* Comparison hero */}
       <div className={`rounded-xl border p-6 mt-6 text-center ${itemizedBetter ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
         <p className="text-sm text-slate-400 mb-1">Your Itemized Deductions</p>
-        <p className="text-3xl font-bold text-white">${totalWithGambling.toLocaleString()}</p>
+        <p className="text-3xl font-bold text-slate-100">${totalWithGambling.toLocaleString()}</p>
         <p className="text-xs text-slate-400 mt-2">
           Standard deduction: ${standardDeduction.toLocaleString()}
           {itemizedBetter
@@ -69,7 +69,7 @@ export default function ItemizedDeductionsStep() {
                 <div className="flex-1 min-w-0">
                   <span className="text-sm text-slate-200">{li.label}</span>
                 </div>
-                <span className="text-sm font-medium text-white tabular-nums">
+                <span className="text-sm font-medium text-slate-100 tabular-nums">
                   ${li.amount.toLocaleString()}
                 </span>
                 <button
@@ -93,7 +93,7 @@ export default function ItemizedDeductionsStep() {
         <div className="card mt-3">
           <div className="flex items-center justify-between py-2">
             <span className="text-sm text-slate-400">Other Deductions</span>
-            <span className="text-sm font-medium text-white tabular-nums">${scheduleA.otherDeduction.toLocaleString()}</span>
+            <span className="text-sm font-medium text-slate-100 tabular-nums">${scheduleA.otherDeduction.toLocaleString()}</span>
           </div>
         </div>
       )}

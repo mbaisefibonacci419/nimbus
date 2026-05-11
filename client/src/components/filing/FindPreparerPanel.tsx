@@ -31,7 +31,7 @@ export default function FindPreparerPanel({ taxReturn, onBack }: FindPreparerPan
         Back to Filing Options
       </button>
 
-      <h2 className="text-xl font-bold text-white mb-1">Find an E-File Provider</h2>
+      <h2 className="text-xl font-bold text-slate-100 mb-1">Find an E-File Provider</h2>
       <p className="text-sm text-slate-400 mb-5">
         Locate an authorized IRS e-file provider who can file your return electronically.
       </p>
@@ -55,7 +55,7 @@ export default function FindPreparerPanel({ taxReturn, onBack }: FindPreparerPan
 
       {/* What to bring */}
       <div className="mt-6">
-        <h3 className="text-base font-semibold text-white mb-3">What to Bring</h3>
+        <h3 className="text-base font-semibold text-slate-100 mb-3">What to Bring</h3>
         <div className="space-y-2.5">
           <BringItem
             icon={<FileText className="w-4 h-4 text-telos-blue-400" />}
@@ -82,7 +82,7 @@ export default function FindPreparerPanel({ taxReturn, onBack }: FindPreparerPan
 
       {/* What an e-file provider can do */}
       <div className="mt-6">
-        <h3 className="text-base font-semibold text-white mb-3">What an E-File Provider Can Do</h3>
+        <h3 className="text-base font-semibold text-slate-100 mb-3">What an E-File Provider Can Do</h3>
         <div className="card bg-surface-800 border-slate-700">
           <ul className="space-y-2 text-sm text-slate-400">
             <li className="flex items-start gap-2">

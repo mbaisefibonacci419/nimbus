@@ -183,7 +183,7 @@ export default function CategoryDetailGrid({
           </div>
           <div className="text-right">
             <div className="text-xs text-slate-400 uppercase tracking-wider font-medium">Total</div>
-            <div className="text-xl font-bold text-white">
+            <div className="text-xl font-bold text-slate-100">
               ${Math.round(totalAmount).toLocaleString()}
             </div>
           </div>
@@ -399,7 +399,7 @@ function SubCategorySection({
           </span>
         </div>
         <div className="w-20 text-right shrink-0">
-          <span className="text-sm font-semibold text-white">
+          <span className="text-sm font-semibold text-slate-100">
             ${Math.round(group.totalAmount).toLocaleString()}
           </span>
         </div>
@@ -466,7 +466,7 @@ function TransactionRow({
 
       {/* Amount */}
       <div className="w-20 text-right shrink-0">
-        <span className="text-xs text-white font-mono">
+        <span className="text-xs text-slate-100 font-mono">
           ${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
         </span>
       </div>

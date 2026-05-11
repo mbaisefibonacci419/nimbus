@@ -177,7 +177,7 @@ export default function ComparisonDashboard({
                           </div>
                         </div>
                         <div className="flex items-center gap-1 min-w-[80px] justify-end">
-                          <span className="text-[11px] font-mono tabular-nums text-white">
+                          <span className="text-[11px] font-mono tabular-nums text-slate-100">
                             {m.format === 'percent' ? formatPercent(entry.scenario) : formatCurrency(entry.scenario)}
                           </span>
                           {isBest && <Trophy className="w-3 h-3 text-yellow-400" />}

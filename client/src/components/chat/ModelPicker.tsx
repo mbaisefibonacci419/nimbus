@@ -129,7 +129,7 @@ export default function ModelPicker() {
               >
                 <ProviderIcon size={14} />
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs text-white">{model.displayName}</span>
+                  <span className="text-xs text-slate-100">{model.displayName}</span>
                   <span className="text-[10px] text-slate-500 ml-1.5">{model.description}</span>
                 </div>
                 {isActive && (

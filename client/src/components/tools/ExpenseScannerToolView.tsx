@@ -50,13 +50,15 @@ export default function ExpenseScannerToolView() {
   const { updateField, updateDeepField, taxReturn } = useTaxReturnStore();
   const [showApplyModal, setShowApplyModal] = useState(false);
 
-  // Compute effective phase
+  // Compute effective phase — guard against stale 'results' phase with no data
   const hasResults = categorizationResult != null;
   const effectivePhase = isCategorizing
     ? 'scanning'
     : hasResults && scannerPhase !== 'setup' && scannerPhase !== 'upload'
       ? 'results'
-      : scannerPhase;
+      : scannerPhase === 'results' && !hasResults
+        ? 'upload'
+        : scannerPhase;
 
   // Auto-advance: when transactions are loaded and we're on upload, go to setup
   const hasTransactions = allTransactions.length > 0;
@@ -113,7 +115,6 @@ export default function ExpenseScannerToolView() {
       await categorizeTransactions();
       setScannerPhase('results');
     } catch {
-      // Error is captured in aiError state — reset phase so user can navigate
       setScannerPhase('setup');
     }
   };

@@ -21,7 +21,7 @@ export default function SectionIntro({ title, description, icon, transition }: S
           {icon}
         </div>
       )}
-      <h1 className="text-3xl font-bold text-white mb-3">{title}</h1>
+      <h1 className="text-3xl font-bold text-slate-100 mb-3">{title}</h1>
       <p className="text-slate-400 text-lg max-w-lg mx-auto">{description}</p>
     </div>
   );

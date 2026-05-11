@@ -129,7 +129,7 @@ export default function RefundPaymentStep() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <Building2 className="w-4 h-4 text-telos-blue-400" />
-                <span className="text-sm font-medium text-white">Direct Deposit</span>
+                <span className="text-sm font-medium text-slate-100">Direct Deposit</span>
               </div>
               <p className="text-xs text-slate-400">Fastest — typically 21 days</p>
             </button>
@@ -150,7 +150,7 @@ export default function RefundPaymentStep() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <CreditCard className="w-4 h-4 text-slate-400" />
-                <span className="text-sm font-medium text-white">Paper Check</span>
+                <span className="text-sm font-medium text-slate-100">Paper Check</span>
               </div>
               <p className="text-xs text-slate-400">Mailed to your address — 6-8 weeks</p>
             </button>
@@ -160,7 +160,7 @@ export default function RefundPaymentStep() {
         {/* Direct deposit fields */}
         {wantDirectDeposit && (
           <div className="rounded-lg border border-slate-700 bg-surface-800 p-5 space-y-4">
-            <h3 className="text-sm font-medium text-white flex items-center gap-2">
+            <h3 className="text-sm font-medium text-slate-100 flex items-center gap-2">
               <Building2 className="w-4 h-4 text-telos-blue-400" />
               Bank Account Information
             </h3>
@@ -231,7 +231,7 @@ export default function RefundPaymentStep() {
         <div className="rounded-lg border border-slate-700 bg-surface-800 p-5 space-y-3">
           <div className="flex items-center gap-2">
             <ArrowRight className="w-4 h-4 text-telos-blue-400" />
-            <p className="text-sm font-medium text-white">Apply to Next Year's Estimated Tax</p>
+            <p className="text-sm font-medium text-slate-100">Apply to Next Year's Estimated Tax</p>
           </div>
           <p className="text-xs text-slate-400">
             You can apply some or all of your refund to your 2026 estimated tax instead of receiving it back.
@@ -312,7 +312,7 @@ export default function RefundPaymentStep() {
         </CalloutCard>
 
         <div className="rounded-lg border border-slate-700 bg-surface-800 p-5 space-y-4">
-          <h3 className="text-sm font-medium text-white">Payment Options</h3>
+          <h3 className="text-sm font-medium text-slate-100">Payment Options</h3>
 
           <div className="space-y-3">
             <div className="flex items-start gap-3">
@@ -320,7 +320,7 @@ export default function RefundPaymentStep() {
                 <span className="text-xs font-bold text-telos-blue-400">1</span>
               </div>
               <div>
-                <p className="text-sm font-medium text-white">IRS Direct Pay (Recommended)</p>
+                <p className="text-sm font-medium text-slate-100">IRS Direct Pay (Recommended)</p>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Pay directly from your bank account — free, secure, instant confirmation.
                 </p>
@@ -341,7 +341,7 @@ export default function RefundPaymentStep() {
                 <span className="text-xs font-bold text-telos-blue-400">2</span>
               </div>
               <div>
-                <p className="text-sm font-medium text-white">Check or Money Order</p>
+                <p className="text-sm font-medium text-slate-100">Check or Money Order</p>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Make payable to "United States Treasury." Write your SSN, daytime phone,
                   and "2025 Form 1040" on the payment. Do not send cash.

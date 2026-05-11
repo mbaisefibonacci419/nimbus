@@ -150,7 +150,7 @@ export default function DrillDownTable({ scenarios, baseResult, scenarioResults 
                         const hasDiff = Math.abs(diff) >= 1;
                         return (
                           <span key={s.id} className={`text-[11px] text-right font-mono tabular-nums ${
-                            hasDiff ? (COLOR_CLASSES[s.color] ?? 'text-white') : 'text-slate-500'
+                            hasDiff ? (COLOR_CLASSES[s.color] ?? 'text-slate-100') : 'text-slate-500'
                           }`}>
                             {row.format === 'percent' ? formatPercent(val) : formatCurrency(val)}
                           </span>

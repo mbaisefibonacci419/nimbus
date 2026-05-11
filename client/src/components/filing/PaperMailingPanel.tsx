@@ -60,7 +60,7 @@ export default function PaperMailingPanel({ taxReturn, result, onBack }: PaperMa
         Back to Filing Options
       </button>
 
-      <h2 className="text-xl font-bold text-white mb-1">Print & Mail Your Return</h2>
+      <h2 className="text-xl font-bold text-slate-100 mb-1">Print & Mail Your Return</h2>
       <p className="text-sm text-slate-400 mb-4">
         Here's exactly what to do to file your return by mail.
       </p>
@@ -286,7 +286,7 @@ export default function PaperMailingPanel({ taxReturn, result, onBack }: PaperMa
               <p className="text-sm font-medium text-telos-blue-300">Estimated Tax Payments Recommended</p>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Based on your return, you may need to make estimated tax payments of{' '}
-                <span className="text-white font-medium">${estimatedRec.quarterlyAmount.toLocaleString()}</span> per
+                <span className="text-slate-100 font-medium">${estimatedRec.quarterlyAmount.toLocaleString()}</span> per
                 quarter for the next tax year. Download estimated tax vouchers on the Export step —
                 they are mailed separately from your Form 1040 to a different IRS address.
               </p>
@@ -305,7 +305,7 @@ function Section({ icon, title, children }: { icon: React.ReactNode; title: stri
     <div className="mt-6">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-telos-blue-400">{icon}</span>
-        <h3 className="text-lg font-semibold text-white">{title}</h3>
+        <h3 className="text-lg font-semibold text-slate-100">{title}</h3>
       </div>
       {children}
     </div>

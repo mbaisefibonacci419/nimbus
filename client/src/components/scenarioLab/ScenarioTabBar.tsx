@@ -46,7 +46,7 @@ export default function ScenarioTabBar({ scenarios, activeScenarioId, dispatch }
         onClick={() => dispatch({ type: 'SET_ACTIVE_SCENARIO', id: null })}
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
           activeScenarioId === null
-            ? 'bg-surface-700 border-slate-500 text-white'
+            ? 'bg-surface-700 border-slate-500 text-slate-100'
             : 'bg-surface-800 border-slate-700/50 text-slate-400 hover:text-slate-300 hover:border-slate-600'
         }`}
       >
@@ -121,7 +121,7 @@ export default function ScenarioTabBar({ scenarios, activeScenarioId, dispatch }
       {scenarios.length < 4 && (
         <button
           onClick={() => dispatch({ type: 'ADD_SCENARIO' })}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-white border border-dashed border-slate-600 hover:border-slate-400 transition-colors"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm text-slate-400 hover:text-slate-100 border border-dashed border-slate-600 hover:border-slate-400 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Scenario

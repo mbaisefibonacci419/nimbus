@@ -122,7 +122,7 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label="Toggle navigation menu"
-            className="lg:hidden p-1 text-slate-400 hover:text-white transition-colors shrink-0"
+            className="lg:hidden p-1 text-slate-400 hover:text-slate-100 transition-colors shrink-0"
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -192,7 +192,7 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
           <button
             onClick={openPalette}
             aria-label="Search steps, forms, and tools"
-            className="flex items-center gap-1.5 px-2 py-1 text-slate-400 hover:text-white bg-surface-700/50 hover:bg-surface-700 border border-slate-700 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-2 py-1 text-slate-400 hover:text-slate-100 bg-surface-700/50 hover:bg-surface-700 border border-slate-700 rounded-lg transition-colors"
           >
             <Search className="w-3.5 h-3.5" />
             <span className="hidden sm:inline text-xs">Search</span>
@@ -243,7 +243,7 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
                   className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
                     viewMode === 'wizard'
                       ? 'bg-telos-blue-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-400 hover:text-slate-100'
                   }`}
                 >
                   <ClipboardList className="w-3.5 h-3.5" />
@@ -256,7 +256,7 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
                   className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
                     viewMode === 'forms'
                       ? 'bg-telos-blue-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-400 hover:text-slate-100'
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5" />

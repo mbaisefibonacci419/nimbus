@@ -145,7 +145,7 @@ export default function EVCreditStep() {
                 className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
               />
               <div>
-                <span className="text-sm text-slate-200 group-hover:text-white">
+                <span className="text-sm text-slate-200 group-hover:text-slate-100">
                   Vehicle is a van, SUV, or pickup truck
                 </span>
                 <p className="text-xs text-slate-500 mt-0.5">

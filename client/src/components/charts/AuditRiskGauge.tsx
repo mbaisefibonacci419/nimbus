@@ -7,6 +7,7 @@ import {
   RangesDirective,
   RangeDirective,
 } from '@syncfusion/ej2-react-circulargauge';
+import { useChartTheme, chartPalette } from '../../hooks/useChartTheme';
 
 interface AuditRiskGaugeProps {
   score: number;
@@ -21,18 +22,18 @@ const LEVEL_LABELS: Record<string, string> = {
   high: 'High Risk',
 };
 
-const LEVEL_COLORS: Record<string, string> = {
-  low: '#10B981',
-  moderate: '#F59E0B',
-  elevated: '#F59E0B',
-  high: '#EF4444',
-};
-
 export default function AuditRiskGauge({ score, maxScore, level }: AuditRiskGaugeProps) {
+  const t = useChartTheme();
+  const LEVEL_COLORS: Record<string, string> = {
+    low: chartPalette.emerald,
+    moderate: chartPalette.amber,
+    elevated: chartPalette.amber,
+    high: chartPalette.red,
+  };
   // Match the actual risk thresholds from auditRiskService
   const zone1 = 10;  // moderate starts
   const zone2 = 38;  // high starts
-  const color = LEVEL_COLORS[level] || '#94A3B8';
+  const color = LEVEL_COLORS[level] || t.axisLabel;
 
   return (
     <div className="rounded-lg bg-slate-800/30 p-3 mb-3">
@@ -57,19 +58,19 @@ export default function AuditRiskGauge({ score, maxScore, level }: AuditRiskGaug
             minorTicks={{ height: 0 }}
           >
             <RangesDirective>
-              <RangeDirective start={0} end={zone1} color="#10B981" startWidth={18} endWidth={18} roundedCornerRadius={5} />
-              <RangeDirective start={zone1} end={zone2} color="#F59E0B" startWidth={18} endWidth={18} />
-              <RangeDirective start={zone2} end={maxScore} color="#EF4444" startWidth={18} endWidth={18} roundedCornerRadius={5} />
+              <RangeDirective start={0} end={zone1} color={chartPalette.emerald} startWidth={18} endWidth={18} roundedCornerRadius={5} />
+              <RangeDirective start={zone1} end={zone2} color={chartPalette.amber} startWidth={18} endWidth={18} />
+              <RangeDirective start={zone2} end={maxScore} color={chartPalette.red} startWidth={18} endWidth={18} roundedCornerRadius={5} />
             </RangesDirective>
             <PointersDirective>
               <PointerDirective
                 value={score}
                 type="Needle"
-                color="#E2E8F0"
+                color={t.svgTextPrimary}
                 radius="65%"
                 pointerWidth={5}
                 needleTail={{ length: '0%' }}
-                cap={{ radius: 6, color: '#E2E8F0', border: { width: 0 } }}
+                cap={{ radius: 6, color: t.pointerCap, border: { width: 0 } }}
               />
             </PointersDirective>
           </AxisDirective>

@@ -59,7 +59,7 @@ export default function FreeEfilingPanel({ taxReturn, result, onBack }: FreeEfil
         Back to Filing Options
       </button>
 
-      <h2 className="text-xl font-bold text-white mb-1">Free Electronic Filing</h2>
+      <h2 className="text-xl font-bold text-slate-100 mb-1">Free Electronic Filing</h2>
       <p className="text-sm text-slate-400 mb-5">
         E-filing is faster, more accurate, and gets your refund sooner. Here are your free options.
       </p>
@@ -73,7 +73,7 @@ export default function FreeEfilingPanel({ taxReturn, result, onBack }: FreeEfil
             </span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-semibold text-white">Free Fillable Forms</h3>
+                <h3 className="text-sm font-semibold text-slate-100">Free Fillable Forms</h3>
                 <EligibilityBadge status={assessment.freeFileForms.status} />
               </div>
               <p className="text-xs text-slate-400 mt-1">
@@ -160,7 +160,7 @@ function OptionCard({
         <span className="text-telos-blue-400 mt-0.5">{icon}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm font-semibold text-white">{title}</h3>
+            <h3 className="text-sm font-semibold text-slate-100">{title}</h3>
             <EligibilityBadge status={eligibility.status} />
           </div>
           <p className="text-xs text-slate-400 mt-0.5">{contextLine}</p>

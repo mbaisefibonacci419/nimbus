@@ -138,7 +138,7 @@ function VariableControl({ variable, taxReturn, scenario, dispatch }: VariableCo
         <select
           value={String(currentValue)}
           onChange={(e) => handleChange(e.target.value)}
-          className="w-full bg-surface-900 border border-slate-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-telos-orange-500 focus:ring-1 focus:ring-telos-orange-500/30"
+          className="w-full bg-surface-900 border border-slate-600 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-telos-orange-500 focus:ring-1 focus:ring-telos-orange-500/30"
         >
           {variable.options.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -255,7 +255,7 @@ export default function ScenarioEditor({ taxReturn, scenario, dispatch, expanded
           placeholder="Search variables..."
           value={searchQuery}
           onChange={(e) => dispatch({ type: 'SET_SEARCH', query: e.target.value })}
-          className="w-full pl-9 pr-3 py-2 bg-surface-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500/30"
+          className="w-full pl-9 pr-3 py-2 bg-surface-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-telos-blue-500 focus:ring-1 focus:ring-telos-blue-500/30"
         />
       </div>
 

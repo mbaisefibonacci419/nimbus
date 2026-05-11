@@ -19,6 +19,7 @@ import { VARIABLE_DEFINITIONS } from '../variableDefinitions';
 import type { ScenarioLabAction, SensitivityConfig } from '../types';
 import { useSensitivityData } from './useSensitivityData';
 import { formatCurrency, formatPercent } from '../../../utils/format';
+import { useChartTheme, chartPalette, tooltipStyle, axisLabelStyle } from '../../../hooks/useChartTheme';
 
 const OUTPUT_METRICS = [
   { value: 'refundOrOwed', label: 'Refund / Owed' },
@@ -45,6 +46,8 @@ function formatCompact(val: number): string {
 }
 
 export default function SensitivityView({ taxReturn, config, dispatch, overrides }: SensitivityViewProps) {
+  const t = useChartTheme();
+
   // Local state for config bar before applying
   const sliderVars = VARIABLE_DEFINITIONS.filter(
     v => v.inputType === 'slider' && v.format === 'currency' && (!v.isRelevant || v.isRelevant(taxReturn)),
@@ -113,8 +116,8 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
       {/* Config bar */}
       <div className="flex flex-wrap items-end gap-4 rounded-lg border border-slate-700/50 bg-surface-800 p-4">
         <p className="w-full text-xs text-slate-400 mb-1">
-          See how changing <strong className="text-white">{varDef?.label ?? 'a variable'}</strong> affects your{' '}
-          <strong className="text-white">{metricLabel}</strong>.
+          See how changing <strong className="text-slate-100">{varDef?.label ?? 'a variable'}</strong> affects your{' '}
+          <strong className="text-slate-100">{metricLabel}</strong>.
         </p>
 
         <div className="flex-1 min-w-[160px]">
@@ -122,7 +125,7 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
           <select
             value={selectedVar}
             onChange={(e) => setSelectedVar(e.target.value)}
-            className="w-full bg-surface-900 border border-slate-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-telos-orange-500"
+            className="w-full bg-surface-900 border border-slate-600 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-telos-orange-500"
           >
             {sliderVars.map(v => (
               <option key={v.key} value={v.key}>{v.label}</option>
@@ -135,7 +138,7 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
           <select
             value={outputMetric}
             onChange={(e) => setOutputMetric(e.target.value)}
-            className="w-full bg-surface-900 border border-slate-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-telos-orange-500"
+            className="w-full bg-surface-900 border border-slate-600 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-telos-orange-500"
           >
             {OUTPUT_METRICS.map(m => (
               <option key={m.value} value={m.value}>{m.label}</option>
@@ -164,16 +167,11 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
             height="280px"
             background="transparent"
             chartArea={{ border: { width: 0 } }}
-            tooltip={{
-              enable: true,
-              fill: '#1C1C1F',
-              border: { color: '#3E3E44', width: 1 },
-              textStyle: { color: '#E2E8F0', fontFamily: 'Inter Variable, sans-serif', size: '12px' },
-            }}
+            tooltip={{ enable: true, ...tooltipStyle(t) }}
             crosshair={{
               enable: true,
               lineType: 'Vertical',
-              line: { color: '#3E3E44', width: 1 },
+              line: { color: t.connector, width: 1 },
             }}
             tooltipRender={tooltipRender}
             axisLabelRender={axisLabelRender}
@@ -181,9 +179,9 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
               valueType: 'Double',
               minimum: activeConfig.min,
               maximum: activeConfig.max,
-              labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
+              labelStyle: axisLabelStyle(t),
               majorGridLines: { width: 0 },
-              lineStyle: { color: '#2C2C31', width: 1 },
+              lineStyle: { color: t.gridLine, width: 1 },
               majorTickLines: { width: 0 },
               stripLines: [{
                 start: currentValue,
@@ -191,14 +189,14 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
                 sizeType: 'Pixel',
                 color: 'rgba(59, 130, 246, 0.5)',
                 text: `Current: ${formatCurrency(currentValue)}`,
-                textStyle: { color: '#60A5FA', size: '10px' },
+                textStyle: { color: chartPalette.blue400, size: '10px' },
                 verticalAlignment: 'Start',
                 visible: true,
               }],
             }}
             primaryYAxis={{
-              labelStyle: { color: '#94A3B8', fontFamily: 'Inter Variable, sans-serif', size: '11px' },
-              majorGridLines: { color: '#1C1C1F', width: 0.5 },
+              labelStyle: axisLabelStyle(t),
+              majorGridLines: { color: t.tooltipBg, width: 0.5 },
               lineStyle: { width: 0 },
               majorTickLines: { width: 0 },
             }}
@@ -211,9 +209,9 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
                 xName="input"
                 yName="output"
                 type="SplineArea"
-                fill="#F97316"
+                fill={chartPalette.orange}
                 opacity={0.15}
-                border={{ width: 2, color: '#F97316' }}
+                border={{ width: 2, color: chartPalette.orange }}
                 marker={{ visible: false }}
               />
             </SeriesCollectionDirective>
@@ -256,7 +254,7 @@ export default function SensitivityView({ taxReturn, config, dispatch, overrides
                         <td className="px-4 py-1.5 text-slate-300 font-mono tabular-nums">
                           {varDef?.format === 'currency' ? formatCurrency(pt.input) : pt.input.toLocaleString()}
                         </td>
-                        <td className="px-4 py-1.5 text-right text-white font-mono tabular-nums">
+                        <td className="px-4 py-1.5 text-right text-slate-100 font-mono tabular-nums">
                           {formatOutput(pt.output)}
                         </td>
                         <td className={`px-4 py-1.5 text-right font-mono tabular-nums ${

@@ -172,7 +172,7 @@ function OverallProgressHeader({
     <div className="card">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-slate-200">Overall Completeness</h3>
-        <span className="text-2xl font-bold text-white tabular-nums">{completeness}%</span>
+        <span className="text-2xl font-bold text-slate-100 tabular-nums">{completeness}%</span>
       </div>
 
       {/* Progress bar */}
@@ -272,7 +272,7 @@ function IncomeFormGroupCard({ group }: { group: FormTypeGroup }) {
 
         {/* Key total */}
         {hasEntries && group.keyTotal !== 0 && (
-          <span className="text-sm font-medium text-white tabular-nums shrink-0">
+          <span className="text-sm font-medium text-slate-100 tabular-nums shrink-0">
             ${group.keyTotal.toLocaleString()}
           </span>
         )}

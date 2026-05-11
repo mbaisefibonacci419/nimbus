@@ -4,7 +4,9 @@ import { useTaxReturnStore, SECTIONS } from '../../store/taxReturnStore';
 import {
   Check, ChevronRight, ChevronDown, Circle, User, DollarSign, Briefcase, Scissors, Award,
   MapPin, ClipboardCheck, Download, LucideIcon, BookOpen, AlertCircle, Trash2, Wrench,
+  Sun, Moon,
 } from 'lucide-react';
+import { useThemeStore } from '../../store/themeStore';
 import ResourcesPanel from './ResourcesPanel';
 import { SIDEBAR_TOOLS, hasMinimumIncomeData } from '../../data/sidebarTools';
 import { deleteReturn } from '../../api/client';
@@ -83,6 +85,21 @@ function WarningPopover({ warnings, children }: { warnings: ValidationWarning[];
         </div>
       )}
     </span>
+  );
+}
+
+function ThemeToggle() {
+  const { mode, toggle } = useThemeStore();
+  const isDark = mode === 'dark';
+  return (
+    <button
+      onClick={toggle}
+      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-slate-200 hover:bg-surface-700 rounded-lg transition-colors"
+    >
+      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      {isDark ? 'Light mode' : 'Dark mode'}
+    </button>
   );
 }
 
@@ -210,7 +227,7 @@ export default function StepSidebar({ onStepClick }: StepSidebarProps) {
                         transition-colors duration-150 border-l-2 cursor-pointer
                         focus-visible:ring-2 focus-visible:ring-telos-blue-500 focus-visible:ring-inset focus-visible:outline-none
                         ${isActive
-                          ? 'text-white bg-telos-blue-600/20 border-telos-blue-400'
+                          ? 'text-slate-100 bg-telos-blue-600/20 border-telos-blue-400'
                           : isPast
                             ? 'text-slate-400 hover:text-slate-200 hover:bg-surface-700 border-transparent'
                             : isUnreached
@@ -271,7 +288,7 @@ export default function StepSidebar({ onStepClick }: StepSidebarProps) {
                       ${isDisabled
                         ? 'text-slate-600 border-transparent cursor-not-allowed'
                         : isActive
-                          ? 'text-white bg-telos-blue-600/20 border-telos-blue-400 cursor-pointer'
+                          ? 'text-slate-100 bg-telos-blue-600/20 border-telos-blue-400 cursor-pointer'
                           : 'text-slate-400 hover:text-slate-200 hover:bg-surface-700 border-transparent cursor-pointer'
                       }
                     `}
@@ -296,6 +313,7 @@ export default function StepSidebar({ onStepClick }: StepSidebarProps) {
 
         {/* Bottom actions - pinned */}
         <div className="shrink-0 border-t border-slate-700 p-3 space-y-2">
+          <ThemeToggle />
           <button
             onClick={() => setResourcesOpen(true)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-slate-200 hover:bg-surface-700 rounded-lg transition-colors"

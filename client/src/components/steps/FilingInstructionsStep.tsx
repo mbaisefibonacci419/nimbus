@@ -274,7 +274,7 @@ function HubView({
                   </li>
                 ))}
               </ul>
-              <p className="text-sm text-white font-semibold mt-3">
+              <p className="text-sm text-slate-100 font-semibold mt-3">
                 Recommended: ${estimatedRec.quarterlyAmount.toLocaleString()} per quarter
               </p>
               <p className="text-xs text-slate-400 mt-1">
@@ -303,9 +303,9 @@ function HubView({
               <p className="text-sm font-semibold text-amber-300">You May Need to File FBAR (FinCEN 114)</p>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
                 You reported foreign income or foreign tax paid. If you had a financial interest in or signature authority
-                over foreign financial accounts with an aggregate value exceeding <span className="font-semibold text-white">$10,000</span> at
+                over foreign financial accounts with an aggregate value exceeding <span className="font-semibold text-slate-100">$10,000</span> at
                 any time during 2025, you must file FinCEN Form 114 (FBAR) separately — it is <em>not</em> filed with
-                your tax return. Penalties for non-filing start at <span className="font-semibold text-white">$10,000 per violation</span>.
+                your tax return. Penalties for non-filing start at <span className="font-semibold text-slate-100">$10,000 per violation</span>.
               </p>
               <a
                 href="https://www.irs.gov/businesses/small-businesses-self-employed/report-of-foreign-bank-and-financial-accounts-fbar"
@@ -404,7 +404,7 @@ function ExtensionCard({
         <div className="flex-1">
           <p className="text-sm font-semibold text-amber-300">Need More Time?</p>
           <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-            Form 4868 gives you an automatic 6-month extension to <span className="font-semibold text-white">October 15, 2026</span>.
+            Form 4868 gives you an automatic 6-month extension to <span className="font-semibold text-slate-100">October 15, 2026</span>.
             This extends your <em>filing</em> deadline only — any tax owed is still due April 15.
           </p>
 
@@ -464,7 +464,7 @@ function PathwayCard({
       <span className="text-telos-blue-400 shrink-0">{icon}</span>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-white">{title}</span>
+          <span className="text-sm font-semibold text-slate-100">{title}</span>
           {badge && (
             <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
               {badge}

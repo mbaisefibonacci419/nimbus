@@ -120,7 +120,7 @@ export default function AISettingsPanel({ onBack, onOpenPrivacyLog }: Props) {
 
         {/* ─── Tip Jar ──────────────────────────── */}
         <div className="rounded-lg border border-telos-orange-400 bg-telos-orange-500/5 p-3">
-          <p className="text-xs text-white font-medium mb-1">Support Nimbus</p>
+          <p className="text-xs text-slate-100 font-medium mb-1">Support Nimbus</p>
           <p className="text-[11px] text-slate-400 mb-2.5">
             Love the app? Leave a tip.
           </p>
@@ -198,7 +198,7 @@ export default function AISettingsPanel({ onBack, onOpenPrivacyLog }: Props) {
                       onChange={(e) => setApiKeyInput(e.target.value)}
                       placeholder="sk-ant-..."
                       className="w-full bg-surface-900 border border-slate-600 rounded-md px-2.5 py-1.5 pr-8
-                                 text-xs text-white font-mono
+                                 text-xs text-slate-100 font-mono
                                  focus:outline-none focus:ring-2 focus:ring-telos-blue-500"
                     />
                     <button
@@ -244,7 +244,7 @@ export default function AISettingsPanel({ onBack, onOpenPrivacyLog }: Props) {
                   value={settings.byokModel}
                   onChange={(e) => settings.setBYOKModel(e.target.value)}
                   className="mt-1 w-full bg-surface-900 border border-slate-600 rounded-md px-2.5 py-1.5
-                             text-xs text-white focus:outline-none focus:ring-2 focus:ring-telos-blue-500"
+                             text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-telos-blue-500"
                 >
                   <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fast, affordable)</option>
                   <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (balanced)</option>

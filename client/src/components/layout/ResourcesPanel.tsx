@@ -57,7 +57,7 @@ export default function ResourcesPanel({ open, onClose }: ResourcesPanelProps) {
         <div className="sticky top-0 bg-surface-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-telos-blue-400" />
-            <h2 className="font-semibold text-white">Tax Resources</h2>
+            <h2 className="font-semibold text-slate-100">Tax Resources</h2>
           </div>
           <button
             ref={closeBtnRef}
@@ -112,7 +112,7 @@ export default function ResourcesPanel({ open, onClose }: ResourcesPanelProps) {
                         >
                           <ResourceIcon className="w-3.5 h-3.5 mt-0.5 text-slate-400 shrink-0 group-hover:text-telos-blue-400 transition-colors" />
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm text-slate-300 group-hover:text-white transition-colors flex items-center gap-1">
+                            <div className="text-sm text-slate-300 group-hover:text-slate-100 transition-colors flex items-center gap-1">
                               <span className="truncate">{resource.title}</span>
                               <ExternalLink className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-telos-blue-400" />
                             </div>

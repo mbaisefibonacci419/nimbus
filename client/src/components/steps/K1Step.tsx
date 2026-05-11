@@ -186,7 +186,7 @@ export default function K1Step() {
           className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
         />
         <div>
-          <span className="text-sm text-slate-200 group-hover:text-white">
+          <span className="text-sm text-slate-200 group-hover:text-slate-100">
             Cooperative patronage income (Subchapter T)
           </span>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -244,7 +244,7 @@ export default function K1Step() {
           className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
         />
         <div>
-          <span className="text-sm text-slate-200 group-hover:text-white">
+          <span className="text-sm text-slate-200 group-hover:text-slate-100">
             This K-1 income is from a passive activity
           </span>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -263,7 +263,7 @@ export default function K1Step() {
             className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
           />
           <div>
-            <span className="text-sm text-slate-200 group-hover:text-white">
+            <span className="text-sm text-slate-200 group-hover:text-slate-100">
               Limited partner
             </span>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -293,7 +293,7 @@ export default function K1Step() {
           className="mt-1 rounded border-slate-600 bg-slate-800 text-telos-blue-500 focus:ring-telos-blue-500"
         />
         <div>
-          <span className="text-sm text-slate-200 group-hover:text-white">
+          <span className="text-sm text-slate-200 group-hover:text-slate-100">
             Disposed of this K-1 interest during the year
           </span>
           <p className="text-xs text-slate-500 mt-0.5">

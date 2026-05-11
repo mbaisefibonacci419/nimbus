@@ -78,7 +78,7 @@ export default function ForeignTaxCreditStep() {
       {totalForeignTax > 0 && (
         <div className="rounded-xl border p-6 mt-4 bg-telos-blue-600/10 border-telos-blue-600/30 text-center">
           <p className="text-sm text-slate-400">Total Foreign Tax Paid</p>
-          <p className="text-2xl font-bold text-white">${totalForeignTax.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-slate-100">${totalForeignTax.toLocaleString()}</p>
         </div>
       )}
 
