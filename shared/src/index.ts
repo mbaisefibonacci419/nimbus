@@ -83,6 +83,9 @@ export * from './utils/llmResponseParser.js';
 // PII scanner (client primary gate + server defense-in-depth)
 export * from './utils/piiScanner.js';
 
+// PII field extractor (local data capture from PII-bearing messages)
+export * from './utils/piiFieldExtractor.js';
+
 // IRS fillable PDF form mappings
 export * from './types/irsFormMappings.js';
 export * from './types/stateFormMappings.js';

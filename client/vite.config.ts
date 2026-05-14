@@ -1,18 +1,21 @@
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 /** Replace the CSP connect-src placeholder based on build mode. */
 function cspPlugin(): Plugin {
+  let apiOrigin = '';
   return {
     name: 'csp-connect-src',
+    configResolved(config) {
+      const env = loadEnv(config.mode, config.envDir || process.cwd(), '');
+      apiOrigin = env.VITE_API_ORIGIN || env.VITE_API_BASE || '';
+    },
     transformIndexHtml: {
       order: 'pre',
       handler(html, ctx) {
-        const apiOrigin = process.env.VITE_API_ORIGIN || process.env.VITE_API_BASE || '';
-        // In dev mode, allow localhost:3001; in production, only 'self' + optional API origin
         const connectSrc = ctx.server
-          ? "'self' http://localhost:3001"
+          ? `'self' http://localhost:3001${apiOrigin ? ` ${apiOrigin}` : ''}`
           : apiOrigin
             ? `'self' ${apiOrigin}`
             : "'self'";
@@ -26,6 +29,7 @@ function cspPlugin(): Plugin {
 }
 
 export default defineConfig({
+  envDir: '..',
   plugins: [
     cspPlugin(),
     react(),
@@ -89,7 +93,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    host: '127.0.0.1',
+    host: true,
   },
   optimizeDeps: {
     include: ['pdfjs-dist'],

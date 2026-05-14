@@ -1,0 +1,161 @@
+[
+  {
+    "id": "agent-dependents-no-dependents",
+    "description": "User says they have no dependents — agent must emit set_income_discovery to mark complete",
+    "input": {
+      "message": "No, I don't have any dependents",
+      "context": {
+        "agentMode": true,
+        "activeSkill": "dependents",
+        "currentSection": "onboarding",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "dependents_asked", "value": "yes" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "agent-dependents-has-dependents",
+    "description": "User says they have one dependent — agent should add_dependent",
+    "input": {
+      "message": "Yes, I have a daughter named Emma, born March 15, 2018",
+      "context": {
+        "agentMode": true,
+        "activeSkill": "dependents",
+        "currentSection": "onboarding",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0
+      }
+    },
+    "expected": {
+      "actionTypes": ["add_dependent"],
+      "actionFields": [
+        { "type": "add_dependent" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "agent-credits-no-credits",
+    "description": "User confirms no tax credits apply — agent must emit credits_asked flag",
+    "input": {
+      "message": "No, none of those credits apply to me",
+      "context": {
+        "agentMode": true,
+        "activeSkill": "credits",
+        "currentSection": "credits",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "dependentCount": 0
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "credits_asked", "value": "yes" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "agent-state-no-state-return",
+    "description": "User confirms state is handled — agent must emit state_asked flag",
+    "input": {
+      "message": "I don't need to file a state return, I live in Texas",
+      "context": {
+        "agentMode": true,
+        "activeSkill": "state-taxes",
+        "currentSection": "state",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "addressState": "TX"
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "state_asked", "value": "yes" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "agent-above-line-none",
+    "description": "User has no above-the-line deductions — agent must emit above_line_asked flag",
+    "input": {
+      "message": "No, I don't have any of those — no HSA, no student loans, no IRA contributions",
+      "context": {
+        "agentMode": true,
+        "activeSkill": "deductions-above-line",
+        "currentSection": "deductions",
+        "filingStatus": "single",
+        "incomeDiscovery": {},
+        "deductionMethod": "standard"
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "above_line_asked", "value": "yes" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "agent-income-no-w2",
+    "description": "User says no W-2 income — agent must set w2 discovery to no",
+    "input": {
+      "message": "No, I didn't have any W-2 jobs this year",
+      "context": {
+        "agentMode": true,
+        "activeSkill": "income-wages",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "w2", "value": "no" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  },
+  {
+    "id": "agent-income-other-none",
+    "description": "User confirms no other income — agent must set other_income_asked flag",
+    "input": {
+      "message": "Nope, that covers everything. No gambling, no alimony, nothing else",
+      "context": {
+        "agentMode": true,
+        "activeSkill": "income-other",
+        "currentSection": "income",
+        "filingStatus": "single",
+        "incomeDiscovery": {}
+      }
+    },
+    "expected": {
+      "actionTypes": ["set_income_discovery"],
+      "actionFields": [
+        { "type": "set_income_discovery", "incomeType": "other_income_asked", "value": "yes" }
+      ],
+      "suggestedStep": null,
+      "hasMessage": true
+    }
+  }
+]

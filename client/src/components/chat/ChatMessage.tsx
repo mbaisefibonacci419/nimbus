@@ -11,8 +11,9 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Copy, Check, RotateCcw, RefreshCw, Pencil, ThumbsUp, ThumbsDown, Volume2, VolumeX, FileText, Loader2 } from 'lucide-react';
+import { Copy, Check, RotateCcw, RefreshCw, Pencil, ThumbsUp, ThumbsDown, Volume2, VolumeX, FileText, Loader2, CheckCircle2, Send } from 'lucide-react';
 import type { ChatMessageUI } from '../../store/chatStore';
+import type { ChatOption } from '@nimbus/engine';
 import ActionPreview from './ActionPreview';
 import MarkdownMessage from './MarkdownMessage';
 import { injectStepLinks } from '../../services/stepLinkInjector';
@@ -28,6 +29,143 @@ interface Props {
   onFollowUp: (text: string) => void;
   onEditAndResend: (messageId: string, newText: string) => void;
   onRetry: (messageId: string) => void;
+}
+
+function OptionPills({
+  options,
+  multiSelect,
+  onFollowUp,
+}: {
+  options: ChatOption[];
+  multiSelect?: boolean;
+  onFollowUp: (text: string) => void;
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  if (!multiSelect) {
+    return (
+      <div className="mt-3 pt-2.5 border-t border-slate-600/30 flex flex-wrap gap-2">
+        {options.map((opt, idx) => (
+          <button
+            key={idx}
+            onClick={() => onFollowUp(opt.value ?? opt.label)}
+            className="group/pill flex flex-col items-start px-3.5 py-2 rounded-xl
+                       bg-telos-blue-600/10 border border-telos-blue-500/30
+                       hover:bg-telos-blue-600/20 hover:border-telos-blue-400/50
+                       active:scale-[0.97] transition-all cursor-pointer text-left"
+          >
+            <span className="text-sm font-medium text-telos-blue-200 group-hover/pill:text-telos-blue-100">
+              {opt.label}
+            </span>
+            {opt.description && (
+              <span className="text-[11px] text-slate-400 mt-0.5 leading-tight">
+                {opt.description}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  const toggle = (value: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
+  };
+
+  const handleSubmit = () => {
+    if (selected.size === 0) return;
+    const labels = options
+      .filter((o) => selected.has(o.value ?? o.label))
+      .map((o) => o.label);
+    onFollowUp(labels.join(', '));
+  };
+
+  const noneOption = options.find(
+    (o) => (o.value ?? o.label).toLowerCase() === 'none' ||
+           o.label.toLowerCase().startsWith('none of'),
+  );
+  const regularOptions = options.filter((o) => o !== noneOption);
+
+  const handleNone = () => {
+    if (noneOption) {
+      onFollowUp(noneOption.value ?? noneOption.label);
+    }
+  };
+
+  return (
+    <div className="mt-3 pt-2.5 border-t border-slate-600/30">
+      <div className="flex items-center gap-1.5 mb-2">
+        <CheckCircle2 className="w-3.5 h-3.5 text-telos-blue-400" />
+        <span className="text-[11px] font-medium text-slate-400">
+          Select all that apply
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {regularOptions.map((opt, idx) => {
+          const val = opt.value ?? opt.label;
+          const isSelected = selected.has(val);
+          return (
+            <button
+              key={idx}
+              onClick={() => toggle(val)}
+              className={`group/pill flex items-start gap-2 px-3.5 py-2 rounded-xl
+                         border transition-all cursor-pointer text-left active:scale-[0.97]
+                         ${isSelected
+                           ? 'bg-telos-blue-600/25 border-telos-blue-400/60 ring-1 ring-telos-blue-500/30'
+                           : 'bg-telos-blue-600/10 border-telos-blue-500/30 hover:bg-telos-blue-600/20 hover:border-telos-blue-400/50'
+                         }`}
+            >
+              <div className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-colors
+                              ${isSelected
+                                ? 'bg-telos-blue-500 border-telos-blue-400'
+                                : 'border-slate-500 bg-transparent'
+                              }`}>
+                {isSelected && <Check className="w-3 h-3 text-white" />}
+              </div>
+              <div className="flex flex-col">
+                <span className={`text-sm font-medium ${isSelected ? 'text-telos-blue-100' : 'text-telos-blue-200'}`}>
+                  {opt.label}
+                </span>
+                {opt.description && (
+                  <span className="text-[11px] text-slate-400 mt-0.5 leading-tight">
+                    {opt.description}
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center gap-2">
+        <button
+          onClick={handleSubmit}
+          disabled={selected.size === 0}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium
+                     bg-telos-blue-600 hover:bg-telos-blue-500 text-white
+                     disabled:opacity-40 disabled:cursor-not-allowed
+                     transition-colors active:scale-[0.97]"
+        >
+          <Send className="w-3.5 h-3.5" />
+          Done ({selected.size})
+        </button>
+        {noneOption && (
+          <button
+            onClick={handleNone}
+            className="text-[11px] px-3 py-1.5 rounded-lg
+                       text-slate-400 hover:text-slate-300 hover:bg-slate-700/50
+                       transition-colors cursor-pointer"
+          >
+            {noneOption.label}
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function ChatMessage({
@@ -223,6 +361,15 @@ export default function ChatMessage({
             onApplied={onActionsApplied}
             onDismissed={onActionsDismissed}
             onUndo={onUndoActions}
+          />
+        )}
+
+        {/* Option pills (structured choices — last assistant message only) */}
+        {isLastAssistant && message.options && message.options.length > 0 && (
+          <OptionPills
+            options={message.options}
+            multiSelect={message.multiSelect}
+            onFollowUp={onFollowUp}
           />
         )}
 

@@ -70,6 +70,111 @@ describe('parseResponse — valid JSON', () => {
     }));
     expect(result.followUpChips).toEqual(['valid', 'also valid']);
   });
+
+  // ── Options parsing ──
+
+  it('parses options array with label/value/description objects', () => {
+    const result = parseResponse(validResponse({
+      options: [
+        { label: 'Single', value: 'single', description: 'Unmarried' },
+        { label: 'MFJ', value: 'married_filing_jointly', description: 'Married, joint return' },
+      ],
+    }));
+    expect(result.options).toBeDefined();
+    expect(result.options).toHaveLength(2);
+    expect(result.options![0].label).toBe('Single');
+    expect(result.options![0].value).toBe('single');
+    expect(result.options![1].label).toBe('MFJ');
+  });
+
+  it('parses options with only label (minimal valid option)', () => {
+    const result = parseResponse(validResponse({
+      options: [{ label: 'Yes' }, { label: 'No' }],
+    }));
+    expect(result.options).toHaveLength(2);
+    expect(result.options![0].label).toBe('Yes');
+  });
+
+  it('filters out malformed options missing label', () => {
+    const result = parseResponse(validResponse({
+      options: [
+        { label: 'Valid', value: 'v' },
+        { value: 'no_label' },
+        42,
+        null,
+      ],
+    }));
+    expect(result.options).toHaveLength(1);
+    expect(result.options![0].label).toBe('Valid');
+  });
+
+  it('omits options when array is empty', () => {
+    const result = parseResponse(validResponse({ options: [] }));
+    expect(result.options).toBeUndefined();
+  });
+
+  it('omits options when not present in JSON', () => {
+    const result = parseResponse(validResponse());
+    expect(result.options).toBeUndefined();
+  });
+
+  it('preserves options alongside actions and followUpChips', () => {
+    const result = parseResponse(validResponse({
+      actions: [{ type: 'set_income_discovery', incomeType: 'credits_asked', value: 'yes' }],
+      options: [
+        { label: 'Yes, continue', value: 'continue' },
+        { label: 'Wait', value: 'wait' },
+      ],
+      followUpChips: ['Tell me more'],
+    }));
+    expect(result.actions).toHaveLength(1);
+    expect(result.options).toHaveLength(2);
+    expect(result.followUpChips).toHaveLength(1);
+  });
+
+  it('parses the exact raw JSON from the user-reported bug', () => {
+    const rawJson = `{ "message": "No problem! That's actually good news — none of those add to your tax bill. 🎉\\n\\nYour current refund estimate stays at $5,520.82 and we're all set on Other Income.\\n\\nReady to move on to the next section?", "actions": [ { "type": "set_income_discovery", "incomeType": "other_income_asked", "value": "yes" } ], "suggestedStep": null, "options": [ { "label": "Yes, let's continue", "value": "continue", "description": "Move to the next section" }, { "label": "Wait, I have a question", "value": "question", "description": "Ask about something first" } ], "followUpChips": [] }`;
+    const result = parseResponse(rawJson);
+    expect(result.message).toContain('good news');
+    expect(result.actions).toHaveLength(1);
+    expect(result.actions[0].type).toBe('set_income_discovery');
+    expect(result.options).toBeDefined();
+    expect(result.options).toHaveLength(2);
+    expect(result.options![0].label).toBe("Yes, let's continue");
+    expect(result.options![1].label).toBe('Wait, I have a question');
+  });
+
+  // ── multiSelect parsing ──
+
+  it('parses multiSelect: true from JSON response', () => {
+    const result = parseResponse(validResponse({
+      multiSelect: true,
+      options: [
+        { label: 'HSA contributions', value: 'hsa' },
+        { label: 'Student loan interest', value: 'student_loan' },
+        { label: 'None of these', value: 'none' },
+      ],
+    }));
+    expect(result.multiSelect).toBe(true);
+    expect(result.options).toHaveLength(3);
+  });
+
+  it('omits multiSelect when not present in JSON', () => {
+    const result = parseResponse(validResponse({
+      options: [{ label: 'Single', value: 'single' }],
+    }));
+    expect(result.multiSelect).toBeUndefined();
+  });
+
+  it('omits multiSelect when set to false', () => {
+    const result = parseResponse(validResponse({ multiSelect: false }));
+    expect(result.multiSelect).toBeUndefined();
+  });
+
+  it('ignores multiSelect when it is not a boolean', () => {
+    const result = parseResponse(validResponse({ multiSelect: 'yes' }));
+    expect(result.multiSelect).toBeUndefined();
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════

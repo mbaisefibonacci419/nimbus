@@ -288,7 +288,7 @@ export default function LockScreen({ mode, onUnlock, error: externalError, inlin
             <span className="text-telos-orange-400">Ni</span>
             <span className="text-telos-blue-400">mbus</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Playground for new TT tax prep UX.</p>
+          <p className="text-slate-400 text-sm mt-1">Playground to explore new TurboTax AI-powered tax prep UX.</p>
         </div>
         {formContent}
       </div>

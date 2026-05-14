@@ -152,12 +152,16 @@ router.post('/byok', async (req: Request, res: Response) => {
       context as Record<string, unknown>,
     );
 
-    const systemPrompt = buildSystemPrompt({
-      currentSection: sanitizedContext.currentSection as string | undefined,
-      incomeDiscovery: sanitizedContext.incomeDiscovery as Record<string, string> | undefined,
-      activeToolId: (sanitizedContext as { activeToolId?: string | null }).activeToolId ?? undefined,
-      taxYear: sanitizedContext.taxYear as number | undefined,
-    });
+    // Agent mode: use the orchestrator-built prompt instead of the default
+    const agentCtx = sanitizedContext as { agentMode?: boolean; agentSystemPrompt?: string };
+    const systemPrompt = agentCtx.agentMode && agentCtx.agentSystemPrompt
+      ? agentCtx.agentSystemPrompt
+      : buildSystemPrompt({
+          currentSection: sanitizedContext.currentSection as string | undefined,
+          incomeDiscovery: sanitizedContext.incomeDiscovery as Record<string, string> | undefined,
+          activeToolId: (sanitizedContext as { activeToolId?: string | null }).activeToolId ?? undefined,
+          taxYear: sanitizedContext.taxYear as number | undefined,
+        });
 
     // 5. Call Anthropic with the user's key (one-shot, key never stored)
     let response: ChatResponse;
@@ -260,12 +264,16 @@ router.post('/byok/stream', async (req: Request, res: Response) => {
     }
   };
 
-  const systemPrompt = buildSystemPrompt({
-    currentSection: sanitizedContext.currentSection as string | undefined,
-    incomeDiscovery: sanitizedContext.incomeDiscovery as Record<string, string> | undefined,
-    activeToolId: (sanitizedContext as { activeToolId?: string | null }).activeToolId ?? undefined,
-    taxYear: sanitizedContext.taxYear as number | undefined,
-  });
+  // Agent mode: use the orchestrator-built prompt instead of the default
+  const agentCtxStream = sanitizedContext as { agentMode?: boolean; agentSystemPrompt?: string };
+  const systemPrompt = agentCtxStream.agentMode && agentCtxStream.agentSystemPrompt
+    ? agentCtxStream.agentSystemPrompt
+    : buildSystemPrompt({
+        currentSection: sanitizedContext.currentSection as string | undefined,
+        incomeDiscovery: sanitizedContext.incomeDiscovery as Record<string, string> | undefined,
+        activeToolId: (sanitizedContext as { activeToolId?: string | null }).activeToolId ?? undefined,
+        taxYear: sanitizedContext.taxYear as number | undefined,
+      });
 
   try {
     const response = await anthropicStreamWithKey(

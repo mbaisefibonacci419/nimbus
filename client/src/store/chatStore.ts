@@ -11,7 +11,7 @@
  */
 
 import { create } from 'zustand';
-import type { ChatAction, ChatResponse } from '@nimbus/engine';
+import type { ChatAction, ChatOption, ChatResponse } from '@nimbus/engine';
 import {
   sendChatMessage,
   sendChatMessageStream,
@@ -40,6 +40,7 @@ import {
   validateResponseGrounding,
   type GroundingDiscrepancy,
 } from '../services/responseValidator';
+import { extractPIIFields } from '@nimbus/engine';
 
 // ─── Types ────────────────────────────────────────
 
@@ -78,6 +79,10 @@ export interface ChatMessageUI {
   feedback?: 'up' | 'down' | null;
   /** Suggested follow-up questions from the LLM. */
   followUpChips?: string[];
+  /** Structured selectable options (rendered as tappable pills). */
+  options?: ChatOption[];
+  /** When true, options support multi-select with a confirm button. */
+  multiSelect?: boolean;
   /** Attached document metadata (user messages only). */
   attachment?: ChatAttachment;
   /** Post-response grounding check: dollar amounts vs current calculation. */
@@ -151,7 +156,7 @@ interface ChatState {
   /** Attach a document (PDF/image), run extraction, and propose import actions. */
   sendDocumentMessage: (file: File) => Promise<void>;
   /** Insert an assistant message locally (no LLM). Used for proactive step-transition nudges. */
-  injectProactiveMessage: (message: string, followUpChips?: string[]) => void;
+  injectProactiveMessage: (message: string, followUpChips?: string[], options?: ChatOption[]) => void;
   /** Persist a proactive nudge category to the return so it is not shown again. */
   dismissProactiveCategory: (category: string) => void;
 }
@@ -205,6 +210,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   hydrateForReturn: (returnId: string) => {
+    _transitionShownForSkills.clear();
     set({ chatReturnId: returnId, messages: [], error: null, piiWarning: null });
     // Load persisted history async — messages appear once decrypted
     loadChatHistory(returnId).then((persisted) => {
@@ -218,6 +224,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   clearHistory: () => {
     const returnId = get().chatReturnId;
+    _transitionShownForSkills.clear();
     set({ messages: [], error: null, piiWarning: null });
     if (returnId) deleteChatHistory(returnId);
   },
@@ -269,8 +276,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     // Stash PII types so the transport can include them in the audit log
     stashPiiTypes(warning.detectedTypes);
+
+    // Extract structured field values from the ORIGINAL message (before
+    // sanitization) and apply them directly to the local tax return.
+    // This lets the section progress even though the LLM never sees the PII.
+    const { fields, llmHint } = extractPIIFields(
+      warning.originalMessage,
+      warning.detectedTypes,
+    );
+
+    if (fields.length > 0) {
+      const taxStore = useTaxReturnStore.getState();
+      for (const f of fields) {
+        taxStore.updateField(f.field, f.value);
+      }
+    }
+
     set({ piiWarning: null });
-    await _doSendMessage(warning.sanitizedMessage, set, get);
+
+    // Send the sanitized message + hint so the LLM knows not to re-ask
+    const messageForLLM = warning.sanitizedMessage + llmHint;
+    await _doSendMessage(messageForLLM, set, get);
   },
 
   markActionsApplied: (messageId: string, summary: string) => {
@@ -282,6 +308,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ),
     });
     _persistMessages(get);
+
+    // Agent mode: check if the active skill is now complete and advance
+    _maybeAdvanceAgentSkill(get);
   },
 
   markActionsDismissed: (messageId: string) => {
@@ -621,6 +650,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
             ? response.actions.filter((a) => a.type !== 'no_action')
             : undefined,
         followUpChips: response.followUpChips,
+        options: response.options,
+        multiSelect: response.multiSelect,
       };
 
       set({ messages: [...get().messages, assistantMsg], isLoading: false, streamingContent: null });
@@ -643,13 +674,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  injectProactiveMessage: (message: string, followUpChips?: string[]) => {
+  injectProactiveMessage: (message: string, followUpChips?: string[], options?: ChatOption[]) => {
     const assistantMsg: ChatMessageUI = {
       id: generateMessageId(),
       role: 'assistant',
       content: message,
       timestamp: Date.now(),
       ...(followUpChips && followUpChips.length > 0 ? { followUpChips } : {}),
+      ...(options && options.length > 0 ? { options } : {}),
     };
     set({ messages: [...get().messages, assistantMsg] });
     _persistMessages(get);
@@ -672,6 +704,9 @@ async function _doSendMessage(
   set: (partial: Partial<ChatState>) => void,
   get: () => ChatState,
 ) {
+  // Bump the version counter to invalidate any pending _maybeAdvanceAgentSkill timeout.
+  _agentStateVersion++;
+
   // Add user message
   const userMsg: ChatMessageUI = {
     id: generateMessageId(),
@@ -738,6 +773,49 @@ async function _doSendMessage(
       _pendingExtraContext = null;
     }
 
+    // Agent mode: always use the orchestrator-built system prompt
+    if (taxStore.viewMode === 'agent' && taxStore.taxReturn) {
+      const { AgentOrchestrator, createInitialAgentState } = await import('../services/agent/AgentOrchestrator');
+      const { SKILL_REGISTRY } = await import('../services/agent/SkillRegistry');
+      const savedState = (taxStore.taxReturn as unknown as Record<string, unknown>)?.agentState;
+      const agentState = (savedState as import('../services/agent/AgentOrchestrator').AgentState) ?? createInitialAgentState();
+      const orchestrator = new AgentOrchestrator(agentState);
+
+      // Sync completion from existing return data
+      orchestrator.syncCompletionFromReturn(taxStore.taxReturn);
+
+      // If no skill is active, select and activate the next one
+      if (!orchestrator.getState().activeSkill) {
+        const nextSkill = orchestrator.selectNextSkill(taxStore.taxReturn);
+        if (nextSkill) {
+          orchestrator.activateSkill(nextSkill);
+        }
+      }
+
+      // Check for topic switch based on user message
+      const detour = orchestrator.handleTopicSwitch(text, taxStore.taxReturn);
+      if (detour) {
+        orchestrator.activateSkill(detour);
+      }
+
+      const skillId = orchestrator.getState().activeSkill;
+      const entry = skillId ? SKILL_REGISTRY.find(s => s.id === skillId) : null;
+      const skillPromptText = entry
+        ? `You are helping the user with: ${entry.domain}. Guide them through this topic conversationally. When you present choices (filing status, yes/no questions, income types), include an "options" array in your JSON response with structured choices as {label, value, description} objects so the UI renders tappable pills instead of expecting the user to type.`
+        : 'No specific skill is active. Ask the user what they would like to work on and present options as tappable pills.';
+
+      context.agentMode = true;
+      context.agentSystemPrompt = orchestrator.buildPrompt(
+        taxStore.taxReturn,
+        taxStore.calculation ?? null,
+        skillPromptText,
+      );
+
+      // Record the turn and persist agent state back to the tax return
+      orchestrator.recordTurn();
+      taxStore.updateField('agentState', orchestrator.getState());
+    }
+
     // Create AbortController for this request (enables stop button)
     _activeAbortController = new AbortController();
 
@@ -770,6 +848,8 @@ async function _doSendMessage(
           ? response.actions.filter((a) => a.type !== 'no_action')
           : undefined,
       followUpChips: response.followUpChips,
+      options: response.options,
+      multiSelect: response.multiSelect,
       ...(grounding.footnote
         ? {
             verification: {
@@ -793,6 +873,12 @@ async function _doSendMessage(
     ) {
       useTaxReturnStore.getState().goToStep(response.suggestedStep);
     }
+
+    // Agent mode: check if the response (without explicit actions) completed the skill
+    // e.g., user said "No W-2s" → discovery flag set → skill complete
+    if (!response.actions || response.actions.length === 0 || response.actions.every((a) => a.type === 'no_action')) {
+      _maybeAdvanceAgentSkill(get);
+    }
   } catch (err: any) {
     _activeAbortController = null;
     if (err.name === 'AbortError') {
@@ -805,4 +891,73 @@ async function _doSendMessage(
       error: err.message || 'Something went wrong. Please try again.',
     });
   }
+}
+
+// ─── Agent Mode Proactive Advancement ────────────
+
+/** Track which skills have already had a transition message injected. */
+const _transitionShownForSkills = new Set<string>();
+
+/**
+ * After actions are applied or a no-action response completes,
+ * check if there's a next incomplete skill to advance to and
+ * inject a proactive transition message with option pills.
+ */
+/** Monotonic version counter to prevent stale _maybeAdvanceAgentSkill writes. */
+let _agentStateVersion = 0;
+
+function _maybeAdvanceAgentSkill(get: () => ChatState): void {
+  const taxStore = useTaxReturnStore.getState();
+  if (taxStore.viewMode !== 'agent' || !taxStore.taxReturn) return;
+
+  // Capture the version at call time; if _doSendMessage fires before the
+  // timeout, it bumps the version and this invocation becomes a no-op.
+  const capturedVersion = ++_agentStateVersion;
+
+  // Delay to let the Zustand store settle after action application
+  setTimeout(async () => {
+    // Abort if a newer _doSendMessage or _maybeAdvanceAgentSkill has fired
+    if (capturedVersion !== _agentStateVersion) return;
+
+    try {
+      const { AgentOrchestrator, createInitialAgentState } = await import('../services/agent/AgentOrchestrator');
+
+      const tr = useTaxReturnStore.getState().taxReturn;
+      if (!tr) return;
+
+      // Resume from persisted agent state (or initialize fresh if first entry)
+      const savedState = (tr as unknown as Record<string, unknown>)?.agentState as
+        import('../services/agent/AgentOrchestrator').AgentState | undefined;
+      const orchestrator = new AgentOrchestrator(savedState ?? createInitialAgentState());
+      orchestrator.syncCompletionFromReturn(tr);
+
+      // Find the next incomplete skill
+      const nextSkill = orchestrator.selectNextSkill(tr);
+
+      // Don't re-inject a transition for a skill the user already saw
+      if (nextSkill && _transitionShownForSkills.has(nextSkill)) return;
+
+      if (nextSkill) {
+        orchestrator.activateSkill(nextSkill);
+      }
+
+      const transition = orchestrator.buildTransitionMessage(tr);
+      if (!transition) return;
+
+      if (nextSkill) {
+        _transitionShownForSkills.add(nextSkill);
+      }
+
+      // Persist updated agent state — but only if no newer write has occurred
+      if (capturedVersion === _agentStateVersion) {
+        useTaxReturnStore.getState().updateField('agentState', orchestrator.getState());
+      }
+
+      const chatStore = useChatStore.getState();
+      const options = transition.options as ChatOption[] | undefined;
+      chatStore.injectProactiveMessage(transition.message, undefined, options);
+    } catch (err) {
+      console.warn('[agent] Proactive advancement failed:', err);
+    }
+  }, 800);
 }

@@ -3,12 +3,15 @@
  *
  * Displays what was detected and offers three options:
  *   1. Send the sanitized version (PII replaced with placeholders)
+ *      — any extractable field values are saved directly to the local return
  *   2. Edit the message (dismiss warning, keep text in input)
  *   3. Cancel (dismiss warning, clear text)
  */
 
-import { ShieldAlert } from 'lucide-react';
+import { useMemo } from 'react';
+import { ShieldAlert, ShieldCheck } from 'lucide-react';
 import { useChatStore, type PIIWarningState } from '../../store/chatStore';
+import { extractPIIFields } from '@nimbus/engine';
 
 interface Props {
   warning: PIIWarningState;
@@ -16,6 +19,11 @@ interface Props {
 
 export default function PIIWarning({ warning }: Props) {
   const { sendSanitizedMessage, dismissPIIWarning } = useChatStore();
+
+  const extractedFields = useMemo(
+    () => extractPIIFields(warning.originalMessage, warning.detectedTypes).fields,
+    [warning.originalMessage, warning.detectedTypes],
+  );
 
   return (
     <div className="mx-3 mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
@@ -26,14 +34,14 @@ export default function PIIWarning({ warning }: Props) {
             Sensitive information detected
           </p>
           <p className="text-[11px] text-amber-400/80 mt-1">
-            Your message appears to contain personal information that will be
+            Your message contains personal information that will be
             removed before sending to the AI provider:
           </p>
         </div>
       </div>
 
       {/* What was detected */}
-      <ul className="ml-6 mb-3 space-y-0.5">
+      <ul className="ml-6 mb-2 space-y-0.5">
         {warning.warnings.map((w, i) => (
           <li key={i} className="text-[11px] text-amber-400/70 flex items-start gap-1.5">
             <span className="text-amber-500 mt-px">&#x2022;</span>
@@ -42,6 +50,26 @@ export default function PIIWarning({ warning }: Props) {
         ))}
       </ul>
 
+      {/* What will be saved locally */}
+      {extractedFields.length > 0 && (
+        <div className="ml-6 mb-3 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-2">
+          <div className="flex items-center gap-1.5 mb-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-[11px] font-medium text-emerald-300">
+              Will be saved directly to your return:
+            </span>
+          </div>
+          <ul className="space-y-0.5 ml-5">
+            {extractedFields.map((f, i) => (
+              <li key={i} className="text-[11px] text-emerald-400/80 flex items-start gap-1.5">
+                <span className="text-emerald-500 mt-px">&#x2713;</span>
+                {f.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex items-center gap-2 ml-6">
         <button
@@ -49,7 +77,7 @@ export default function PIIWarning({ warning }: Props) {
           className="text-[11px] px-3 py-1.5 rounded-md bg-telos-orange-600 hover:bg-telos-orange-500
                      text-white font-medium transition-colors"
         >
-          Send without PII
+          {extractedFields.length > 0 ? 'Save & send without PII' : 'Send without PII'}
         </button>
         <button
           onClick={dismissPIIWarning}

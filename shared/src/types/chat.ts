@@ -87,6 +87,13 @@ export interface ChatContext {
    *  Injected by openWithPrompt when triggered from the PDF viewer.
    *  Contains field values, auto-detected issues, and form structure. */
   formsReviewContext?: string;
+  /** When true, the server should use the provided agentSystemPrompt
+   *  instead of the default system prompt. Set by agent mode. */
+  agentMode?: boolean;
+  /** The full system prompt built by the AgentOrchestrator (orchestrator
+   *  frame + skill instructions + context slice + return summary).
+   *  Only present when agentMode is true. */
+  agentSystemPrompt?: string;
 }
 
 // ─── Request / Response ────────────────────────────
@@ -105,6 +112,18 @@ export interface ChatRequest {
   context: ChatContext;
 }
 
+/** A selectable option rendered as a tappable pill in the chat UI. */
+export interface ChatOption {
+  /** Display label for the pill. */
+  label: string;
+  /** Value sent as the user's response when tapped (defaults to label if omitted). */
+  value?: string;
+  /** Optional description shown as a subtitle below the label. */
+  description?: string;
+  /** Optional icon hint (e.g., "check", "dollar", "form"). Client maps to actual icons. */
+  icon?: string;
+}
+
 export interface ChatResponse {
   /** Natural language response to display. */
   message: string;
@@ -114,6 +133,16 @@ export interface ChatResponse {
   suggestedStep: string | null;
   /** 2-3 contextual follow-up questions the user might ask next. */
   followUpChips?: string[];
+  /** Structured options rendered as tappable pills. Replaces free-text input for this turn. */
+  options?: ChatOption[];
+  /**
+   * When true, the user can toggle multiple options before confirming.
+   * A "Done" button appears to submit all selected values at once.
+   * When false/omitted, clicking an option immediately sends it.
+   */
+  multiSelect?: boolean;
+  /** Agent-mode topic switch signal (skill ID the user wants to jump to). */
+  topicSwitch?: string;
 }
 
 // ─── Chat Status ───────────────────────────────────

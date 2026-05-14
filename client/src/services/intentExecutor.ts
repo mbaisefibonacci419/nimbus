@@ -323,6 +323,12 @@ function executeSetIncomeDiscovery(
  * are permitted. All other fields are rejected.
  */
 const WRITABLE_BY_AI = new Set([
+  // Personal info (personal-info skill)
+  'firstName', 'lastName', 'middleInitial', 'suffix',
+  'dateOfBirth', 'occupation',
+  'addressStreet', 'addressCity', 'addressState', 'addressZip',
+  'canBeClaimedAsDependent',
+  // Adjustments & misc fields
   'hsaDeduction', 'studentLoanInterest', 'iraContribution', 'iraContributionSpouse',
   'educatorExpenses', 'estimatedPaymentsMade', 'otherIncome',
   'alimonyPaid', 'alimonyReceived', 'gamblingLosses',

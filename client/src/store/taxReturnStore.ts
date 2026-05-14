@@ -328,7 +328,7 @@ interface TaxReturnState {
   /** When set, the tool view is shown instead of the current wizard step. */
   activeToolId: string | null;
   /** Current view mode: wizard interview or forms mode PDF viewer */
-  viewMode: 'wizard' | 'forms';
+  viewMode: 'wizard' | 'forms' | 'agent';
   /** Active form in Forms Mode */
   activeFormId: string;
   activeInstanceIndex: number;
@@ -348,7 +348,7 @@ interface TaxReturnState {
   setSaveState: (state: SaveState) => void;
   dismissJumpWarning: () => void;
   setActiveTool: (toolId: string | null) => void;
-  setViewMode: (mode: 'wizard' | 'forms') => void;
+  setViewMode: (mode: 'wizard' | 'forms' | 'agent') => void;
   setActiveForm: (formId: string, instanceIndex: number) => void;
   /** Switch to Forms Mode and navigate to the given form, optionally focusing a line. */
   navigateToFormLine: (formId: string, lineId?: string) => void;

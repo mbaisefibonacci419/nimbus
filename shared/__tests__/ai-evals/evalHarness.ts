@@ -238,7 +238,7 @@ export function buildActionFromField(field: ExpectedActionField): Record<string,
       return {
         type: 'set_income_discovery',
         incomeType: field.incomeType || 'educationCredits',
-        value: 'yes',
+        value: field.value ?? 'yes',
       };
     case 'update_se_retirement':
       return {

@@ -98,7 +98,7 @@ ACTION TYPES:
 
 7. update_field — Update a single top-level field
    { "type": "update_field", "field": "<fieldName>", "value": <value> }
-   Only the following fields can be updated via this action: hsaDeduction, studentLoanInterest, iraContribution, iraContributionSpouse, educatorExpenses, estimatedPaymentsMade, otherIncome, alimonyPaid, alimonyReceived, gamblingLosses, nolCarryforward, capitalLossCarryforward, capitalLossCarryforwardST, capitalLossCarryforwardLT, isLegallyBlind, isActiveDutyMilitary, nontaxableCombatPay, movingExpenses, digitalAssetActivity, livedApartFromSpouse, isDeceasedSpouseReturn
+   Only the following fields can be updated via this action: firstName, lastName, middleInitial, suffix, dateOfBirth, occupation, addressStreet, addressCity, addressState, addressZip, canBeClaimedAsDependent, hsaDeduction, studentLoanInterest, iraContribution, iraContributionSpouse, educatorExpenses, estimatedPaymentsMade, otherIncome, alimonyPaid, alimonyReceived, gamblingLosses, nolCarryforward, capitalLossCarryforward, capitalLossCarryforwardST, capitalLossCarryforwardLT, isLegallyBlind, isActiveDutyMilitary, nontaxableCombatPay, movingExpenses, digitalAssetActivity, livedApartFromSpouse, isDeceasedSpouseReturn
    For Solo 401(k), SEP-IRA, and SE health insurance, use action type "update_se_retirement" instead.
    Any field NOT in this list will be rejected. Use the dedicated action types for arrays, nested objects, and system fields.
 

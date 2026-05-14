@@ -50,10 +50,13 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : DEFAULT_ORIGINS;
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (server-to-server, curl, etc.)
     if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else if (isDev && origin.match(/^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/)) {
       callback(null, true);
     } else {
       callback(new Error('CORS: origin not allowed'));

@@ -26,7 +26,7 @@ export default function App() {
       // Already unlocked (e.g. HMR reload during dev)
       loadAllReturns()
         .then(() => useAISettingsStore.getState().loadApiKey())
-        .then(() => useAISettingsStore.getState().checkServerKey())
+        .then(() => { useAISettingsStore.getState().checkServerKey().catch(() => {}); })
         .then(() => useDeductionFinderStore.getState().loadDecrypted?.())
         .then(() => setAppState('unlocked'));
     } else if (isEncryptionSetup()) {
@@ -92,9 +92,9 @@ export default function App() {
     try {
       if (appState === 'lock-setup') {
         await setupEncryption(passphrase);
-        await loadAllReturns(); // encrypts any existing plaintext returns
+        await loadAllReturns();
         await useAISettingsStore.getState().loadApiKey();
-        await useAISettingsStore.getState().checkServerKey();
+        useAISettingsStore.getState().checkServerKey().catch(() => {});
         await useDeductionFinderStore.getState().loadDecrypted?.();
         setAppState('unlocked');
         return true;
@@ -104,7 +104,7 @@ export default function App() {
       if (ok) {
         await loadAllReturns();
         await useAISettingsStore.getState().loadApiKey();
-        await useAISettingsStore.getState().checkServerKey();
+        useAISettingsStore.getState().checkServerKey().catch(() => {});
         await useDeductionFinderStore.getState().loadDecrypted?.();
         setAppState('unlocked');
       }

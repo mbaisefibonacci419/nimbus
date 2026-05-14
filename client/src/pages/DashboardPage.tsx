@@ -379,7 +379,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
           <DashboardThemeToggle />
         </div>
         <p className="text-slate-400 mb-8 mt-2">
-          Playground for new TT tax prep UX.
+          Playground to explore new TurboTax AI-powered tax prep UX.
         </p>
 
         {/* ─── Locked: show passphrase form ─── */}

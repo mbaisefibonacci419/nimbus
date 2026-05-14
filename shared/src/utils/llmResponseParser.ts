@@ -142,7 +142,7 @@ export function parseResponse(raw: string): ChatResponse {
       const parsed = JSON.parse(jsonStr);
 
       if (typeof parsed.message === 'string') {
-        return {
+        const response: ChatResponse = {
           message: parsed.message,
           actions: Array.isArray(parsed.actions)
             ? validateActions(parsed.actions)
@@ -155,6 +155,20 @@ export function parseResponse(raw: string): ChatResponse {
             ? (parsed.followUpChips as string[]).filter((c) => typeof c === 'string' && c.length > 0).slice(0, 3)
             : undefined,
         };
+
+        if (Array.isArray(parsed.options) && parsed.options.length > 0) {
+          response.options = parsed.options.filter(
+            (o: unknown) =>
+              typeof o === 'object' && o !== null &&
+              typeof (o as Record<string, unknown>).label === 'string',
+          );
+        }
+
+        if (parsed.multiSelect === true) {
+          response.multiSelect = true;
+        }
+
+        return response;
       }
     } catch {
       // JSON parse failed — try to salvage the message field via regex.

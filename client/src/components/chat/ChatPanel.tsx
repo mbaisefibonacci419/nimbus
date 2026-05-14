@@ -31,9 +31,11 @@ interface ChatPanelProps {
   onResizeStart?: (e: React.MouseEvent | React.TouchEvent) => void;
   onResizeReset?: () => void;
   topOffset?: number;
+  /** When true, renders as inline content instead of a fixed right drawer. Used by AgentLayout. */
+  embedded?: boolean;
 }
 
-export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onResizeReset, topOffset = 0 }: ChatPanelProps) {
+export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onResizeReset, topOffset = 0, embedded = false }: ChatPanelProps) {
   const {
     messages,
     isOpen,
@@ -126,10 +128,12 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
   // Identify the last assistant message (for regenerate button)
   const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
 
+  const visible = embedded || isOpen;
+
   return (
     <>
-      {/* Backdrop overlay (mobile) */}
-      {isOpen && (
+      {/* Backdrop overlay (mobile) — skip in embedded mode */}
+      {!embedded && isOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 lg:hidden"
           onClick={closePanel}
@@ -140,18 +144,20 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
       <div
         ref={panelRef}
         data-testid="chat-panel"
-        aria-hidden={!isOpen}
+        aria-hidden={!visible}
         style={{
-          ...(panelWidth ? { width: panelWidth } : undefined),
+          ...(panelWidth && !embedded ? { width: panelWidth } : undefined),
         }}
-        className={`fixed right-0 top-0 h-full w-full ${!panelWidth ? 'sm:w-96' : ''} z-40
+        className={embedded
+          ? 'w-full h-full bg-surface-800 flex flex-col'
+          : `fixed right-0 top-0 h-full w-full ${!panelWidth ? 'sm:w-96' : ''} z-40
                     bg-surface-800 border-l border-slate-700 shadow-2xl
                     flex flex-col
                     ${!isDragging ? 'transition-transform duration-300 ease-in-out' : ''}
                     ${isOpen ? 'translate-x-0' : 'translate-x-full invisible'}`}
       >
-        {/* Resize handle on left edge — desktop only */}
-        {onResizeStart && (
+        {/* Resize handle on left edge — desktop only, hidden in embedded mode */}
+        {!embedded && onResizeStart && (
           <div className="absolute left-0 top-0 bottom-0 -translate-x-1/2 z-50">
             <ResizeHandle
               isDragging={isDragging ?? false}
@@ -184,14 +190,16 @@ export default function ChatPanel({ panelWidth, isDragging, onResizeStart, onRes
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
-                <button
-                  onClick={closePanel}
-                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-300 hover:bg-surface-700
-                             transition-colors"
-                  aria-label="Close chat panel"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                {!embedded && (
+                  <button
+                    onClick={closePanel}
+                    className="p-1.5 rounded-md text-slate-400 hover:text-slate-300 hover:bg-surface-700
+                               transition-colors"
+                    aria-label="Close chat panel"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
               </div>
             </div>
 

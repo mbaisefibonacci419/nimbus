@@ -9,7 +9,7 @@ import { useTaxReturnStore } from '../../store/taxReturnStore';
 import { useChatStore } from '../../store/chatStore';
 import { useLiveCalculation } from '../../hooks/useLiveCalculation';
 import { useResizePanel } from '../../hooks/useResizePanel';
-import { Menu, X, Info, Calculator, ChevronDown, ChevronUp, Search, FileText, ClipboardList } from 'lucide-react';
+import { Menu, X, Info, Calculator, ChevronDown, ChevronUp, Search, FileText, ClipboardList, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatPercent } from '../../utils/format';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
@@ -24,6 +24,7 @@ const LazyFormsViewer = lazy(() => import('../formsMode/FormsMode'));
 const LazyExplainTaxesPanel = lazy(() => import('./ExplainTaxesPanel'));
 const LazyCommandPalette = lazy(() => import('../common/CommandPalette'));
 const LazyChatPanel = lazy(() => import('../chat/ChatPanel'));
+const LazyAgentLayout = lazy(() => import('../agent/AgentLayout'));
 
 interface WizardLayoutProps {
   children: ReactNode;
@@ -103,6 +104,15 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
       setHeaderHeight(headerRef.current.offsetHeight);
     }
   }, []);
+
+  // Agent mode renders its own full-screen layout — placed after all hooks
+  if (viewMode === 'agent') {
+    return (
+      <Suspense fallback={<div className="h-screen flex items-center justify-center bg-surface-800 text-slate-500">Loading agent mode...</div>}>
+        <LazyAgentLayout />
+      </Suspense>
+    );
+  }
 
   return (
     <div
@@ -232,39 +242,46 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
             transition-transform duration-200 fixed lg:static z-30 lg:z-auto
           `}
         >
-          {/* Interview / Forms toggle */}
-          {calculation && (
-            <div className="px-3 pt-3 pb-2 border-b border-slate-700/60 shrink-0">
-              <div className="flex items-center bg-surface-700/50 border border-slate-700 rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setViewMode('wizard')}
-                  aria-pressed={viewMode === 'wizard'}
-                  title="Step-by-step guided Q&A to enter your tax data"
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                    viewMode === 'wizard'
-                      ? 'bg-telos-blue-600 text-white'
-                      : 'text-slate-400 hover:text-slate-100'
-                  }`}
-                >
-                  <ClipboardList className="w-3.5 h-3.5" />
-                  Interview
-                </button>
-                <button
-                  onClick={() => setViewMode('forms')}
-                  aria-pressed={viewMode === 'forms'}
-                  title="View and edit your return on the actual IRS forms"
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                    viewMode === 'forms'
-                      ? 'bg-telos-blue-600 text-white'
-                      : 'text-slate-400 hover:text-slate-100'
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  Forms
-                </button>
-              </div>
+          {/* Interview / Agent / Forms toggle — always visible */}
+          <div className="px-3 pt-3 pb-2 border-b border-slate-700/60 shrink-0">
+            <div className="flex items-center bg-surface-700/50 border border-slate-700 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setViewMode('wizard')}
+                aria-pressed={viewMode === 'wizard'}
+                title="Step-by-step guided Q&A to enter your tax data"
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                  viewMode === 'wizard'
+                    ? 'bg-telos-blue-600 text-white'
+                    : 'text-slate-400 hover:text-slate-100'
+                }`}
+              >
+                <ClipboardList className="w-3.5 h-3.5" />
+                Interview
+              </button>
+              <button
+                onClick={() => setViewMode('agent')}
+                aria-pressed={false}
+                title="AI-led conversational tax preparation"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors text-slate-400 hover:text-slate-100"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                Agent
+              </button>
+              <button
+                onClick={() => setViewMode('forms')}
+                aria-pressed={viewMode === 'forms'}
+                title="View and edit your return on the actual IRS forms"
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                  viewMode === 'forms'
+                    ? 'bg-telos-blue-600 text-white'
+                    : 'text-slate-400 hover:text-slate-100'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Forms
+              </button>
             </div>
-          )}
+          </div>
 
           {/* Sidebar content — switches between step list and form list */}
           <div className="flex-1 min-h-0 overflow-y-auto">

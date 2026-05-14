@@ -477,7 +477,7 @@ describe('update_field action', () => {
 
   it('rejects fields not in allowlist', () => {
     const actions: ChatAction[] = [
-      { type: 'update_field', field: 'occupation', value: 'Software Engineer' },
+      { type: 'update_field', field: 'taxYear', value: 2026 },
     ];
 
     const result = executeActions(actions, 'return-1');

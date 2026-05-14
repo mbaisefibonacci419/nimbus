@@ -52,6 +52,8 @@ const ALLOWED_CONTEXT_KEYS = new Set([
   // Numeric counts inside incomeTypeCounts
   'w2', '1099nec', '1099k', '1099int', '1099div', '1099r',
   '1099g', '1099misc', '1099b', '1099da', 'k1', '1099sa', 'rental',
+  // Agent mode orchestrator prompt (pre-built safe content)
+  'agentMode', 'agentSystemPrompt',
 ]);
 
 export function stripContext(context: Record<string, unknown>): Record<string, unknown> {
