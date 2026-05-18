@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listReturns, createReturn, deleteReturn, getReturn, wipeAllData, exportAllData, importReturn } from '../api/client';
-import { Plus, FileText, Trash2, CircleDollarSign, Code2, Lock, ArrowRight, Download, Upload, Eye, EyeOff, Loader2, Hourglass, Shield, Sun, Moon } from 'lucide-react';
+import { Plus, FileText, Trash2, CircleDollarSign, Code2, Lock, ArrowRight, Download, Upload, Eye, EyeOff, Loader2, Hourglass, Sun, Moon } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
 import { toast } from 'sonner';
 import { importReturnFromFile } from '../services/fileTransfer';
@@ -143,12 +143,7 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
   const exportModalRef = useRef<HTMLDivElement>(null);
   const exportPasswordRef = useRef<HTMLInputElement>(null);
 
-  // Consent modal state
-  const [showConsentModal, setShowConsentModal] = useState(false);
-  const [consentChecked, setConsentChecked] = useState(false);
-  const [pendingAction, setPendingAction] = useState<'create' | 'extension' | null>(null);
-  const consentModalRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(consentModalRef, showConsentModal);
+  // Consent modal removed — go straight to return creation
 
   // Import .nimbus file state
   const [showImportModal, setShowImportModal] = useState(false);
@@ -231,56 +226,21 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
     return () => window.removeEventListener('storage', handleStorage);
   }, [refresh]);
 
-  const hasConsented = () => localStorage.getItem('nimbus:consent') !== null;
-
   const handleCreate = () => {
-    if (hasConsented()) {
-      const tr = createReturn();
-      refresh();
-      navigate(`/return/${tr.id}`);
-      return;
-    }
-    setConsentChecked(false);
-    setPendingAction('create');
-    setShowConsentModal(true);
+    const tr = createReturn();
+    refresh();
+    navigate(`/return/${tr.id}`);
   };
 
   const handleFileExtension = () => {
-    // If they already have a return, go straight to it
     const existing = returns[0];
     if (existing) {
       navigate(`/return/${existing.id}?tool=file_extension`);
       return;
     }
-    if (hasConsented()) {
-      const tr = createReturn();
-      refresh();
-      navigate(`/return/${tr.id}?tool=file_extension`);
-      return;
-    }
-    setConsentChecked(false);
-    setPendingAction('extension');
-    setShowConsentModal(true);
-  };
-
-  const handleConsentConfirm = () => {
-    setShowConsentModal(false);
-    // Persist record of consent acceptance
-    localStorage.setItem('nimbus:consent', JSON.stringify({
-      termsVersion: 'March 2026',
-      privacyVersion: 'March 2026',
-      acceptedAt: new Date().toISOString(),
-    }));
-    if (pendingAction === 'create') {
-      const tr = createReturn();
-      refresh();
-      navigate(`/return/${tr.id}`);
-    } else if (pendingAction === 'extension') {
-      const tr = createReturn();
-      refresh();
-      navigate(`/return/${tr.id}?tool=file_extension`);
-    }
-    setPendingAction(null);
+    const tr = createReturn();
+    refresh();
+    navigate(`/return/${tr.id}?tool=file_extension`);
   };
 
   const handleDelete = (id: string) => {
@@ -570,10 +530,6 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
 
         {/* Disclaimer & Legal Links */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-slate-400 leading-relaxed">
-            Your tax data in this playground is stored locally on your device and never sent to any server.
-            This tool is for prototyping purposes only and does not constitute tax advice.
-          </p>
           
           {/* Data management */}
           <div className="mt-6 pt-4 border-t border-slate-800 flex flex-col items-center gap-3">
@@ -618,59 +574,6 @@ export default function DashboardPage({ lockMode, onUnlock, lockError }: Dashboa
           </div>
         </div>
       </div>
-
-      {/* Consent Modal */}
-      {showConsentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setShowConsentModal(false)}>
-          <div ref={consentModalRef} role="dialog" aria-modal="true" aria-label="Prototype disclaimer" className="w-full max-w-md rounded-xl bg-surface-800 border border-amber-500/30 p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 shrink-0">
-                <Shield className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-semibold text-amber-300">Before you start</h3>
-            </div>
-            <div className="text-sm text-slate-300 leading-relaxed space-y-3 mb-5">
-              <p>
-                Nimbus is a prototype built with AI. It has not been professionally audited by
-                tax experts or human software engineers. The tax engine may contain errors.
-              </p>
-              <p>
-                Do not rely on this app to file your taxes without having your return carefully
-                reviewed by a qualified tax professional (CPA, Enrolled Agent, or tax attorney).
-              </p>
-            </div>
-            <label className="flex items-start gap-2.5 mb-5 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={consentChecked}
-                onChange={(e) => setConsentChecked(e.target.checked)}
-                className="mt-0.5 rounded border-slate-500 bg-surface-700 text-telos-blue-500 focus:ring-telos-blue-500 focus:ring-offset-0"
-              />
-              <span className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                I understand this is a prototype, does not constitute tax advice, and that I am
-                responsible for verifying the accuracy of any tax calculations before filing.
-                I have read and agree to
-                the <button onClick={() => navigate('/terms')} className="text-telos-blue-400 hover:text-telos-blue-300 underline">Terms of Service</button> and <button onClick={() => navigate('/privacy')} className="text-telos-blue-400 hover:text-telos-blue-300 underline">Privacy Policy</button>.
-              </span>
-            </label>
-            <div className="flex gap-2">
-              <button
-                onClick={handleConsentConfirm}
-                disabled={!consentChecked}
-                className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg bg-telos-blue-600 hover:bg-telos-blue-500 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Continue
-              </button>
-              <button
-                onClick={() => setShowConsentModal(false)}
-                className="px-4 py-2.5 text-sm font-medium rounded-lg bg-surface-700 hover:bg-surface-600 text-slate-300 border border-slate-600 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Export Password Modal */}
       {showExportModal && (
