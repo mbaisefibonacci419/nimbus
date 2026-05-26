@@ -31,3 +31,4 @@ client/UX-REVIEW*.md
 
 # Archive (private files, research, strategy, test data)
 Archive/
+.vercel

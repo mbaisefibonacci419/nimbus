@@ -57,8 +57,8 @@ function ThemedToaster() {
       theme={mode}
       toastOptions={{
         style: {
-          background: isDark ? '#1C1C1F' : '#FFFFFF',
-          border: `1px solid ${isDark ? '#2C2C31' : '#D4D4D8'}`,
+          background: isDark ? '#1C1C1F' : '#FAFBFC',
+          border: `1px solid ${isDark ? '#2C2C31' : '#D8D9DE'}`,
           color: isDark ? '#E2E8F0' : '#18181B',
         },
       }}

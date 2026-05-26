@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useTaxReturnStore, SECTIONS } from '../../store/taxReturnStore';
 import {
   Check, ChevronRight, ChevronDown, Circle, User, DollarSign, Briefcase, Scissors, Award,
-  MapPin, ClipboardCheck, Download, LucideIcon, BookOpen, AlertCircle, Trash2, Wrench,
+  MapPin, ClipboardCheck, Download, LucideIcon, AlertCircle, Trash2, Wrench,
   Sun, Moon,
 } from 'lucide-react';
 import { useThemeStore } from '../../store/themeStore';
-import ResourcesPanel from './ResourcesPanel';
 import { SIDEBAR_TOOLS, hasMinimumIncomeData } from '../../data/sidebarTools';
 import { deleteReturn } from '../../api/client';
 import { flushAutoSave } from '../../store/taxReturnStore';
@@ -114,7 +113,6 @@ export default function StepSidebar({ onStepClick }: StepSidebarProps) {
   const visibleSteps = getVisibleSteps();
   const visibleStepIds = new Set(visibleSteps.map((s) => s.id));
   const currentStep = visibleSteps[currentStepIndex];
-  const [resourcesOpen, setResourcesOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const warningsByStepId = useWarningsByStepId();
@@ -314,13 +312,6 @@ export default function StepSidebar({ onStepClick }: StepSidebarProps) {
         {/* Bottom actions - pinned */}
         <div className="shrink-0 border-t border-slate-700 p-3 space-y-2">
           <ThemeToggle />
-          <button
-            onClick={() => setResourcesOpen(true)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-slate-200 hover:bg-surface-700 rounded-lg transition-colors"
-          >
-            <BookOpen className="w-4 h-4" />
-            Resources
-          </button>
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}
@@ -351,9 +342,6 @@ export default function StepSidebar({ onStepClick }: StepSidebarProps) {
           )}
         </div>
       </aside>
-
-      {/* Resources panel */}
-      <ResourcesPanel open={resourcesOpen} onClose={() => setResourcesOpen(false)} />
     </>
   );
 }

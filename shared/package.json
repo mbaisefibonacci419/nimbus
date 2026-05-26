@@ -1,6 +1,7 @@
 {
   "name": "@nimbus/engine",
   "version": "0.1.0",
+  "type": "module",
   "description": "Open-source federal tax calculation engine for the 2025 tax year. Pure TypeScript, zero dependencies.",
   "license": "MIT",
   "author": "Nimbus",

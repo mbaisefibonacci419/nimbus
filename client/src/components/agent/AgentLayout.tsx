@@ -66,7 +66,7 @@ export default function AgentLayout() {
     }
 
     const updated = orchestrator.getState();
-    const current = (taxReturn as Record<string, unknown>)?.agentState as AgentState | undefined;
+    const current = (taxReturn as unknown as Record<string, unknown>)?.agentState as AgentState | undefined;
     const hasChanged =
       !current ||
       updated.activeSkill !== current.activeSkill ||

@@ -1,0 +1,15 @@
+node_modules
+.git
+.github
+.env
+.env.*
+!.env.example
+evals
+docs
+*.md
+**/__tests__
+**/*.test.*
+**/*.spec.*
+.docling-venv
+nimbus-exec-story.html
+.DS_Store

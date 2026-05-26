@@ -22,7 +22,7 @@ function applyMode(mode: ThemeMode) {
 
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) {
-    metaTheme.setAttribute('content', mode === 'dark' ? '#111113' : '#FAFAFB');
+    metaTheme.setAttribute('content', mode === 'dark' ? '#111113' : '#F4F5F8');
   }
 
   swapSyncfusionTheme(mode);

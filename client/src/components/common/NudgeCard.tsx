@@ -16,19 +16,28 @@ interface NudgeCardProps {
 }
 
 const VARIANT_STYLES = {
-  tip: 'bg-telos-orange-500/10 border-telos-orange-500/20',
-  info: 'bg-telos-blue-600/10 border-telos-blue-600/30',
+  tip: {
+    bg: 'bg-alert-nudge-bg/15 border-alert-nudge-border/30',
+    title: 'text-alert-nudge-text',
+    body: 'text-alert-nudge-body',
+  },
+  info: {
+    bg: 'bg-surface-700 border-slate-600',
+    title: 'text-slate-200',
+    body: 'text-slate-400',
+  },
 } as const;
 
 export default function NudgeCard({ nudge, onEnableAndGo, onAskAI, onDismiss }: NudgeCardProps) {
+  const styles = VARIANT_STYLES[nudge.variant];
   return (
-    <div className={`rounded-lg border p-4 ${VARIANT_STYLES[nudge.variant]} animate-in fade-in slide-in-from-top-2 duration-300`}>
+    <div className={`rounded-lg border p-4 ${styles.bg} animate-in fade-in slide-in-from-top-2 duration-300`}>
       <div className="flex items-start gap-2.5">
-        <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-telos-orange-400" />
+        <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-alert-nudge-icon" />
         <div className="flex-1 min-w-0">
           {/* Title row with benefit badge */}
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-200">{nudge.title}</span>
+            <span className={`text-sm font-medium ${styles.title}`}>{nudge.title}</span>
             {nudge.estimatedBenefit != null && nudge.estimatedBenefit > 0 && (
               <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
                 ~${nudge.estimatedBenefit.toLocaleString()}
@@ -40,7 +49,7 @@ export default function NudgeCard({ nudge, onEnableAndGo, onAskAI, onDismiss }: 
           </div>
 
           {/* Description */}
-          <p className="text-sm text-slate-400 mt-1 leading-relaxed">{nudge.description}</p>
+          <p className={`text-sm mt-1 leading-relaxed ${styles.body}`}>{nudge.description}</p>
 
           {/* Action buttons */}
           <div className="flex items-center gap-2 mt-3">

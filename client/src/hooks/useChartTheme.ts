@@ -18,17 +18,17 @@ const dark = {
 };
 
 const light = {
-  tooltipBg: '#FFFFFF',
+  tooltipBg: '#FAFBFC',
   tooltipBorder: '#D4D4D8',
   tooltipText: '#18181B',
   axisLabel: '#52525B',
-  gridLine: '#E4E4E7',
-  gridLineMajor: '#D4D4D8',
-  connector: '#D4D4D8',
+  gridLine: '#E9EAEE',
+  gridLineMajor: '#D8D9DE',
+  connector: '#D8D9DE',
   svgTextPrimary: '#18181B',
   svgTextSecondary: '#52525B',
   svgTextMuted: '#3F3F46',
-  cardBg: '#FFFFFF',
+  cardBg: '#FAFBFC',
   pointerCap: '#18181B',
 };
 

@@ -1,0 +1,8 @@
+node_modules
+.docling-venv
+.git
+Archive
+evals
+docs
+nimbus-exec-story.html
+*.rtf

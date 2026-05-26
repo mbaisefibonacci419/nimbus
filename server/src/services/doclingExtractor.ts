@@ -49,11 +49,13 @@ export async function isDoclingAvailable(): Promise<boolean> {
   if (_doclingAvailable !== null) return _doclingAvailable;
   try {
     const client = getClient();
-    _doclingAvailable = await client.checkAvailability();
+    const available = (await client.checkAvailability()) ?? false;
+    _doclingAvailable = available;
+    return available;
   } catch {
     _doclingAvailable = false;
+    return false;
   }
-  return _doclingAvailable;
 }
 
 function parseAmount(text: string): number | null {
@@ -194,7 +196,7 @@ export async function extractWithDocling(
         fields: {},
         rawMarkdown: '',
         success: false,
-        error: result.errors?.map((e) => e.message).join('; ') || 'Conversion failed',
+        error: result.errors?.map((e: { message: string }) => e.message).join('; ') || 'Conversion failed',
       };
     }
 

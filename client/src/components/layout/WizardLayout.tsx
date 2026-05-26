@@ -9,7 +9,7 @@ import { useTaxReturnStore } from '../../store/taxReturnStore';
 import { useChatStore } from '../../store/chatStore';
 import { useLiveCalculation } from '../../hooks/useLiveCalculation';
 import { useResizePanel } from '../../hooks/useResizePanel';
-import { Menu, X, Info, Calculator, ChevronDown, ChevronUp, Search, FileText, ClipboardList, MessageSquare } from 'lucide-react';
+import { Menu, X, Info, Calculator, ChevronDown, ChevronUp, Search, FileText, ClipboardList, MessageSquare, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatPercent } from '../../utils/format';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
@@ -34,7 +34,7 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
   const { saveState, jumpAheadWarning, dismissJumpWarning, getCurrentStep, activeToolId, calculation, viewMode, setViewMode } = useTaxReturnStore();
   const currentStep = getCurrentStep();
   const isTransitionStep = currentStep?.id.startsWith('transition_') ?? false;
-  const { isAvailable: chatAvailable, isOpen: chatOpen, checkAvailability } = useChatStore();
+  const { isAvailable: chatAvailable, isOpen: chatOpen, checkAvailability, togglePanel: toggleChat } = useChatStore();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isOpen: paletteOpen, open: openPalette, close: closePalette } = useCommandPalette();
@@ -199,6 +199,16 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
               <Calculator className="w-5 h-5" />
             </button>
           )}
+          {chatAvailable && (
+            <button
+              onClick={toggleChat}
+              className="flex items-center gap-1.5 text-telos-orange-400 hover:text-telos-orange-300 transition-colors group"
+              aria-label="Toggle AI assistant"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm font-medium">Ask AI</span>
+            </button>
+          )}
           <button
             onClick={openPalette}
             aria-label="Search steps, forms, and tools"
@@ -323,16 +333,16 @@ export default function WizardLayout({ children }: WizardLayoutProps) {
             <div className={`${activeToolId === 'tax_scenario_lab' ? 'max-w-5xl' : 'max-w-wizard'} mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-28 sm:pb-8`}>
               {/* Jump-ahead warning (non-blocking, informational) */}
               {jumpAheadWarning && !isTransitionStep && !activeToolId && (
-                <div className="mb-4 flex items-start gap-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3">
-                  <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div className="mb-4 flex items-start gap-2.5 rounded-lg bg-alert-warn-bg/15 border border-alert-warn-border/30 px-4 py-3">
+                  <Info className="w-4 h-4 text-alert-warn-icon shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm text-amber-300">
+                    <p className="text-sm text-alert-warn-text">
                       You haven&apos;t filled out earlier steps yet — some fields on this page may be empty.
                     </p>
                   </div>
                   <button
                     onClick={dismissJumpWarning}
-                    className="text-xs text-amber-400/60 hover:text-amber-300 transition-colors shrink-0"
+                    className="text-xs text-alert-warn-dismiss/60 hover:text-alert-warn-dismiss transition-colors shrink-0"
                   >
                     <X className="w-4 h-4" />
                   </button>

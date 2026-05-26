@@ -10,18 +10,21 @@ interface CalloutCardProps {
 
 const VARIANT_STYLES = {
   info: {
-    bg: 'bg-telos-blue-600/10 border-telos-blue-600/30',
-    title: 'text-telos-blue-300',
+    bg: 'bg-surface-700 border-slate-600',
+    title: 'text-slate-200',
+    body: 'text-slate-400',
     icon: Info,
   },
   warning: {
-    bg: 'bg-amber-500/10 border-amber-500/20',
-    title: 'text-amber-300',
+    bg: 'bg-alert-warn-bg/15 border-alert-warn-border/30',
+    title: 'text-alert-warn-text',
+    body: 'text-alert-warn-body',
     icon: AlertTriangle,
   },
   tip: {
-    bg: 'bg-telos-orange-500/10 border-telos-orange-500/20',
-    title: 'text-telos-orange-300',
+    bg: 'bg-alert-nudge-bg/15 border-alert-nudge-border/30',
+    title: 'text-alert-nudge-text',
+    body: 'text-alert-nudge-body',
     icon: Lightbulb,
   },
 } as const;
@@ -36,7 +39,7 @@ export default function CalloutCard({ variant, title, children, irsUrl }: Callou
         <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${styles.title}`} />
         <div className="flex-1 min-w-0">
           <div className={`text-sm font-medium ${styles.title}`}>{title}</div>
-          <div className="text-sm text-slate-400 mt-1 leading-relaxed">{children}</div>
+          <div className={`text-sm mt-1 leading-relaxed ${styles.body}`}>{children}</div>
           {irsUrl && (
             <a
               href={irsUrl}

@@ -103,6 +103,23 @@ export default {
           500: cssVar('warning-500'),
           600: cssVar('warning-600'),
         },
+        alert: {
+          warn: {
+            bg:      cssVar('alert-warn-bg'),
+            border:  cssVar('alert-warn-border'),
+            text:    cssVar('alert-warn-text'),
+            icon:    cssVar('alert-warn-icon'),
+            dismiss: cssVar('alert-warn-dismiss'),
+            body:    cssVar('alert-warn-body'),
+          },
+          nudge: {
+            bg:     cssVar('alert-nudge-bg'),
+            border: cssVar('alert-nudge-border'),
+            text:   cssVar('alert-nudge-text'),
+            body:   cssVar('alert-nudge-body'),
+            icon:   cssVar('alert-nudge-icon'),
+          },
+        },
       },
       fontSize: {
         xxs: ['0.625rem', { lineHeight: '0.875rem' }],

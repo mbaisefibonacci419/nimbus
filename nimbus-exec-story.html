@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nimbus — A Product Innovation Lab for TurboTax</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0A0F1E;
+    --navy-mid: #111827;
+    --navy-light: #1A2236;
+    --card: #1E293B;
+    --card-hover: #243044;
+    --white: #FFFFFF;
+    --off-white: #F0F4F8;
+    --accent: #0ACF83;
+    --accent-glow: rgba(10, 207, 131, 0.25);
+    --accent-dim: rgba(10, 207, 131, 0.1);
+    --blue: #3B82F6;
+    --blue-dim: rgba(59, 130, 246, 0.12);
+    --green: #10B981;
+    --green-dim: rgba(16, 185, 129, 0.12);
+    --purple: #8B5CF6;
+    --purple-dim: rgba(139, 92, 246, 0.12);
+    --orange: #F59E0B;
+    --orange-dim: rgba(245, 158, 11, 0.12);
+    --red: #EF4444;
+    --red-dim: rgba(239, 68, 68, 0.08);
+    --cyan: #06B6D4;
+    --cyan-dim: rgba(6, 182, 212, 0.12);
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --gradient-1: linear-gradient(135deg, #0ACF83 0%, #06B6D4 100%);
+    --gradient-2: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+    --gradient-3: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--navy);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck {
+    display: flex;
+    height: 100vh;
+    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .slide {
+    min-width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5vh 7vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide::after {
+    content: attr(data-slide);
+    position: absolute;
+    bottom: 2.5vh;
+    right: 3.5vw;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+  }
+
+  .nav-hint {
+    position: fixed;
+    bottom: 2.5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    z-index: 100;
+    transition: opacity 0.5s;
+    opacity: 0.7;
+  }
+
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--gradient-1);
+    z-index: 200;
+    transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Typography */
+  h1, h2, h3 {
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  h1 {
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.25rem;
+  }
+
+  h2 {
+    font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.6rem;
+  }
+
+  p, li {
+    font-size: clamp(0.92rem, 1.2vw, 1.1rem);
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+
+  .subtitle {
+    font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    max-width: 40em;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-2 {
+    background: var(--gradient-2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    padding: 0.2em 0.7em;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tag-s2c { background: var(--blue-dim); color: var(--blue); }
+  .tag-arpc { background: var(--green-dim); color: var(--green); }
+  .tag-prs { background: var(--purple-dim); color: var(--purple); }
+  .tag-c2c { background: var(--orange-dim); color: var(--orange); }
+
+  /* Stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gradient-1);
+    opacity: 0.6;
+  }
+
+  .stat-number {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(2rem, 3.2vw, 2.8rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* Mode cards */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .mode-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 2rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .mode-card:hover { border-color: rgba(255,255,255,0.1); }
+
+  .mode-card .mode-badge {
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .mode-card .mode-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 0.6rem;
+  }
+
+  .mode-card .mode-voice {
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  .mode-card .mode-who {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .mode-card .mode-who::before {
+    content: '';
+    width: 16px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  .mode-card p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.55; }
+
+  /* Two column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 4.5rem;
+    align-items: center;
+  }
+
+  /* Callout boxes */
+  .gap-box {
+    background: var(--red-dim);
+    border-left: 3px solid var(--red);
+    border-radius: 0 12px 12px 0;
+    padding: 1.1rem 1.4rem;
+    margin: 1.1rem 0;
+  }
+  .gap-box p { color: var(--text-secondary); font-size: 0.92rem; }
+  .gap-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--red);
+    margin-bottom: 0.3rem;
+  }
+
+  .insight-box {
+    background: var(--accent-dim);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 1.1rem 1.4rem;
+    margin: 1.1rem 0;
+  }
+  .insight-box p { color: var(--text-secondary); font-size: 0.92rem; }
+  .insight-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+
+  .market-box {
+    background: var(--cyan-dim);
+    border-left: 3px solid var(--cyan);
+    border-radius: 0 12px 12px 0;
+    padding: 1.1rem 1.4rem;
+    margin: 1.1rem 0;
+  }
+  .market-box p { color: var(--text-secondary); font-size: 0.92rem; }
+  .market-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+    margin-bottom: 0.3rem;
+  }
+
+  /* Metric footer */
+  .metric-target {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Right panel cards */
+  .panel-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+
+  .panel-card-accent {
+    background: var(--card);
+    border: 1px solid var(--accent-glow);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+
+  .panel-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+  }
+
+  /* Tools grid */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.1rem;
+    margin-top: 1.5rem;
+  }
+
+  .tool-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 1.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 40px; height: 40px;
+    border-radius: 0 0 40px 0;
+    opacity: 0.08;
+  }
+
+  .tool-card h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.35rem;
+  }
+  .tool-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* Priority table */
+  .priority-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.25rem;
+    font-size: 0.82rem;
+  }
+  .priority-table th {
+    font-family: 'DM Sans', sans-serif;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: 0.68rem;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .priority-table td {
+    padding: 0.5rem 0.8rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 0.8rem;
+  }
+  .priority-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Closing list */
+  .closing-list {
+    list-style: none;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .closing-list li {
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    color: var(--text-secondary);
+    padding-left: 1.75rem;
+    position: relative;
+    line-height: 1.55;
+  }
+  .closing-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gradient-1);
+  }
+
+  /* Background decorations */
+  .bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+  }
+
+  .bg-orb-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: 0.06;
+    top: -15%; right: -10%;
+  }
+
+  .bg-orb-2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, var(--blue) 0%, transparent 70%);
+    opacity: 0.05;
+    bottom: -20%; left: -8%;
+  }
+
+  .bg-orb-3 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, var(--purple) 0%, transparent 70%);
+    opacity: 0.05;
+    top: 10%; right: -5%;
+  }
+
+  .bg-mesh {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(at 20% 80%, rgba(10, 207, 131, 0.04) 0%, transparent 50%),
+      radial-gradient(at 80% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Decorative line */
+  .deco-line {
+    width: 48px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--gradient-1);
+    margin-bottom: 1.25rem;
+  }
+
+  .disclaimer {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 1.5rem;
+    max-width: 34em;
+    line-height: 1.5;
+  }
+
+  /* Big number accent */
+  .big-number {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  @media (max-width: 1000px) {
+    .slide { padding: 4vh 5vw; }
+    .two-col { grid-template-columns: 1fr; gap: 2rem; }
+    .mode-grid, .tools-grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media print {
+    .deck { flex-direction: column; transform: none !important; }
+    .slide { min-width: auto; height: auto; page-break-after: always; padding: 2rem; }
+    .progress, .nav-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="nav-hint" id="navHint">&#8592; &#8594; &nbsp; Arrow keys or click to navigate</div>
+
+<div class="deck" id="deck">
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 1: What Nimbus Is -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="01">
+    <div class="bg-glow bg-orb-1"></div>
+    <div class="bg-mesh"></div>
+    <div class="deco-line"></div>
+
+    <div style="display: flex; align-items: flex-start; gap: 4rem; max-width: 68em; width: 100%;">
+
+      <!-- LEFT: Title + problem -->
+      <div style="flex: 1; text-align: left;">
+        <h1 style="font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1; margin-bottom: 0.5rem;"><span class="gradient-text">Nimbus</span></h1>
+        <p style="font-family: 'DM Sans', sans-serif; font-size: clamp(1rem, 1.6vw, 1.25rem); color: var(--text-secondary); font-weight: 400; line-height: 1.5; margin-bottom: 2.5rem;">
+          A concept-validation playground for<br>TurboTax AI-powered tax prep.
+        </p>
+
+        <div style="margin-bottom: 2rem;">
+          <div style="font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 0.75rem;">The problem</div>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.65;">
+            We have big ambitions for AI in TurboTax &mdash; the Digital Assistant, the co-pilot, agentic filing. But validating new UX concepts at the speed of the AI landscape is hard when the only way to test an idea is to build it inside the production codebase. By the time a concept clears scoping, design, and eng allocation, the window to learn from it may have passed.
+          </p>
+        </div>
+
+        <div style="background: var(--navy-light); border-radius: 10px; padding: 1rem 1.25rem; border-left: 3px solid var(--orange);">
+          <p style="font-style: italic; color: var(--text-muted); font-size: 0.88rem; line-height: 1.6;">
+            "What if a PM could validate a product concept end-to-end &mdash;<br>
+            before writing a single PRD?"
+          </p>
+        </div>
+
+        <p style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-muted);">
+          Ugo Ibecheozor &nbsp;&middot;&nbsp; May 2026
+        </p>
+      </div>
+
+      <!-- RIGHT: What I built + value -->
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 1.25rem; text-align: left;">
+
+        <div style="background: var(--card); border-radius: 14px; padding: 1.4rem 1.6rem; border-left: 3px solid var(--accent);">
+          <div style="font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.6rem;">What I built</div>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+            A working prototype &mdash; not a mockup &mdash; that covers ~85&ndash;90% of individual DIY filers. Real tax engine, real AI agent mode, real document import. 90+ tax features across all 50 states, validated by 6,100+ tests. Built from public IRS sources &mdash; no proprietary Intuit data or code.
+          </p>
+          <p style="color: var(--text-primary); font-size: 0.88rem; font-weight: 500; margin-top: 0.6rem;">
+            17 feature concepts, each mapped to S2C, ARPC, PRS, or C2C &mdash; with IXP experiment sketches ready to hand off.
+          </p>
+        </div>
+
+        <div style="background: var(--card); border-radius: 14px; padding: 1.4rem 1.6rem; border-left: 3px solid var(--blue);">
+          <div style="font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); margin-bottom: 0.6rem;">Why it matters internally</div>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+            Nimbus lets PMs validate product hypotheses against a realistic filing experience <em>before</em> committing eng resources. Every concept in this deck was explored, iterated, and stress-tested in the prototype &mdash; not theorized in a doc. The ideas that survive are sharper, the experiment designs are grounded, and the conversations with eng start at "here's how it works" instead of "imagine if."
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+          <div style="background: var(--navy-light); border-radius: 10px; padding: 0.9rem 1rem; text-align: center;">
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--accent);">17</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.15rem;">testable features</div>
+          </div>
+          <div style="background: var(--navy-light); border-radius: 10px; padding: 0.9rem 1rem; text-align: center;">
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--blue);">4</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.15rem;">TT metrics covered</div>
+          </div>
+          <div style="background: var(--navy-light); border-radius: 10px; padding: 0.9rem 1rem; text-align: center;">
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--purple);">50</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.15rem;">states + DC</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 2: Three Ways to File -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="02">
+    <div class="bg-mesh"></div>
+    <h2>One Product, Three Experiences</h2>
+    <p class="subtitle" style="margin-bottom: 0.25rem;">Every customer approaches tax differently. We designed for all of them.</p>
+    <div class="mode-grid">
+      <div class="mode-card">
+        <div class="mode-badge" style="background: var(--blue-dim); color: var(--blue);">Interview</div>
+        <div class="mode-name">Walk Me Through It</div>
+        <div class="mode-voice">"I don't know tax, walk me through it."</div>
+        <div class="mode-who">First-timers &middot; Anxiety-driven filers</div>
+        <p>A guided, step-by-step experience that asks plain-language questions and handles complexity behind the scenes. 105 steps organized by topic &mdash; income, deductions, credits, state, review.</p>
+      </div>
+      <div class="mode-card" style="border-color: var(--accent-glow);">
+        <div class="mode-badge" style="background: var(--accent-dim); color: var(--accent);">Agent</div>
+        <div class="mode-name">Get Me Through This Fast</div>
+        <div class="mode-voice">"I have my stuff, help me get through this fast."</div>
+        <div class="mode-who">Experienced DIY &middot; Gig workers &middot; Document-forward</div>
+        <p>A conversational AI co-pilot that walks through the entire return via natural dialogue. Upload documents, confirm details, move on. 17 specialized skills covering every section.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-badge" style="background: var(--purple-dim); color: var(--purple);">Forms</div>
+        <div class="mode-name">Stay Out of My Way</div>
+        <div class="mode-voice">"I know exactly what I'm doing, stay out of my way."</div>
+        <div class="mode-who">Accountants &middot; Power users &middot; Prior-year reviewers</div>
+        <p>Direct access to IRS forms with every field populated from the return. Click into any line, see exactly what feeds it. 41 federal forms + 43 state forms.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 3: By the Numbers -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="03">
+    <div class="bg-glow bg-orb-3"></div>
+    <div class="deco-line"></div>
+    <h2>By the Numbers</h2>
+    <p class="subtitle" style="margin-bottom: 0.25rem;">What the prototype covers today.</p>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--accent);">90+</div>
+        <div class="stat-label">Tax features implemented</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--blue);">6,100+</div>
+        <div class="stat-label">Automated quality checks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--purple);">51</div>
+        <div class="stat-label">States covered (50 + DC)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--cyan);">105</div>
+        <div class="stat-label">Guided interview steps</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--orange);">84</div>
+        <div class="stat-label">IRS &amp; state form templates</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--accent);">17</div>
+        <div class="stat-label">Testable feature ideas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--green);">96.7%</div>
+        <div class="stat-label">AI accuracy rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--green);">0%</div>
+        <div class="stat-label">Tax harm rate</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 4: AI Action Cards -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="04">
+    <div class="bg-glow bg-orb-1"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>AI That Does Things,<br>Not Just Talks</h2>
+        <div class="gap-box">
+          <div class="gap-label">The gap today</div>
+          <p>The digital assistant gives text advice. The customer reads it, then has to figure out what to do next &mdash; where to navigate, what to enter, which field to update.</p>
+        </div>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>There's a "now what?" moment between getting advice and acting on it. Every extra step between understanding and doing is a chance to abandon.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-s2c">S2C</span>
+          Eliminates the gap between advice and action
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card">
+          <div class="panel-label" style="color: var(--text-muted);">Today</div>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">AI says: "You may be eligible for the Earned Income Credit."</p>
+          <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 0.5rem; font-style: italic;">Customer: OK&hellip; now what? Where do I go?</p>
+        </div>
+        <div class="panel-card-accent">
+          <div class="panel-label" style="color: var(--accent);">With Nimbus</div>
+          <p style="color: var(--text-primary); font-size: 0.95rem;">AI says: "Based on your income, you qualify for $2,100 in Earned Income Credit. I've added it to your return."</p>
+          <p style="color: var(--accent); font-size: 0.85rem; margin-top: 0.6rem; font-weight: 600;">[ Preview ] &nbsp; [ Confirm ] &nbsp; [ Undo ]</p>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable impact</div>
+          <p>Every customer who interacts with the AI assistant &mdash; currently, chat is the primary entry point for help across all DIY SKUs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 5: Proactive Nudges -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="05">
+    <div class="bg-mesh"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>Find Money Customers<br>Don't Know About</h2>
+        <p style="margin-bottom: 1rem;">14 detection rules scan the return in progress and surface contextual suggestions at exactly the right moment. Eligibility is determined by math, not AI guesswork.</p>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>Customers don't know what they don't know. A W-2 filer with student loan interest may never think to look for that deduction. A self-employed filer may not realize they qualify for the QBI deduction. This turns the product into a deduction-finding partner.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-s2c">S2C</span>
+          <span class="tag tag-arpc">ARPC</span>
+          Nudges remove confusion; discovered savings justify paid SKU value
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card-accent">
+          <div class="panel-label" style="color: var(--accent);">Example nudge</div>
+          <p style="color: var(--text-primary); font-size: 0.95rem; line-height: 1.55;">
+            "You reported freelance income of $50,000 but haven't added any business expenses. Most self-employed filers have deductible expenses &mdash; office supplies, software, mileage. Want me to help you find them?"
+          </p>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable market</div>
+          <p><strong style="color: var(--white);">~16M</strong> self-employed filers in the US &middot; <strong style="color: var(--white);">~30%</strong> of TurboTax users itemize or have SE income &mdash; the cohorts most likely to have missed deductions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 6: Expense Scanner -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="06">
+    <div class="bg-glow bg-orb-2"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>Expense Scanner &amp;<br>Deduction Discovery</h2>
+        <p style="margin-bottom: 1rem;">Upload bank or credit card statements (CSV from Chase, BofA, Amex, Wells Fargo, and 6 other formats &mdash; auto-detected). The system categorizes transactions into 17 tax categories and surfaces deductions the customer would have missed.</p>
+        <p>A review dashboard shows each category with totals. The customer batch-approves and pushes directly into deductions &mdash; one action.</p>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>This isn't just a time-saver &mdash; it's a money-finder. Customers who discover $2,000 in deductions they would have missed attribute that savings to the product. That directly justifies paid SKU value.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-arpc">ARPC</span>
+          <span class="tag tag-s2c">S2C</span>
+          Discovered deductions drive upsell and completion
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card-accent">
+          <div class="panel-label" style="color: var(--accent);">Example output</div>
+          <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-primary); font-size: 0.9rem;">Office Supplies</span>
+              <span style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">$1,240</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-primary); font-size: 0.9rem;">Software &amp; Tools</span>
+              <span style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">$680</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-primary); font-size: 0.9rem;">Professional Services</span>
+              <span style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">$450</span>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.6rem; display: flex; justify-content: space-between;">
+              <span style="color: var(--white); font-weight: 700; font-size: 0.95rem;">Total found</span>
+              <span style="color: var(--accent); font-weight: 800; font-size: 1.1rem;">$2,370</span>
+            </div>
+          </div>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable market</div>
+          <p>Every self-employed and itemizing customer. SE filers alone represent <strong style="color: var(--white);">~16M</strong> US taxpayers, most of whom under-claim business expenses.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 7: Dual-Mode Search -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="07">
+    <div class="bg-glow bg-orb-3"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>Search That Gets<br>You There</h2>
+        <div class="gap-box">
+          <div class="gap-label">The gap today</div>
+          <p>The search bar routes everything through chat. But "Go to W-2" isn't a question &mdash; it's a navigational intent. "HSA limit" is informational. "Add a dependent" is an action. Routing all of these through chat adds friction for the majority of queries.</p>
+        </div>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>When search becomes a conversation, it slows down the very customers who know what they want. The right tool for the right intent means faster time-to-answer for the majority, and deeper AI help for the questions that need it.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-s2c">S2C</span>
+          <span class="tag tag-prs">PRS</span>
+          Right tool for the right intent
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="panel-card" style="border-left: 3px solid var(--accent);">
+          <div class="panel-label" style="color: var(--accent);">Navigational</div>
+          <p style="color: var(--text-primary); font-size: 0.95rem;">"Go to W-2" &rarr; <strong style="color: var(--accent);">instant navigation</strong></p>
+        </div>
+        <div class="panel-card" style="border-left: 3px solid var(--blue);">
+          <div class="panel-label" style="color: var(--blue);">Informational</div>
+          <p style="color: var(--text-primary); font-size: 0.95rem;">"HSA contribution limit" &rarr; <strong style="color: var(--blue);">instant answer</strong></p>
+        </div>
+        <div class="panel-card" style="border-left: 3px solid var(--purple);">
+          <div class="panel-label" style="color: var(--purple);">Complex</div>
+          <p style="color: var(--text-primary); font-size: 0.95rem;">"What deductions am I eligible for?" &rarr; <strong style="color: var(--purple);">AI conversation</strong></p>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable impact</div>
+          <p>Every customer who uses search &mdash; the entry point for help, navigation, and discovery across all SKUs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 8: One-Click Document Import -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="08">
+    <div class="bg-mesh"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>One-Click<br>Document Import</h2>
+        <p style="margin-bottom: 1rem;">Upload a W-2, 1099, or other tax document as a PDF or photo. AI extracts all fields automatically and presents a preview: <em>"W-2 from Acme Corp &mdash; Wages: $75,000, Federal Tax Withheld: $12,500."</em></p>
+        <p>The customer reviews, edits if needed, and clicks "Add to Return." One upload, one review, one click. Supports 20+ form types.</p>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>Data entry is one of the highest-friction steps in the funnel. Every field the customer has to manually type from a document they're holding is an opportunity to abandon. This reduces data entry to a review step.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-s2c">S2C</span>
+          Reduces the highest-friction stage to a single confirmation
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card-accent">
+          <div class="panel-label" style="color: var(--accent);">Example flow</div>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="min-width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--accent);">1</div>
+              <p style="color: var(--text-primary); font-size: 0.9rem;">Upload W-2 PDF</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="min-width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--accent);">2</div>
+              <p style="color: var(--text-primary); font-size: 0.9rem;">AI extracts: Acme Corp, $75,000 wages, $12,500 withheld</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="min-width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--accent);">3</div>
+              <p style="color: var(--text-primary); font-size: 0.9rem;">Review &rarr; <strong style="color: var(--accent);">Add to Return</strong></p>
+            </div>
+          </div>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable market</div>
+          <p>Every filer with a paper or digital tax document. New customers benefit most &mdash; they have no prior-year data to carry forward.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 9: What-If Scenarios -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="09">
+    <div class="bg-glow bg-orb-1"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>Real-Time<br>What-If Scenarios</h2>
+        <p style="margin-bottom: 1rem;">"What if I contribute $6,500 to my IRA?" &mdash; the answer appears in milliseconds, side-by-side with the current return. No waiting. Includes sensitivity sliders for exploring ranges.</p>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>Decision paralysis is a completion blocker. Customers unsure whether to contribute to an IRA, claim a deduction, or file jointly vs separately may abandon rather than commit to a choice they don't understand. Instant feedback gives the confidence to decide.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-s2c">S2C</span>
+          <span class="tag tag-arpc">ARPC</span>
+          Confident customers complete; some discover higher-value strategies
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card-accent" style="text-align: center; padding: 2rem;">
+          <div class="panel-label" style="color: var(--accent);">Scenario comparison</div>
+          <div style="display: flex; justify-content: center; gap: 2.5rem; margin-top: 0.5rem;">
+            <div>
+              <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.08em;">Current</p>
+              <p class="big-number" style="font-size: 2.2rem; color: var(--text-primary);">$3,200</p>
+              <p style="font-size: 0.72rem; color: var(--text-muted);">refund</p>
+            </div>
+            <div style="display: flex; align-items: center; font-size: 1.5rem; color: var(--accent);">&rarr;</div>
+            <div>
+              <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.08em;">With IRA</p>
+              <p class="big-number" style="font-size: 2.2rem; color: var(--accent);">$4,630</p>
+              <p style="font-size: 0.78rem; color: var(--accent); font-weight: 700;">+$1,430</p>
+            </div>
+          </div>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable market</div>
+          <p>Every customer who reaches deductions or credits steps &mdash; the decision-heavy stages where abandonment peaks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 10: Explain My Taxes -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="10">
+    <div class="bg-mesh"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>See Your Taxes,<br>Don't Just File Them</h2>
+        <p style="margin-bottom: 1rem;">Interactive visual breakdowns available at any point during filing: where your money goes, how brackets work, a waterfall from income to refund, and line-by-line traces back to the IRS source.</p>
+        <p>Combats the most common misconception about marginal tax rates. Customers see their effective rate and understand why moving into a "higher bracket" doesn't mean all their income is taxed at that rate.</p>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>Tax anxiety is both a PRS problem and a completion problem. Customers who feel confused by what's happening to their money are less likely to complete and less likely to recommend. "Your effective rate is 14.2% &mdash; here's why" is more reassuring than a number on a screen.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-prs">PRS</span>
+          <span class="tag tag-s2c">S2C</span>
+          Reduces tax anxiety; confident customers complete and recommend
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card-accent">
+          <div class="panel-label" style="color: var(--accent);">What customers see</div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.2rem;">&#x1F4CA;</span>
+              <span style="color: var(--text-primary); font-size: 0.9rem;">Tax flow diagram &mdash; where your money goes</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.2rem;">&#x1F4C8;</span>
+              <span style="color: var(--text-primary); font-size: 0.9rem;">Bracket chart &mdash; marginal vs effective rate</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.2rem;">&#x1F4C9;</span>
+              <span style="color: var(--text-primary); font-size: 0.9rem;">Waterfall &mdash; income to refund breakdown</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.2rem;">&#x1F50D;</span>
+              <span style="color: var(--text-primary); font-size: 0.9rem;">Trace tree &mdash; every line linked to its IRS source</span>
+            </div>
+          </div>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable market</div>
+          <p>All DIY filers &mdash; new customers (highest tax anxiety) and complex filers benefit most. PRS improvement compounds into C2C over time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 11: Trust / PII -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="11">
+    <div class="bg-glow bg-orb-2"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>Trust You Can Show,<br>Not Just Claim</h2>
+        <p style="margin-bottom: 1rem;">Sensitive identifiers &mdash; SSNs, bank account numbers &mdash; are stripped before any data reaches the AI. The AI still has full context on filing status, income, deductions, and eligibility. It just never sees who you are.</p>
+        <p>A customer-visible audit log shows every AI interaction: what context was sent, what was blocked, what came back. A receipt for every conversation.</p>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>"We take your privacy seriously" is a claim nobody reads. "Here's exactly what happened &mdash; your SSN was blocked, your filing status was shared, here's what the AI said" is proof. FUD is one of the three reasons customers leave.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-prs">PRS</span>
+          <span class="tag tag-c2c">C2C</span>
+          Transparency reduces FUD and builds lasting trust
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card">
+          <div class="panel-label" style="color: var(--text-muted);">Privacy policy approach</div>
+          <p style="color: var(--text-secondary); font-size: 0.95rem; font-style: italic;">"We take your privacy seriously."</p>
+          <p style="color: var(--text-muted); font-size: 0.78rem; margin-top: 0.4rem;">&larr; A claim. Nobody reads it.</p>
+        </div>
+        <div class="panel-card-accent">
+          <div class="panel-label" style="color: var(--accent);">Nimbus approach</div>
+          <p style="color: var(--text-primary); font-size: 0.95rem;">"Here's exactly what happened. Your SSN was blocked. Your filing status was shared. Here's what the AI said."</p>
+          <p style="color: var(--accent); font-size: 0.78rem; margin-top: 0.4rem;">&larr; Proof. Everyone who's curious reads it.</p>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable market</div>
+          <p>Every customer who uses AI features. As AI expands across TurboTax, trust becomes the differentiator &mdash; not just the capability.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 12: Tools -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="12">
+    <div class="bg-mesh"></div>
+    <div class="deco-line"></div>
+    <h2>Tools That Add Value at Every Step</h2>
+    <p class="subtitle" style="margin-bottom: 0.25rem;">Always on, always accurate, no AI required. Zero cost to run, high perceived value.</p>
+    <div class="tools-grid">
+      <div class="tool-card" style="border-top: 2px solid var(--accent);">
+        <h4>Tax Calendar</h4>
+        <p>Key deadlines, contribution windows, estimated payment due dates &mdash; personalized to the filer.</p>
+      </div>
+      <div class="tool-card" style="border-top: 2px solid var(--blue);">
+        <h4>Document Inventory</h4>
+        <p>Checklist of forms organized by type. Tracks what's been entered and what's still needed.</p>
+      </div>
+      <div class="tool-card" style="border-top: 2px solid var(--purple);">
+        <h4>Year-over-Year Comparison</h4>
+        <p>Current return vs last year, with delta breakdown by category. Makes returning customers feel recognized.</p>
+      </div>
+      <div class="tool-card" style="border-top: 2px solid var(--orange);">
+        <h4>Audit Risk Assessment</h4>
+        <p>Return scored against known IRS audit triggers, sourced from IRS data books and GAO reports.</p>
+      </div>
+      <div class="tool-card" style="border-top: 2px solid var(--green);">
+        <h4>File an Extension</h4>
+        <p>Form 4868 pre-populated from the return. One-click PDF generation for customers who need more time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 13: Agent Mode -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="13">
+    <div class="bg-glow bg-orb-1"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>The AI Co-Pilot:<br><span class="gradient-text">Agent Mode</span></h2>
+        <p style="margin-bottom: 1rem;">Instead of answering one question at a time, Agent Mode walks the customer through their <strong style="color: var(--white);">entire return</strong> via conversation. 17 specialized skills cover every section &mdash; personal info, each income type, deductions, credits, state taxes, review, and finish.</p>
+        <div class="insight-box">
+          <div class="insight-label">Guiding principle</div>
+          <p style="font-size: 1rem; color: var(--white); font-weight: 600;">Speed through known data. Explore through unknown value.</p>
+        </div>
+        <p style="margin-top: 1rem;">When the customer has a W-2, the agent confirms it in one exchange. When the customer might be eligible for a credit they didn't know about, the agent explains the benefit and walks them through it.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card" style="padding: 1.75rem;">
+          <div class="panel-label" style="color: var(--accent);">Where this fits</div>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">
+            TurboTax already has the Digital Assistant and the explanations agent. That work was a stepping stone &mdash; answering questions about one screen at a time.
+          </p>
+          <p style="color: var(--text-primary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+            Agent Mode is where that path leads: <strong style="color: var(--accent);">from answering questions about a single screen to guiding the entire return.</strong>
+          </p>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+            The customer can switch between Agent, Interview, and Forms at any time. Progress carries across all three modes.
+          </p>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Addressable market</div>
+          <p>Experienced DIY filers, gig workers, and document-forward customers who want to get through their return fast &mdash; a growing segment as AI expectations rise.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 14: Competitive Import -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="14">
+    <div class="bg-glow bg-orb-3"></div>
+    <div class="two-col">
+      <div>
+        <div class="deco-line"></div>
+        <h2>A Winback Play:<br>Competitive Import</h2>
+        <p style="margin-bottom: 1rem;">Upload a prior-year return from H&R Block, TaxAct, FreeTaxUSA, or any other provider as a PDF. The system detects which product generated it, extracts all data, and pre-fills the current year.</p>
+        <div class="gap-box">
+          <div class="gap-label">The barrier today</div>
+          <p>Switching cost is a retention moat for competitors. If a customer used H&R Block last year and has to re-enter everything manually, many won't bother trying TurboTax.</p>
+        </div>
+        <div class="insight-box">
+          <div class="insight-label">Customer insight</div>
+          <p>The switching barrier drops from "re-enter everything" to "upload and review." One PDF, one confirmation screen, done.</p>
+        </div>
+        <div class="metric-target">
+          <span class="tag tag-c2c">Acquisition</span>
+          <span class="tag tag-s2c">S2C</span>
+          Lower switching cost &rarr; more competitors' customers try TurboTax
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="panel-card" style="padding: 2rem;">
+          <div class="panel-label" style="color: var(--cyan);">Addressable market</div>
+          <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 0.5rem;">
+            <div>
+              <p class="big-number" style="font-size: 2rem; color: var(--text-primary);">~20M</p>
+              <p style="font-size: 0.82rem; color: var(--text-muted);">H&R Block filers</p>
+            </div>
+            <div>
+              <p class="big-number" style="font-size: 2rem; color: var(--text-primary);">~8M</p>
+              <p style="font-size: 0.82rem; color: var(--text-muted);">FreeTaxUSA filers</p>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+              <p class="big-number" style="font-size: 2rem; color: var(--accent);">28M+</p>
+              <p style="font-size: 0.82rem; color: var(--accent); font-weight: 600;">potential switchers if the barrier is low enough</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 15: All 17 Ideas -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="15">
+    <div class="bg-mesh"></div>
+    <div class="deco-line"></div>
+    <h2>17 Ideas &mdash; All Testable via IXP</h2>
+    <p class="subtitle" style="margin-bottom: 0.25rem;">Every feature maps to a TurboTax business metric and includes an experiment sketch.</p>
+    <div style="overflow-y: auto; max-height: 62vh; border-radius: 12px;">
+    <table class="priority-table">
+      <thead>
+        <tr>
+          <th style="width: 4%;">#</th>
+          <th style="width: 38%;">Feature</th>
+          <th style="width: 22%;">Primary Metric</th>
+          <th style="width: 14%;">Effort</th>
+          <th style="width: 10%;">Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Dual-Mode Search</td><td><span class="tag tag-s2c">S2C</span></td><td>Medium</td><td>Low</td></tr>
+        <tr><td>2</td><td>AI Action Cards</td><td><span class="tag tag-s2c">S2C</span></td><td>Medium-High</td><td>Low</td></tr>
+        <tr><td>3</td><td>One-Click Document Import</td><td><span class="tag tag-s2c">S2C</span></td><td>Medium</td><td>Low</td></tr>
+        <tr><td>4</td><td>Real-Time What-If Scenarios</td><td><span class="tag tag-s2c">S2C</span> <span class="tag tag-arpc">ARPC</span></td><td>High</td><td>Low</td></tr>
+        <tr><td>5</td><td>Proactive Missed-Money Nudges</td><td><span class="tag tag-s2c">S2C</span> <span class="tag tag-arpc">ARPC</span></td><td>Medium</td><td>Low</td></tr>
+        <tr><td>6</td><td>Expense Scanner &amp; Deduction Discovery</td><td><span class="tag tag-arpc">ARPC</span></td><td>Medium-High</td><td>Low-Med</td></tr>
+        <tr><td>7</td><td>Explain My Taxes</td><td><span class="tag tag-prs">PRS</span> <span class="tag tag-s2c">S2C</span></td><td>Medium</td><td>Very Low</td></tr>
+        <tr><td>8</td><td>Competitive Return Import</td><td><span class="tag tag-c2c">Acquisition</span></td><td>Medium</td><td>Low</td></tr>
+        <tr><td>9</td><td>Visible PII Protection</td><td><span class="tag tag-prs">PRS</span> <span class="tag tag-c2c">C2C</span></td><td>Medium</td><td>Low</td></tr>
+        <tr><td>10</td><td>AI Quality Gates</td><td><span class="tag tag-prs">PRS</span></td><td>Low</td><td>Very Low</td></tr>
+        <tr><td>11</td><td>Privacy Audit Log</td><td><span class="tag tag-prs">PRS</span></td><td>Low-Med</td><td>Very Low</td></tr>
+        <tr><td>12</td><td>Year-over-Year Comparison</td><td><span class="tag tag-c2c">C2C</span></td><td>Medium</td><td>Low</td></tr>
+        <tr><td>13</td><td>Audit Risk Assessment</td><td><span class="tag tag-prs">PRS</span></td><td>Medium</td><td>Low</td></tr>
+        <tr><td>14</td><td>Tax Year as Configuration</td><td>Operational</td><td>Medium</td><td>Low</td></tr>
+        <tr><td>15</td><td>Portable Calculation Engine</td><td>Operational</td><td>High</td><td>Medium</td></tr>
+        <tr><td>16</td><td>Voice Input for Chat</td><td><span class="tag tag-s2c">S2C</span></td><td>Low</td><td>Very Low</td></tr>
+        <tr><td>17</td><td>Local Intent Detection</td><td><span class="tag tag-prs">PRS</span></td><td>Low</td><td>Very Low</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE 16: Under the Hood -->
+  <!-- ============================================================ -->
+  <section class="slide" data-slide="16">
+    <div class="bg-glow bg-orb-3"></div>
+    <div class="bg-mesh"></div>
+    <div class="deco-line"></div>
+    <h2>Under the Hood</h2>
+    <p class="subtitle" style="margin-bottom: 0.5rem;">The tech stack powering the prototype.</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.5rem;">
+      <div class="panel-card" style="border-top: 3px solid var(--blue);">
+        <div class="panel-label" style="color: var(--blue);">Frontend</div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>React 19</strong> <span style="color: var(--text-muted);">&mdash; UI framework</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Vite 6</strong> <span style="color: var(--text-muted);">&mdash; build &amp; dev server</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>TypeScript 5.7</strong> <span style="color: var(--text-muted);">&mdash; type safety across the stack</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Tailwind CSS</strong> <span style="color: var(--text-muted);">&mdash; styling</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Zustand</strong> <span style="color: var(--text-muted);">&mdash; state management</span></p>
+        </div>
+      </div>
+      <div class="panel-card" style="border-top: 3px solid var(--accent);">
+        <div class="panel-label" style="color: var(--accent);">Backend</div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Express 4</strong> <span style="color: var(--text-muted);">&mdash; API server</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>SQLite</strong> <span style="color: var(--text-muted);">&mdash; database (better-sqlite3)</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Anthropic SDK</strong> <span style="color: var(--text-muted);">&mdash; Claude for AI chat &amp; vision</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Docling SDK</strong> <span style="color: var(--text-muted);">&mdash; document extraction</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Zod</strong> <span style="color: var(--text-muted);">&mdash; request validation</span></p>
+        </div>
+      </div>
+      <div class="panel-card" style="border-top: 3px solid var(--purple);">
+        <div class="panel-label" style="color: var(--purple);">Key Capabilities</div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Tesseract.js</strong> <span style="color: var(--text-muted);">&mdash; in-browser OCR</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>pdf-lib</strong> <span style="color: var(--text-muted);">&mdash; PDF generation &amp; form filling</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Syncfusion</strong> <span style="color: var(--text-muted);">&mdash; PDF viewer, charts, grids</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>PapaParse</strong> <span style="color: var(--text-muted);">&mdash; CSV parsing (bank imports)</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>AES-256-GCM</strong> <span style="color: var(--text-muted);">&mdash; client-side encryption</span></p>
+        </div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 1.25rem;">
+      <div class="panel-card" style="border-top: 3px solid var(--orange);">
+        <div class="panel-label" style="color: var(--orange);">Tax Engine</div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>@nimbus/engine</strong> <span style="color: var(--text-muted);">&mdash; shared workspace, zero runtime dependencies</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>80 pure-function modules</strong> <span style="color: var(--text-muted);">&mdash; same code runs in browser, server, and tests</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>103 constants files</strong> <span style="color: var(--text-muted);">&mdash; every IRS value traced to its legal source</span></p>
+        </div>
+      </div>
+      <div class="panel-card" style="border-top: 3px solid var(--cyan);">
+        <div class="panel-label" style="color: var(--cyan);">Testing</div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Vitest</strong> <span style="color: var(--text-muted);">&mdash; 6,100+ unit &amp; integration tests</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>Playwright</strong> <span style="color: var(--text-muted);">&mdash; end-to-end &amp; accessibility testing</span></p>
+          <p style="color: var(--text-primary); font-size: 0.9rem;"><strong>fast-check</strong> <span style="color: var(--text-muted);">&mdash; property-based testing for tax math</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function() {
+  var deck = document.getElementById('deck');
+  var hint = document.getElementById('navHint');
+  var bar = document.getElementById('progress');
+  var slides = document.querySelectorAll('.slide');
+  var total = slides.length;
+  var current = 0;
+
+  function go(idx) {
+    if (idx < 0 || idx >= total) return;
+    current = idx;
+    deck.style.transform = 'translateX(-' + (current * 100) + 'vw)';
+    bar.style.width = ((current + 1) / total * 100) + '%';
+    if (current > 0) hint.style.opacity = '0';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); go(0); }
+    if (e.key === 'End') { e.preventDefault(); go(total - 1); }
+  });
+
+  var touchStartX = 0;
+  deck.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; });
+  deck.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { dx < 0 ? go(current + 1) : go(current - 1); }
+  });
+
+  deck.addEventListener('click', function(e) {
+    if (e.target.closest('a, button, input, .tag')) return;
+    var rect = deck.getBoundingClientRect();
+    e.clientX > rect.width / 2 ? go(current + 1) : go(current - 1);
+  });
+
+  go(0);
+})();
+</script>
+</body>
+</html>

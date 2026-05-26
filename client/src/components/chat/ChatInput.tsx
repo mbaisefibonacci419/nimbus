@@ -354,7 +354,7 @@ export default function ChatInput({ onSend, onAttachFile, disabled, isLoading, o
             <button
               onClick={onStop}
               className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full
-                         bg-slate-200 hover:bg-white text-surface-900 transition-all duration-150"
+                         bg-slate-200 hover:bg-surface-800 text-surface-900 transition-all duration-150"
               aria-label="Stop response"
               title="Stop response (Esc)"
             >
@@ -367,7 +367,7 @@ export default function ChatInput({ onSend, onAttachFile, disabled, isLoading, o
               className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full
                          transition-all duration-150
                          ${canSend
-                           ? 'bg-slate-200 hover:bg-white text-surface-900'
+                           ? 'bg-slate-200 hover:bg-surface-800 text-surface-900'
                            : 'bg-surface-700 text-slate-500 cursor-not-allowed'
                          }`}
               aria-label="Send message"

@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 import { useTaxReturnStore, SECTIONS } from '../../store/taxReturnStore';
-import { useChatStore } from '../../store/chatStore';
-import { Sparkles } from 'lucide-react';
 
 interface SectionInfo {
   id: string;
@@ -29,7 +27,6 @@ const SHORT_LABELS: Record<string, string> = {
 
 export default function ProgressBar() {
   const { currentStepIndex, goToStep, getVisibleSteps } = useTaxReturnStore();
-  const { isAvailable: chatAvailable, togglePanel: toggleChat } = useChatStore();
   const visibleSteps = getVisibleSteps();
   const currentStep = visibleSteps[currentStepIndex];
 
@@ -87,7 +84,7 @@ export default function ProgressBar() {
               section.state === 'active'
                 ? 'text-slate-100 font-semibold'
                 : section.state === 'completed'
-                  ? 'text-telos-orange-400'
+                  ? 'text-emerald-400'
                   : 'text-slate-400';
 
             return (
@@ -112,7 +109,7 @@ export default function ProgressBar() {
                     className={`h-full rounded-full transition-all duration-500 ${
                       section.state === 'future'
                         ? 'bg-transparent'
-                        : 'bg-telos-orange-500'
+                        : 'bg-emerald-500'
                     }`}
                     style={{ width: `${section.fillPercent}%` }}
                   />
@@ -121,26 +118,6 @@ export default function ProgressBar() {
             );
           })}
         </div>
-
-        {/* AI Assistant button — same pill style as the original header button */}
-        {chatAvailable && (
-          <button
-            onClick={toggleChat}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg shrink-0
-                       bg-gradient-to-r from-telos-orange-500/15 to-telos-blue-500/15
-                       border border-telos-orange-500/30
-                       hover:from-telos-orange-500/25 hover:to-telos-blue-500/25
-                       hover:border-telos-orange-500/50
-                       transition-all duration-200 text-sm group"
-            aria-label="Toggle AI assistant"
-            title="AI Assistant"
-          >
-            <Sparkles className="w-4 h-4 text-telos-orange-400 group-hover:text-telos-orange-300 transition-colors" />
-            <span className="hidden sm:inline text-sm font-semibold">
-              <span className="text-telos-orange-400">Nimbus</span><span className="text-telos-blue-400">AI</span> <span className="text-slate-300">Assistant</span>
-            </span>
-          </button>
-        )}
       </div>
     </div>
   );

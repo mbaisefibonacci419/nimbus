@@ -1,9 +1,5 @@
 # Nimbus
 
-Private, browser-based tax preparation powered by an open-source tax engine.
-
-## What is Nimbus?
-
 Nimbus is a free, open-source tax preparation app for the 2025 tax year, built entirely with AI. Your tax data never leaves your browser — all calculations happen client-side using the `@nimbus/engine` library, encrypted at rest with AES-256-GCM.
 
 An AI assistant powered by Anthropic Claude provides conversational tax guidance, document extraction, and guided data entry. PII is stripped before anything is sent to the LLM.
@@ -147,7 +143,7 @@ See [Scope Matrix](docs/SCOPE_MATRIX.md) for the complete feature list.
 
 ## AI Eval Framework
 
-The AI assistant has a dedicated eval suite to catch regressions before they reach users. There are two layers: **deterministic tests** (run on every commit) and a **live prompt regression harness** (run before prompt changes or on a nightly cadence).
+The Nimbus AI assistant has a dedicated eval suite to catch regressions before they reach users. There are two layers: **deterministic tests** (run on every commit) and a **live prompt regression harness** (run before prompt changes or on a nightly cadence).
 
 ### Deterministic Tests (No API Key Required)
 

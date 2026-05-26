@@ -329,7 +329,7 @@ export default function ChatMessage({
                 onClick={saveEdit}
                 disabled={!editText.trim()}
                 className="text-xs font-medium px-3.5 py-1.5 rounded-full text-white
-                           bg-slate-200 text-surface-900 hover:bg-white transition-colors
+                           bg-slate-200 text-surface-900 hover:bg-surface-800 transition-colors
                            disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Send

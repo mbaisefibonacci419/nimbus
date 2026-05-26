@@ -19,16 +19,16 @@ export default function StepWarningsBanner({ stepId }: StepWarningsBannerProps) 
   if (!stepWarnings || stepWarnings.warnings.length === 0) return null;
 
   return (
-    <div className="rounded-lg border p-4 mb-6 bg-amber-500/10 border-amber-500/30">
+    <div className="rounded-lg border p-4 mb-6 bg-alert-warn-bg/15 border-alert-warn-border/30">
       <div className="flex items-start gap-2.5">
-        <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-amber-400" />
+        <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-alert-warn-icon" />
         <div className="flex-1 min-w-0">
           {stepWarnings.warnings.length === 1 ? (
-            <p className="text-sm text-amber-200">{stepWarnings.warnings[0].message}</p>
+            <p className="text-sm text-alert-warn-text">{stepWarnings.warnings[0].message}</p>
           ) : (
             <ul className="space-y-1.5">
               {stepWarnings.warnings.map((w, i) => (
-                <li key={i} className="text-sm text-amber-200">{w.message}</li>
+                <li key={i} className="text-sm text-alert-warn-text">{w.message}</li>
               ))}
             </ul>
           )}
