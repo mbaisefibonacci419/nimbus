@@ -17,7 +17,7 @@
     <script>
       (function(){
         var t = localStorage.getItem('nimbus-theme');
-        if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        if (!t) t = 'dark';
         document.documentElement.classList.add(t);
         var link = document.getElementById('syncfusion-theme');
         if (link) link.href = t === 'dark' ? '/syncfusion-tailwind-dark.css' : '/syncfusion-tailwind.css';

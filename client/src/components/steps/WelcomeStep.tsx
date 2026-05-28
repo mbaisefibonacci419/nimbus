@@ -52,10 +52,6 @@ export default function WelcomeStep() {
             <Wrench className="w-4 h-4 text-telos-orange-400 shrink-0 mt-0.5" />
             <span><strong className="text-slate-300">Built-in tools help you understand your taxes</strong> — run what-if scenarios, check your audit risk profile, compare year-over-year changes, and get a plain-English breakdown of how every number on your return was calculated.</span>
           </li>
-          <li className="flex items-start gap-2.5">
-            <HardDrive className="w-4 h-4 text-telos-orange-400 shrink-0 mt-0.5" />
-            <span><strong className="text-slate-300">No account needed. Your data stays in your browser,</strong> encrypted with a passphrase only you know. If you enable AI features (BYOK mode), only PII-stripped messages pass through our relay server — and nothing is stored.</span>
-          </li>
         </ul>
       </div>
 

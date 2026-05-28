@@ -12,7 +12,7 @@ function getInitialMode(): ThemeMode {
   if (typeof window === 'undefined') return 'dark';
   const stored = localStorage.getItem('nimbus-theme');
   if (stored === 'light' || stored === 'dark') return stored;
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  return 'dark';
 }
 
 function applyMode(mode: ThemeMode) {
