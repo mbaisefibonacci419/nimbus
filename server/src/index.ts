@@ -88,8 +88,20 @@ app.get('/api/tip-links', (_req, res) => {
 });
 
 // Health check
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (_req, res) => {
+  let dbOk = false;
+  try {
+    const { getDb } = await import('./db/connection.js');
+    getDb();
+    dbOk = true;
+  } catch { /* ignore */ }
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    db: dbOk,
+    hasAnthropicKey: Boolean(config.anthropicApiKey),
+    nodeEnv: process.env.NODE_ENV,
+  });
 });
 
 // ─── Static Client (production) ─────────────────
@@ -104,7 +116,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // Error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Server error:', err);
+  console.error('Server error:', err.message, err.stack);
   res.status(500).json({ error: { message: 'Internal server error', code: 'INTERNAL_ERROR' } });
 });
 

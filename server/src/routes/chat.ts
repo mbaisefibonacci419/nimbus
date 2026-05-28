@@ -22,7 +22,11 @@ import type { ChatResponse } from '@nimbus/engine';
 const router = Router();
 
 // Initialize rate limit table on module load
-initRateLimitTable();
+try {
+  initRateLimitTable();
+} catch (err) {
+  console.error('[chat] Failed to initialize rate limit table:', err);
+}
 
 // ─── Request Validation ────────────────────────────
 

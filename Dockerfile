@@ -36,8 +36,7 @@ COPY package*.json ./
 COPY shared/package*.json shared/
 COPY server/package*.json server/
 
-RUN npm ci --omit=dev --workspace=shared --workspace=server && \
-    apt-get update && apt-get purge -y make g++ && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+RUN npm ci --omit=dev --workspace=shared --workspace=server
 
 COPY --from=build /app/shared/dist shared/dist
 COPY --from=build /app/shared/src shared/src
