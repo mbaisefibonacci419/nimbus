@@ -1,11 +1,12 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useTaxReturnStore, SECTIONS } from '../../store/taxReturnStore';
+import { useChatStore } from '../../store/chatStore';
 import { SIDEBAR_TOOLS, hasMinimumIncomeData } from '../../data/sidebarTools';
 import { IRS_FORM_STEP_MAP } from '../../data/irsFormStepMap';
 import { buildHelpItems, COMMON_QUESTIONS } from '../../data/helpSearchIndex';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import {
-  Search, ArrowRight, Wrench, User, HelpCircle, Hash, X,
+  Search, ArrowRight, Wrench, User, HelpCircle, Hash, X, Sparkles,
 } from 'lucide-react';
 
 // ── Highlight helper ─────────────────────────────────────────────
@@ -94,6 +95,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { taxReturn, goToStep, setActiveTool, getVisibleSteps, viewMode, setViewMode, setActiveForm } = useTaxReturnStore();
+  const openWithPrompt = useChatStore((s) => s.openWithPrompt);
   const hasData = hasMinimumIncomeData(taxReturn);
 
   // Focus trap (handles Escape + Tab trapping + scroll lock)
@@ -697,10 +699,25 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
     el?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex, isKeyboardNav]);
 
+  // ── Ask AI handler ─────────────────────────────────────────
+
+  const handleAskAI = useCallback(() => {
+    if (!query.trim()) return;
+    onClose();
+    openWithPrompt(query.trim());
+  }, [query, onClose, openWithPrompt]);
+
   // ── Keyboard handler ─────────────────────────────────────────
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // Shift+Enter → ask AI with current query
+      if (e.key === 'Enter' && e.shiftKey) {
+        e.preventDefault();
+        handleAskAI();
+        return;
+      }
+
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
@@ -731,7 +748,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
         // Escape is handled by useFocusTrap
       }
     },
-    [flatItems, activeIndex],
+    [flatItems, activeIndex, handleAskAI],
   );
 
   if (!open) return null;
@@ -795,8 +812,12 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
           aria-label="Search results"
           className="flex-1 overflow-y-auto py-2"
         >
-          {flatItems.length === 0 ? (
+          {flatItems.length === 0 && !query.trim() ? (
             <div className="px-4 py-8 text-center text-sm text-slate-400">
+              Start typing to search...
+            </div>
+          ) : flatItems.length === 0 ? (
+            <div className="px-4 py-6 text-center text-sm text-slate-400">
               No results for &ldquo;{query}&rdquo;
             </div>
           ) : (
@@ -870,6 +891,23 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
           )}
         </div>
 
+        {/* Ask AI — visible whenever there is a query */}
+        {query.trim() && (
+          <div className="border-t border-slate-700">
+            <button
+              type="button"
+              onClick={handleAskAI}
+              className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-slate-300 hover:bg-telos-blue-600/20 hover:text-slate-100 transition-colors cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-telos-blue-400 shrink-0" />
+              <span className="flex-1 text-left">
+                Ask AI — <span className="text-slate-400">&ldquo;{query.length > 60 ? query.slice(0, 60) + '…' : query}&rdquo;</span>
+              </span>
+              <ArrowRight className="w-3 h-3 text-telos-blue-400 shrink-0" />
+            </button>
+          </div>
+        )}
+
         {/* Footer with keyboard hints */}
         <div className="flex items-center gap-4 px-4 py-2 border-t border-slate-700 text-[10px] text-slate-400">
           <span className="flex items-center gap-1">
@@ -880,6 +918,12 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
             <kbd className="bg-surface-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">&crarr;</kbd>
             select
           </span>
+          {query.trim() && (
+            <span className="flex items-center gap-1">
+              <kbd className="bg-surface-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">&uArr;&crarr;</kbd>
+              to ask AI
+            </span>
+          )}
           <span className="flex items-center gap-1">
             <kbd className="bg-surface-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">esc</kbd>
             close
