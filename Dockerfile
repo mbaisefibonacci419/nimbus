@@ -51,3 +51,4 @@ ENV TRUST_PROXY=1
 EXPOSE 3001
 
 CMD ["npm", "start"]
+
