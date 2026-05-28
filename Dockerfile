@@ -15,6 +15,7 @@ COPY server/package*.json server/
 RUN npm ci
 
 COPY . .
+ENV VITE_API_BASE=""
 RUN npm run build
 
 # ── Stage 2: Production ────────────────────────────────────
@@ -48,7 +49,7 @@ COPY --from=build /app/client/dist client/dist
 ENV NODE_ENV=production
 ENV TRUST_PROXY=1
 
-EXPOSE 3001
+EXPOSE 8080
 
 CMD ["npm", "start"]
 
