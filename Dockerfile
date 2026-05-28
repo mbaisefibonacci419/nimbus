@@ -22,11 +22,10 @@ RUN npm run build
 FROM node:22-slim
 
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-venv && \
+    apt-get install -y python3 python3-pip python3-venv make g++ && \
     python3 -m venv /opt/docling-venv && \
     /opt/docling-venv/bin/pip install --no-cache-dir docling && \
     apt-get purge -y python3-pip && \
-    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/opt/docling-venv/bin:$PATH"
@@ -37,7 +36,8 @@ COPY package*.json ./
 COPY shared/package*.json shared/
 COPY server/package*.json server/
 
-RUN npm ci --omit=dev --workspace=shared --workspace=server
+RUN npm ci --omit=dev --workspace=shared --workspace=server && \
+    apt-get update && apt-get purge -y make g++ && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/shared/dist shared/dist
 COPY --from=build /app/shared/src shared/src
