@@ -54,13 +54,18 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : DEFAULT_ORIGINS;
 
+// In production, also allow the Railway public domain
+if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+  ALLOWED_ORIGINS.push(`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
+}
+
 const isDev = process.env.NODE_ENV !== 'production';
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin!)) {
       callback(null, true);
-    } else if (isDev && origin.match(/^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/)) {
+    } else if (isDev && origin!.match(/^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/)) {
       callback(null, true);
     } else {
       callback(new Error('CORS: origin not allowed'));
